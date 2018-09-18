@@ -5,14 +5,15 @@ export RASPBASEDIR=`pwd`
 
 source ./guess-time.sh $MODEL
 source ./model-parameters.sh $MODEL
+mkdir -p $OUTPUTDIR
 
-rm -f /mnt/wget.jobs
+rm -f /tmp/wget.jobs
 
 echo "Generating $DIRECTORY file names" # takes a few seconds
 # This generates a few errors because HGT_SFC (for example) is not available at 000, but at all other times... even though it should be the opposite... whatever.
 for H in ${TIMES[*]}
  do
-  xargs -I {} echo http://$WEBSERVER/$DIRECTORY/$HOUR/0$H/$FILEHEADER"_"{}$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL < $FILE >> /mnt/wget.jobs
+  xargs -I {} echo http://$WEBSERVER/$DIRECTORY/$HOUR/0$H/$FILEHEADER"_"{}$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL < $FILE >> /tmp/wget.jobs
 done
 
 echo "Done generating $DIRECTORY file names"
@@ -41,7 +42,7 @@ do
 done
 
 echo "downloading $DIRECTORY data from time 0 to $TIMESTOP by $TIMESTEP hours input $OUTPUTDIR"
-parallel --gnu -n 8 -j 8 wget --timeout=120 -c -nc -nv {} < /mnt/wget.jobs
+parallel --gnu -n 8 -j 8 wget --timeout=120 -c -nc -nv {} < /tmp/wget.jobs
 echo "Second time"
-parallel --gnu -n 8 -j 4 wget -c -nc -nv {} < /mnt/wget.jobs
+parallel --gnu -n 8 -j 4 wget -c -nc -nv {} < /tmp/wget.jobs
 cd $RASPBASEDIR
