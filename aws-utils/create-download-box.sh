@@ -1,6 +1,8 @@
 #!/bin/bash
-# Create and mount a standard volume on EC2
+# Create and mount a standard volume on EC2 on $1
 # First check to make sure a download-box does not exist already
+MNT=${1:-/mnt}
+export -n VOL_ID=
 export VOL_ID=`aws ec2 describe-volumes --filters Name=tag:Name,Values=download-box Name=status,Values=available` | head -1 | awk '{ print $7 }'
 export MY_INSTANCE_ID=`curl -s http://169.254.169.254/latest/meta-data/instance-id`
 export MY_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
@@ -24,6 +26,6 @@ echo Going to mount $BLK_DEV
 # seems we need to wait a bit...
 sleep 5
 sudo mkfs.xfs $BLK_DEV
-sudo mkdir /download-box
-sudo mount $BLK_DEV /download-box
-sudo chown ubuntu.ubuntu /download-box
+sudo mkdir $MNT
+sudo mount $BLK_DEV $MNT
+sudo chown ubuntu.ubuntu $MNT
