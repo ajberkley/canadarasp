@@ -3,7 +3,7 @@
 # First check to make sure a download-box does not exist already
 MNT=${1:-/mnt}
 export -n VOL_ID=
-export VOL_ID=`aws ec2 describe-volumes --filters Name=tag:Name,Values=download-box Name=status,Values=available` | head -1 | awk '{ print $7 }'
+export VOL_ID=`aws ec2 describe-volumes --filters Name=tag:Name,Values=download-box Name=status,Values=available | head -1 | awk '{ print $7 }'`
 export MY_INSTANCE_ID=`curl -s http://169.254.169.254/latest/meta-data/instance-id`
 export MY_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
 if [ -z $VOL_ID ]; then
@@ -25,7 +25,7 @@ export BLK_DEV="/dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_"$VOL_ID_NO_DASH
 echo Going to mount $BLK_DEV
 # seems we need to wait a bit...
 sleep 5
-sudo mkfs.xfs $BLK_DEV
-sudo mkdir $MNT
+sudo mkfs.xfs $BLK_DEV >& /dev/null
+sudo mkdir -p $MNT
 sudo mount $BLK_DEV $MNT
 sudo chown ubuntu.ubuntu $MNT

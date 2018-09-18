@@ -1,5 +1,5 @@
 #!/bin/bash
-MODEL=gdps
+MODEL=${1:-"gdps"}
 cd /home/ubuntu/canadarasp/aws-utils
 source create-download-box.sh /mnt
 cd ../continental-test

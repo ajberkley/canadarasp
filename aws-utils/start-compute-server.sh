@@ -4,5 +4,6 @@ INSTANCE_ID=`aws ec2 describe-instances --filters Name=tag:Name,Values="$INSTANC
 if [ -z $INSTANCE_ID ]; then
     echo Could not find $INSTANCE_NAME
 else
+    echo Starting $INSTANCE_NAME ($INSTANCE_ID)
     aws ec2 start-instances --instance-ids $INSTANCE_ID
 fi
