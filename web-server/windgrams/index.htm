@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 5.0 FINAL//EN">
+<html>
+<head>
+<link rel="shortcut icon" href="favicon.ico" >
+
+<title>Canada Rasp Windgrams</title>
+<meta http-equiv="KEYWORDS" content="RASP, hrdps,canadarasp, forecast, soaring, predictions, northwest,WA,BC,Alberta,weather,wind,speed,paragliding,launch,paraglide,paraglider,hang,fly,kite,surf,windsurf,olney,TJ,windgram,windgrams">
+<meta name="description" content="Windgram diagrams for soaring forecasts for paragliders, hang gliders and sailplanes by Peter Spear and Andrew Berkley using CMC HRDPS Continental model data">
+<meta http-equiv="Content-Type" content="text/html;charset=US-ASCII" >
+<meta name="viewport" content="width=device-width, initial-scale=0.6">
+
+
+<script type="text/javascript" src="locations.js"></script>
+<script type="text/javascript" src="windgram.js"></script>
+
+<style type="text/css">
+#imageDiv {
+ position: absolute;
+ left: 260px;
+ top: 0px;
+ height: 100vh;
+ padding: 4px ;
+}
+#title{
+  font-size: 1.5em;
+  }
+#selDiv {
+  width: 250px;
+  padding: 4px ;
+}
+#selectorDiv  { padding:10px; margin:-5px -20px -5px -5px; }
+</style>
+</head>
+
+<body>
+  <div id="selDiv">
+    <div id="title"> Windgrams for Canada</div>
+    	<div id="selectorDiv">
+    	      <select title="Year" id="Year" size="8" onchange='javascript:updateDate(false);showWindgram(false)';>
+    		<option>2013</option>
+    	      </select>
+    	      <select title="Month" id="Month" size="8" onchange='javascript:updateDate(false);showWindgram(false)';>
+    		<option>Jan</option>
+    	      </select>
+    	      <select title="Select Day" id="Day" size="8" onchange='javascript:clearLoadedCache();showWindgram(false);';>
+    		<option>23</option>
+    	      </select>
+    	    </div>
+    Duration<br>
+    <select id="plotType" size="2" onchange='javascript:clearLoadedCache();showWindgram(false);';>
+      <option value="twoDay" selected >Two days</option>
+      <option value="oneDay" >One day</option>
+    </select><br>
+    Region<br>
+    <select id="region" size="8" onchange='javascript:updateRegion()';>
+      <option value="Lower Mainland" selected >Lower Mainland</option>
+      <option value="Sea to Sky" > Sea to Sky</option>
+      <option value="Vancouver Island" >Vancouver Island</option>
+      <option value="Kamloops Area" >Kamloops Area</option>
+      <option value="North Okanagan" >North Okanagan</option>
+      <option value="South Okanagan" >South Okanagan</option>
+      <option value="Kootenays" >Kootenays</option>
+      <option value="Smithers Area" >Smithers Area</option>
+      <option value="Jasper Area" >Jasper Area</option>
+      <option value="Alberta" >Alberta</option>
+      <option value="Washington" >Washington State</option>
+      <option value="Ski" >Various ski areas</option>
+      <option value="Cariboo" >Cariboo</option>
+      <option value="Montreal" >Montreal Area</option>
+    </select><br>
+    Location<br>
+    <select id="location" size="8" onchange='javascript:showWindgram(false)';>
+      <option value="dummy" selected > dummy</option>
+    </select>
+    <br>
+    <a href="/aboutcanadarasp.html">Canada RASP</a> by Andrew
+    Berkley & Peter Spear <a href="mailto:ajberkley@gmail.com">(contact us)</a><br>
+    <a href="/windgrams-continental/select-windgram.htm">Windgram selector</a><br><small>---includes dynamic windgram generation</small><br/>
+    <div id="currentsettings"> </div>
+    <a href="/RASPtable-continental.html">Map overlay plots</a><br/>
+    <a href="http://www.weatheroffice.gc.ca/grib/grib2_HRDPS_HR_e.html">HRDPS weather model</a> 
+    <small> from <a href="https://www.ec.gc.ca/">Environment and Climate Change Canada</a></small><br>
+    Donate to offset the cost of running this page
+    <center>
+      <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="R3QEBDRXCZNUW">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+		</center>
+ 
+  </div>
+  <div id="imageDiv">
+    <img id="wframe" onError="badImage(this);" ></img>
+<script> init(); </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Select windgram</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      #banner {
+      position: absolute;
+      top: 0;
+      width=100%;
+      z-index: 1;
+      background: white;
+      
+      }
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="banner"><center>Click on red locations for a windgram, or press and hold on map background for a dynamic windgram</center></div>
+    <div id="map"></div>
+    <script src="new-locations.js"> </script>
+    <script>
+      var map;
+      var regions = [ "Lower Mainland", "Sea to Sky", "Vancouver Island", "Kamloops Area","North Okanagan","South Okanagan","Kootenays","Smithers Area","Jasper Area","Alberta","Washington","Ski","Cariboo", "Montreal Area"];
+      function onDemandWindgram(lat, lon) {
+	window.open('/windgram?lat='+lat+'&lon='+lon);
+      }
+      var banneron = 1;
+      function clearBanner() {
+        if(banneron) { document.getElementById("banner").innerHTML = ''; banneron = false; }
+      }
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 16,
+          center: new google.maps.LatLng(49.1963,-121.757),
+          mapTypeId: 'terrain'
+        });
+
+        // Create markers.
+        var bounds = new google.maps.LatLngBounds();
+        regions.forEach(function(region) {
+         var mylocationidx = 0;
+         var myregionidx = regions.indexOf(region);
+         locations.forEach(function(location) {
+          if(location[0]==region) {
+            var text = 'Click to view: ' + location[0] + ' ' + location[1];
+            var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(location[2],location[3]),
+            map: map,
+            title: text
+            });
+            var mylocationidxlocal = mylocationidx++; 
+           google.maps.event.addListener(marker,'click', function() { window.open('index.htm?region='+myregionidx+'&location='+mylocationidxlocal)});
+           bounds.extend(marker.getPosition());
+	//  console.log(location[0] + ' ' + location[1] + ' ' + myregionidx + ',' + mylocationidxlocal);
+          }
+         });
+      });
+      setTimeout(clearBanner, 5000);
+      google.maps.event.addListener(map, 'mousedown', function(event){
+      clearBanner();
+      clearTimeout(map.pressButtonTimer);
+      map.pressButtonTimer = setTimeout(function(){
+        var lat = event.latLng.lat();
+        var lng = event.latLng.lng();
+	onDemandWindgram(lat,lng);
+
+      }, 1000);
+      google.maps.event.addListener(map,'mouseup', function(){ clearTimeout(map.pressButtonTimer);});
+      google.maps.event.addListener(map,'mousemove', function(){ clearTimeout(map.pressButtonTimer);});
+      google.maps.event.addListener(map,'dragstart', function(){ clearTimeout(map.pressButtonTimer);});
+      google.maps.event.addListener(map,'drag', function(){ clearTimeout(map.pressButtonTimer);});
+        });
+      map.fitBounds(bounds);
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkSvQdD6DtFPPSHmITPmacGqirGtNSqoc&callback=initMap">
+    </script>
+  </body>
+</html>
