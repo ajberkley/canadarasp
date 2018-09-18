@@ -12,7 +12,7 @@ echo $DIRSTOCREATE | xargs -n 200 ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP
 echo "Done making directories"
 cd /mnt/html
 echo "Uploading files"
-tar cf - * | ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd html; tar xf -)"
+tar cf - * | ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd /mnt; tar xf -)"
 echo "Done uploading files"
 
 echo "Deleting old files"
