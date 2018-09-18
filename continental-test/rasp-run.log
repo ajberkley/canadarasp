@@ -1,0 +1,246 @@
+Setting up drives and deleting all content
+meta-data=/dev/nvme1n1           isize=512    agcount=4, agsize=24414063 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=1, sparse=0
+data     =                       bsize=4096   blocks=97656250, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal log           bsize=4096   blocks=47683, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+./do-rasp-run-continental.sh 
+It is now Mon Sep 10 00:59:08 UTC 2018, using data initialized at HOUR 18 DAY 09 MONTH 09 YEAR 2018
+rm: cannot remove '/mnt/wget.jobs': No such file or directory
+Generating HRDPS file names
+Done generating HRDPS file names
+rm: cannot remove 'input/*': No such file or directory
+mkdir: cannot create directory ‘input’: File exists
+Checking data is on the server
+wget http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/048/CMC_hrdps_continental_HGT_ISBL_1015_ps2.5km_2018090918_P048-00.grib2
+--2018-09-09 17:59:11--  http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/048/CMC_hrdps_continental_HGT_ISBL_1015_ps2.5km_2018090918_P048-00.grib2
+Resolving dd.weather.gc.ca (dd.weather.gc.ca)... 205.189.10.47
+Connecting to dd.weather.gc.ca (dd.weather.gc.ca)|205.189.10.47|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 1852644 (1.8M)
+Saving to: ‘CMC_hrdps_continental_HGT_ISBL_1015_ps2.5km_2018090918_P048-00.grib2’
+
+     0K .......... .......... .......... .......... ..........  2% 1.74M 1s
+    50K .......... .......... .......... .......... ..........  5%  123M 0s
+   100K .......... .......... .......... .......... ..........  8% 5.18M 0s
+   150K .......... .......... .......... .......... .......... 11% 90.6M 0s
+   200K .......... .......... .......... .......... .......... 13% 2.64M 0s
+   250K .......... .......... .......... .......... .......... 16%  335M 0s
+   300K .......... .......... .......... .......... .......... 19% 4.78M 0s
+   350K .......... .......... .......... .......... .......... 22%  336M 0s
+   400K .......... .......... .......... .......... .......... 24%  200M 0s
+   450K .......... .......... .......... .......... .......... 27% 5.00M 0s
+   500K .......... .......... .......... .......... .......... 30%  119M 0s
+   550K .......... .......... .......... .......... .......... 33% 83.8M 0s
+   600K .......... .......... .......... .......... .......... 35% 2.54M 0s
+   650K .......... .......... .......... .......... .......... 38%  385M 0s
+   700K .......... .......... .......... .......... .......... 41% 2.43M 0s
+   750K .......... .......... .......... .......... .......... 44%  307M 0s
+   800K .......... .......... .......... .......... .......... 46%  356M 0s
+   850K .......... .......... .......... .......... .......... 49%  383M 0s
+   900K .......... .......... .......... .......... .......... 52%  410M 0s
+   950K .......... .......... .......... .......... .......... 55% 5.66M 0s
+  1000K .......... .......... .......... .......... .......... 58%  109M 0s
+  1050K .......... .......... .......... .......... .......... 60% 6.61M 0s
+  1100K .......... .......... .......... .......... .......... 63% 82.7M 0s
+  1150K .......... .......... .......... .......... .......... 66% 6.99M 0s
+  1200K .......... .......... .......... .......... .......... 69% 34.5M 0s
+  1250K .......... .......... .......... .......... .......... 71% 78.2M 0s
+  1300K .......... .......... .......... .......... .......... 74% 7.21M 0s
+  1350K .......... .......... .......... .......... .......... 77% 47.6M 0s
+  1400K .......... .......... .......... .......... .......... 80% 7.02M 0s
+  1450K .......... .......... .......... .......... .......... 82% 39.2M 0s
+  1500K .......... .......... .......... .......... .......... 85% 7.86M 0s
+  1550K .......... .......... .......... .......... .......... 88% 30.6M 0s
+  1600K .......... .......... .......... .......... .......... 91% 7.88M 0s
+  1650K .......... .......... .......... .......... .......... 93% 31.1M 0s
+  1700K .......... .......... .......... .......... .......... 96% 7.65M 0s
+  1750K .......... .......... .......... .......... .......... 99% 34.9M 0s
+  1800K .........                                             100% 45.5M=0.2s
+
+2018-09-09 17:59:12 (9.60 MB/s) - ‘CMC_hrdps_continental_HGT_ISBL_1015_ps2.5km_2018090918_P048-00.grib2’ saved [1852644/1852644]
+
+0
+downloading HRDPS data
+2018-09-09 17:59:13 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_0970_ps2.5km_2018090918_P000-00.grib2 [1389424/1389424] -> "CMC_hrdps_continental_DEPR_ISBL_0970_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:14 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_0985_ps2.5km_2018090918_P000-00.grib2 [1392188/1392188] -> "CMC_hrdps_continental_DEPR_ISBL_0985_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:14 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_1000_ps2.5km_2018090918_P000-00.grib2 [1393611/1393611] -> "CMC_hrdps_continental_DEPR_ISBL_1000_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:15 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_1015_ps2.5km_2018090918_P000-00.grib2 [1390131/1390131] -> "CMC_hrdps_continental_DEPR_ISBL_1015_ps2.5km_2018090918_P000-00.grib2" [1]
+http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_SFC_0_ps2.5km_2018090918_P000-00.grib2:
+2018-09-09 17:59:15 ERROR 404: Not Found.
+2018-09-09 17:59:15 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0550_ps2.5km_2018090918_P000-00.grib2 [1534701/1534701] -> "CMC_hrdps_continental_HGT_ISBL_0550_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:15 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0600_ps2.5km_2018090918_P000-00.grib2 [1431621/1431621] -> "CMC_hrdps_continental_HGT_ISBL_0600_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:16 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0650_ps2.5km_2018090918_P000-00.grib2 [1429770/1429770] -> "CMC_hrdps_continental_HGT_ISBL_0650_ps2.5km_2018090918_P000-00.grib2" [1]
+FINISHED --2018-09-09 17:59:16--
+Total wall clock time: 3.1s
+Downloaded: 7 files, 9.5M in 2.5s (3.73 MB/s)
+2018-09-09 17:59:13 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TCDC_SFC_0_ps2.5km_2018090918_P000-00.grib2 [1234133/1234133] -> "CMC_hrdps_continental_TCDC_SFC_0_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:13 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0550_ps2.5km_2018090918_P000-00.grib2 [1594422/1594422] -> "CMC_hrdps_continental_TMP_ISBL_0550_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:13 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0600_ps2.5km_2018090918_P000-00.grib2 [1755247/1755247] -> "CMC_hrdps_continental_TMP_ISBL_0600_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:14 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0650_ps2.5km_2018090918_P000-00.grib2 [1640120/1640120] -> "CMC_hrdps_continental_TMP_ISBL_0650_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:15 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0700_ps2.5km_2018090918_P000-00.grib2 [1829638/1829638] -> "CMC_hrdps_continental_TMP_ISBL_0700_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:15 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0750_ps2.5km_2018090918_P000-00.grib2 [1886138/1886138] -> "CMC_hrdps_continental_TMP_ISBL_0750_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:16 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0800_ps2.5km_2018090918_P000-00.grib2 [1842484/1842484] -> "CMC_hrdps_continental_TMP_ISBL_0800_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:16 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0850_ps2.5km_2018090918_P000-00.grib2 [1917456/1917456] -> "CMC_hrdps_continental_TMP_ISBL_0850_ps2.5km_2018090918_P000-00.grib2" [1]
+FINISHED --2018-09-09 17:59:16--
+Total wall clock time: 3.3s
+Downloaded: 8 files, 13M in 3.2s (4.09 MB/s)
+2018-09-09 17:59:14 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_CAPE_ETAL_10000_ps2.5km_2018090918_P000-00.grib2 [1672084/1672084] -> "CMC_hrdps_continental_CAPE_ETAL_10000_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:15 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_TGL_2_ps2.5km_2018090918_P000-00.grib2 [1513251/1513251] -> "CMC_hrdps_continental_DEPR_TGL_2_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:15 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_TGL_40_ps2.5km_2018090918_P000-00.grib2 [1449744/1449744] -> "CMC_hrdps_continental_DEPR_TGL_40_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:15 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_TGL_80_ps2.5km_2018090918_P000-00.grib2 [1737729/1737729] -> "CMC_hrdps_continental_DEPR_TGL_80_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:16 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_TGL_120_ps2.5km_2018090918_P000-00.grib2 [1434021/1434021] -> "CMC_hrdps_continental_DEPR_TGL_120_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_0550_ps2.5km_2018090918_P000-00.grib2 [1316590/1316590] -> "CMC_hrdps_continental_DEPR_ISBL_0550_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:18 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_0600_ps2.5km_2018090918_P000-00.grib2 [1318491/1318491] -> "CMC_hrdps_continental_DEPR_ISBL_0600_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:18 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_0650_ps2.5km_2018090918_P000-00.grib2 [1322084/1322084] -> "CMC_hrdps_continental_DEPR_ISBL_0650_ps2.5km_2018090918_P000-00.grib2" [1]
+FINISHED --2018-09-09 17:59:18--
+Total wall clock time: 4.9s
+Downloaded: 8 files, 11M in 4.0s (2.80 MB/s)
+2018-09-09 17:59:13 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_TGL_2_ps2.5km_2018090918_P000-00.grib2 [1982706/1982706] -> "CMC_hrdps_continental_TMP_TGL_2_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:14 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_TGL_40_ps2.5km_2018090918_P000-00.grib2 [1858053/1858053] -> "CMC_hrdps_continental_TMP_TGL_40_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:15 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_TGL_80_ps2.5km_2018090918_P000-00.grib2 [1692303/1692303] -> "CMC_hrdps_continental_TMP_TGL_80_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:15 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_TGL_120_ps2.5km_2018090918_P000-00.grib2 [2154613/2154613] -> "CMC_hrdps_continental_TMP_TGL_120_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0550_ps2.5km_2018090918_P000-00.grib2 [1641785/1641785] -> "CMC_hrdps_continental_UGRD_ISBL_0550_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:18 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0600_ps2.5km_2018090918_P000-00.grib2 [1665492/1665492] -> "CMC_hrdps_continental_UGRD_ISBL_0600_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:18 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0650_ps2.5km_2018090918_P000-00.grib2 [1983027/1983027] -> "CMC_hrdps_continental_UGRD_ISBL_0650_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:19 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0700_ps2.5km_2018090918_P000-00.grib2 [2025416/2025416] -> "CMC_hrdps_continental_UGRD_ISBL_0700_ps2.5km_2018090918_P000-00.grib2" [1]
+FINISHED --2018-09-09 17:59:19--
+Total wall clock time: 6.2s
+Downloaded: 8 files, 14M in 6.0s (2.37 MB/s)
+2018-09-09 17:59:15 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_0700_ps2.5km_2018090918_P000-00.grib2 [1334667/1334667] -> "CMC_hrdps_continental_DEPR_ISBL_0700_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:16 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_0750_ps2.5km_2018090918_P000-00.grib2 [1352888/1352888] -> "CMC_hrdps_continental_DEPR_ISBL_0750_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_0800_ps2.5km_2018090918_P000-00.grib2 [1382964/1382964] -> "CMC_hrdps_continental_DEPR_ISBL_0800_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_0850_ps2.5km_2018090918_P000-00.grib2 [1426672/1426672] -> "CMC_hrdps_continental_DEPR_ISBL_0850_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:18 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_0875_ps2.5km_2018090918_P000-00.grib2 [1409834/1409834] -> "CMC_hrdps_continental_DEPR_ISBL_0875_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:19 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_0900_ps2.5km_2018090918_P000-00.grib2 [1378887/1378887] -> "CMC_hrdps_continental_DEPR_ISBL_0900_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:19 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_0925_ps2.5km_2018090918_P000-00.grib2 [1370291/1370291] -> "CMC_hrdps_continental_DEPR_ISBL_0925_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:19 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_DEPR_ISBL_0950_ps2.5km_2018090918_P000-00.grib2 [1378009/1378009] -> "CMC_hrdps_continental_DEPR_ISBL_0950_ps2.5km_2018090918_P000-00.grib2" [1]
+FINISHED --2018-09-09 17:59:19--
+Total wall clock time: 6.5s
+Downloaded: 8 files, 11M in 6.4s (1.64 MB/s)
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0985_ps2.5km_2018090918_P000-00.grib2 [2434613/2434613] -> "CMC_hrdps_continental_UGRD_ISBL_0985_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_1000_ps2.5km_2018090918_P000-00.grib2 [2394006/2394006] -> "CMC_hrdps_continental_UGRD_ISBL_1000_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_1015_ps2.5km_2018090918_P000-00.grib2 [2397815/2397815] -> "CMC_hrdps_continental_UGRD_ISBL_1015_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_TGL_10_ps2.5km_2018090918_P000-00.grib2 [2383317/2383317] -> "CMC_hrdps_continental_UGRD_TGL_10_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:18 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_TGL_40_ps2.5km_2018090918_P000-00.grib2 [2322481/2322481] -> "CMC_hrdps_continental_UGRD_TGL_40_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:18 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_TGL_80_ps2.5km_2018090918_P000-00.grib2 [1727480/1727480] -> "CMC_hrdps_continental_UGRD_TGL_80_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:19 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_TGL_120_ps2.5km_2018090918_P000-00.grib2 [2292498/2292498] -> "CMC_hrdps_continental_UGRD_TGL_120_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0550_ps2.5km_2018090918_P000-00.grib2 [1627171/1627171] -> "CMC_hrdps_continental_VGRD_ISBL_0550_ps2.5km_2018090918_P000-00.grib2" [1]
+FINISHED --2018-09-09 17:59:20--
+Total wall clock time: 3.4s
+Downloaded: 8 files, 17M in 3.2s (5.20 MB/s)
+2018-09-09 17:59:18 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0600_ps2.5km_2018090918_P000-00.grib2 [1636838/1636838] -> "CMC_hrdps_continental_VGRD_ISBL_0600_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:18 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0650_ps2.5km_2018090918_P000-00.grib2 [1665345/1665345] -> "CMC_hrdps_continental_VGRD_ISBL_0650_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:18 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0700_ps2.5km_2018090918_P000-00.grib2 [1708665/1708665] -> "CMC_hrdps_continental_VGRD_ISBL_0700_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:19 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0750_ps2.5km_2018090918_P000-00.grib2 [2064018/2064018] -> "CMC_hrdps_continental_VGRD_ISBL_0750_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:19 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0800_ps2.5km_2018090918_P000-00.grib2 [2135166/2135166] -> "CMC_hrdps_continental_VGRD_ISBL_0800_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:19 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0850_ps2.5km_2018090918_P000-00.grib2 [2201954/2201954] -> "CMC_hrdps_continental_VGRD_ISBL_0850_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:19 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0875_ps2.5km_2018090918_P000-00.grib2 [2231121/2231121] -> "CMC_hrdps_continental_VGRD_ISBL_0875_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0900_ps2.5km_2018090918_P000-00.grib2 [2360475/2360475] -> "CMC_hrdps_continental_VGRD_ISBL_0900_ps2.5km_2018090918_P000-00.grib2" [1]
+FINISHED --2018-09-09 17:59:20--
+Total wall clock time: 1.9s
+Downloaded: 8 files, 15M in 1.8s (8.43 MB/s)
+2018-09-09 17:59:13 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0970_ps2.5km_2018090918_P000-00.grib2 [1852397/1852397] -> "CMC_hrdps_continental_HGT_ISBL_0970_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:14 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0985_ps2.5km_2018090918_P000-00.grib2 [1860377/1860377] -> "CMC_hrdps_continental_HGT_ISBL_0985_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:14 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_1000_ps2.5km_2018090918_P000-00.grib2 [1864279/1864279] -> "CMC_hrdps_continental_HGT_ISBL_1000_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:15 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_1015_ps2.5km_2018090918_P000-00.grib2 [1867418/1867418] -> "CMC_hrdps_continental_HGT_ISBL_1015_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_PRMSL_MSL_0_ps2.5km_2018090918_P000-00.grib2 [2155300/2155300] -> "CMC_hrdps_continental_PRMSL_MSL_0_ps2.5km_2018090918_P000-00.grib2" [1]
+http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_PRATE_SFC_0_ps2.5km_2018090918_P000-00.grib2:
+2018-09-09 17:59:17 ERROR 404: Not Found.
+2018-09-09 17:59:18 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_SHTFL_SFC_0_ps2.5km_2018090918_P000-00.grib2 [2271262/2271262] -> "CMC_hrdps_continental_SHTFL_SFC_0_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_LHTFL_SFC_0_ps2.5km_2018090918_P000-00.grib2 [1993118/1993118] -> "CMC_hrdps_continental_LHTFL_SFC_0_ps2.5km_2018090918_P000-00.grib2" [1]
+FINISHED --2018-09-09 17:59:20--
+Total wall clock time: 6.9s
+Downloaded: 7 files, 13M in 6.8s (1.96 MB/s)
+parallel: SIGTERM received. No new jobs will be started.
+parallel: Waiting for these 8 jobs to finish. Send SIGTERM again to stop now.
+parallel: wget --timeout=120 -c -nc -nv http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0700_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0750_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0800_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0850_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0875_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0900_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0925_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0950_ps2.5km_2018090918_P000-00.grib2
+parallel: wget --timeout=120 -c -nc -nv http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0875_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0900_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0925_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0950_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0970_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0985_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_1000_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_1015_ps2.5km_2018090918_P000-00.grib2
+parallel: wget --timeout=120 -c -nc -nv http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_TGL_80_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_TGL_120_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VVEL_ISBL_0700_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VVEL_ISBL_0850_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VVEL_ISBL_1000_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_PRES_SFC_0_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_CAPE_ETAL_10000_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_TGL_2_ps2.5km_2018090918_P001-00.grib2
+parallel: wget --timeout=120 -c -nc -nv http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0750_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0800_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0850_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0875_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0900_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0925_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0950_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0970_ps2.5km_2018090918_P000-00.grib2
+parallel: wget --timeout=120 -c -nc -nv http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0800_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0850_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0875_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0900_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0925_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0950_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0970_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0985_ps2.5km_2018090918_P001-00.grib2
+parallel: wget --timeout=120 -c -nc -nv http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_1000_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_1015_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_HGT_SFC_0_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_HGT_ISBL_0550_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_HGT_ISBL_0600_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_HGT_ISBL_0650_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_HGT_ISBL_0700_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_HGT_ISBL_0750_ps2.5km_2018090918_P001-00.grib2
+parallel: wget --timeout=120 -c -nc -nv http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_TGL_40_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_TGL_80_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_TGL_120_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0550_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0600_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0650_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0700_ps2.5km_2018090918_P001-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0750_ps2.5km_2018090918_P001-00.grib2
+parallel: wget --timeout=120 -c -nc -nv http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0925_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0950_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0970_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/2018-09-09 17:59:21 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_TGL_80_ps2.5km_2018090918_P000-00.grib2 [1754558/1754558] -> "CMC_hrdps_continental_VGRD_TGL_80_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:21 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_TGL_120_ps2.5km_2018090918_P000-00.grib2 [2337054/2337054] -> "CMC_hrdps_continental_VGRD_TGL_120_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VVEL_ISBL_0700_ps2.5km_2018090918_P000-00.grib2 [762561/762561] -> "CMC_hrdps_continental_VVEL_ISBL_0700_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VVEL_ISBL_0850_ps2.5km_2018090918_P000-00.grib2 [825248/825248] -> "CMC_hrdps_continental_VVEL_ISBL_0850_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VVEL_ISBL_1000_ps2.5km_2018090918_P000-00.grib2 [1170033/1170033] -> "CMC_hrdps_continental_VVEL_ISBL_1000_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_PRES_SFC_0_ps2.5km_2018090918_P000-00.grib2 [2077107/2077107] -> "CMC_hrdps_continental_PRES_SFC_0_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_CAPE_ETAL_10000_ps2.5km_2018090918_P001-00.grib2 [1945479/1945479] -> "CMC_hrdps_continental_CAPE_ETAL_10000_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_TGL_2_ps2.5km_2018090918_P001-00.grib2 [2060237/2060237] -> "CMC_hrdps_continental_DEPR_TGL_2_ps2.5km_2018090918_P001-00.grib2" [1]
+FINISHED --2018-09-09 17:59:22--
+Total wall clock time: 2.9s
+Downloaded: 8 files, 12M in 2.1s (6.00 MB/s)
+2018-09-09 17:59:15 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0875_ps2.5km_2018090918_P000-00.grib2 [1923272/1923272] -> "CMC_hrdps_continental_TMP_ISBL_0875_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0900_ps2.5km_2018090918_P000-00.grib2 [1901555/1901555] -> "CMC_hrdps_continental_TMP_ISBL_0900_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0925_ps2.5km_2018090918_P000-00.grib2 [1879061/1879061] -> "CMC_hrdps_continental_TMP_ISBL_0925_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0950_ps2.5km_2018090918_P000-00.grib2 [1878231/1878231] -> "CMC_hrdps_continental_TMP_ISBL_0950_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:18 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0970_ps2.5km_2018090918_P000-00.grib2 [1895847/1895847] -> "CMC_hrdps_continental_TMP_ISBL_0970_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_0985_ps2.5km_2018090918_P000-00.grib2 [1876842/1876842] -> "CMC_hrdps_continental_TMP_ISBL_0985_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:21 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_1000_ps2.5km_2018090918_P000-00.grib2 [1836514/1836514] -> "CMC_hrdps_continental_TMP_ISBL_1000_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:23 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_TMP_ISBL_1015_ps2.5km_2018090918_P000-00.grib2 [1816077/1816077] -> "CMC_hrdps_continental_TMP_ISBL_1015_ps2.5km_2018090918_P000-00.grib2" [1]
+FINISHED --2018-09-09 17:59:23--
+Total wall clock time: 9.8s
+Downloaded: 8 files, 14M in 9.7s (1.48 MB/s)
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0750_ps2.5km_2018090918_P000-00.grib2 [2085359/2085359] -> "CMC_hrdps_continental_UGRD_ISBL_0750_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0800_ps2.5km_2018090918_P000-00.grib2 [2151951/2151951] -> "CMC_hrdps_continental_UGRD_ISBL_0800_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0850_ps2.5km_2018090918_P000-00.grib2 [1892052/1892052] -> "CMC_hrdps_continental_UGRD_ISBL_0850_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:18 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0875_ps2.5km_2018090918_P000-00.grib2 [1906380/1906380] -> "CMC_hrdps_continental_UGRD_ISBL_0875_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:19 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0900_ps2.5km_2018090918_P000-00.grib2 [2222166/2222166] -> "CMC_hrdps_continental_UGRD_ISBL_0900_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0925_ps2.5km_2018090918_P000-00.grib2 [2202271/2202271] -> "CMC_hrdps_continental_UGRD_ISBL_0925_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0950_ps2.5km_2018090918_P000-00.grib2 [2218606/2218606] -> "CMC_hrdps_continental_UGRD_ISBL_0950_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_UGRD_ISBL_0970_ps2.5km_2018090918_P000-00.grib2 [2393672/2393672] -> "CMC_hrdps_continental_UGRD_ISBL_0970_ps2.5km_2018090918_P000-00.grib2" [1]
+FINISHED --2018-09-09 17:59:22--
+Total wall clock time: 6.6s
+Downloaded: 8 files, 16M in 6.5s (2.51 MB/s)
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0925_ps2.5km_2018090918_P000-00.grib2 [2237059/2237059] -> "CMC_hrdps_continental_VGRD_ISBL_0925_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0950_ps2.5km_2018090918_P000-00.grib2 [2258129/2258129] -> "CMC_hrdps_continental_VGRD_ISBL_0950_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0970_ps2.5km_2018090918_P000-00.grib2 [2297616/2297616] -> "CMC_hrdps_continental_VGRD_ISBL_0970_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_0985_ps2.5km_2018090918_P000-00.grib2 [2328372/2328372] -> "CMC_hrdps_continental_VGRD_ISBL_0985_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:21 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_1000_ps2.5km_2018090918_P000-00.grib2 [2467086/2467086] -> "CMC_hrdps_continental_VGRD_ISBL_1000_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_1015_ps2.5km_2018090918_P000-00.grib2 [2398214/2398214] -> "CMC_hrdps_continental_VGRD_ISBL_1015_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_TGL_10_ps2.5km_2018090918_P000-00.grib2 [2381768/2381768] -> "CMC_hrdps_continental_VGRD_TGL_10_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:23 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_TGL_40_ps2.5km_2018090918_P000-00.grib2 [2361072/2361072] -> "CMC_hrdps_continental_VGRD_TGL_40_ps2.5km_2018090918_P000-00.grib2" [1]
+FINISHED --2018-09-09 17:59:23--
+Total wall clock time: 3.4s
+Downloaded: 8 files, 18M in 2.9s (6.08 MB/s)
+2018-09-09 17:59:13 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0700_ps2.5km_2018090918_P000-00.grib2 [1694327/1694327] -> "CMC_hrdps_continental_HGT_ISBL_0700_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:13 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0750_ps2.5km_2018090918_P000-00.grib2 [1811933/1811933] -> "CMC_hrdps_continental_HGT_ISBL_0750_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:17 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0800_ps2.5km_2018090918_P000-00.grib2 [1815749/1815749] -> "CMC_hrdps_continental_HGT_ISBL_0800_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0850_ps2.5km_2018090918_P000-00.grib2 [1823790/1823790] -> "CMC_hrdps_continental_HGT_ISBL_0850_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0875_ps2.5km_2018090918_P000-00.grib2 [1828736/1828736] -> "CMC_hrdps_continental_HGT_ISBL_0875_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0900_ps2.5km_2018090918_P000-00.grib2 [1706944/1706944] -> "CMC_hrdps_continental_HGT_ISBL_0900_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:23 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0925_ps2.5km_2018090918_P000-00.grib2 [1712619/1712619] -> "CMC_hrdps_continental_HGT_ISBL_0925_ps2.5km_2018090918_P000-00.grib2" [1]
+2018-09-09 17:59:23 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_HGT_ISBL_0950_ps2.5km_2018090918_P000-00.grib2 [1717938/1717938] -> "CMC_hrdps_continental_HGT_ISBL_0950_ps2.5km_2018090918_P000-00.grib2" [1]
+FINISHED --2018-09-09 17:59:23--
+Total wall clock time: 10s
+Downloaded: 8 files, 13M in 10s (1.31 MB/s)
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_TGL_40_ps2.5km_2018090918_P001-00.grib2 [1802588/1802588] -> "CMC_hrdps_continental_DEPR_TGL_40_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_TGL_80_ps2.5km_2018090918_P001-00.grib2 [2194831/2194831] -> "CMC_hrdps_continental_DEPR_TGL_80_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_TGL_120_ps2.5km_2018090918_P001-00.grib2 [1752549/1752549] -> "CMC_hrdps_continental_DEPR_TGL_120_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:21 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0550_ps2.5km_2018090918_P001-00.grib2 [1372779/1372779] -> "CMC_hrdps_continental_DEPR_ISBL_0550_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0800_ps2.5km_2018090918_P001-00.grib2 [1467596/1467596] -> "CMC_hrdps_continental_DEPR_ISBL_0800_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0850_ps2.5km_2018090918_P001-00.grib2 [1527862/1527862] -> "CMC_hrdps_continental_DEPR_ISBL_0850_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0875_ps2.5km_2018090918_P001-00.grib2 [1495093/1495093] -> "CMC_hrdps_continental_DEPR_ISBL_0875_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:21 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0900_ps2.5km_2018090918_P001-00.grib2 [1453003/1453003] -> "CMC_hrdps_continental_DEPR_ISBL_0900_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0925_ps2.5km_2018090918_P001-00.grib2 [1430466/1430466] -> "CMC_hrdps_continental_DEPR_ISBL_0925_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0950_ps2.5km_2018090918_P001-00.grib2 [1429900/1429900] -> "CMC_hrdps_continental_DEPR_ISBL_0950_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:23 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_0970_ps2.5km_2018090918_P001-00.grib2 [1441572/1441572] -> "CMC_hrdps_continental_DEPR_ISBL_0970_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:20 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_1000_ps2.5km_2018090918_P001-00.grib2 [1447966/1447966] -> "CMC_hrdps_continental_DEPR_ISBL_1000_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:21 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_DEPR_ISBL_1015_ps2.5km_2018090918_P001-00.grib2 [1442472/1442472] -> "CMC_hrdps_continental_DEPR_ISBL_1015_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_HGT_SFC_0_ps2.5km_2018090918_P001-00.grib2 [2130040/2130040] -> "CMC_hrdps_continental_HGT_SFC_0_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_HGT_ISBL_0550_ps2.5km_2018090918_P001-00.grib2 [1441987/1441987] -> "CMC_hrdps_continental_HGT_ISBL_0550_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:22 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_HGT_ISBL_0600_ps2.5km_2018090918_P001-00.grib2 [1344162/1344162] -> "CMC_hrdps_continental_HGT_ISBL_0600_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:23 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_HGT_ISBL_0650_ps2.5km_2018090918_P001-00.grib2 [1342420/1342420] -> "CMC_hrdps_continental_HGT_ISBL_0650_ps2.5km_2018090918_P001-00.grib2" [1]
+2018-09-09 17:59:24 URL:http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/001/CMC_hrdps_continental_HGT_ISBL_0700_ps2.5km_2018090918_P001-00.grib2 [1562449/1562449] -> "CMC_hrdps_continental_HGT_ISBL_0700_ps2.5km_2018090918_P001-00.grib2" [1]
+18/000/CMC_hrdps_continental_VGRD_ISBL_0985_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_1000_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_ISBL_1015_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_TGL_10_ps2.5km_2018090918_P000-00.grib2 http://dd.weather.gc.ca/model_hrdps/continental/grib2/18/000/CMC_hrdps_continental_VGRD_TGL_40_ps2.5km_2018090918_P000-00.grib2
+16000+0 records in
+16000+0 records out
+16000000000 bytes (16 GB, 15 GiB) copied, 32.7034 s, 489 MB/s
+Setting up swapspace version 1, size = 14.9 GiB (15999995904 bytes)
+no label, UUID=e6b0ae78-1d5f-4ff6-bb4d-c16459b5f227
