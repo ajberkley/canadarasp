@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 5.0 FINAL//EN">
+<html>
+<head>
+  <title>About Canada RASP</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=US-ASCII" >
+  <meta HTTP-EQUIV="Content-Script-Type" content="text/javascript">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+</head>
+<body>
+  <h1>Who we are</h1>
+  <a href="mailto:ajberkley@gmail.com">Andrew Berkley</a> and Peter
+  Spear are paraglider pilots.  We like to know what the weather is
+  going to do so we can go flying more often.<p>
+
+  <h1>What we do</h1> This site provides two types of visualizations from the output of the continental
+  run of the High Resolution Deterministic Prediction System
+  (<a href="https://weather.gc.ca/grib/grib2_HRDPS_HR_e.html">HRDPS</a>),
+  a weather model run by Environment and Climate Change Canada.  The most popular visualization is a <b><a href="/windgrams">windgram</a></b> which shows a slice through the atmosphere at a single location.  Then there are <b><a href="/">maps</a></b> which show a single piece of information about the atmosphere overlaid on a map.  Limited documentation can be found <a href="parameterdescription.html">here</a>.<p>
+
+  <h1>History</h1>
+
+  Starting in 2013, this site ran very high resolution cloud resolving
+  (400m) <a href="http://www2.mmm.ucar.edu/wrf/users/">WRF</a> models for the Pemberton, Fraser Valley, and Lumby areas
+  nested inside the HRDPS west parent model.
+  <p>
+   Much of the starting code came from
+  <a href="http://www.drjack.info/index.html">Dr. Jack
+  Glendening's</a> RASP project, but I decided to use a more modern
+  version of WRF and needed to interface it all to the output of the
+  HRDPS model for boundary and initial conditions so I ended up tearing most of
+  the original parts apart and switching to a modern version of <a href="http://www2.mmm.ucar.edu/wrf/users/">WRF</a> and a different physics model to resolve clouds.  The initial bits for the map viewer came
+  from Paul Scorer, a sailplane pilot in the UK.  The windgram code
+  and assorted advice came from TJ Olney, a American paraglider pilot
+  in Washington state.
+
+  These WRF runs were very informative for understanding the details
+  of wind and Whistler express events around the Pemberton
+  valleys. Unfortunately, it regularly over-predicted the winds in
+  that area and thus resulted in pilots choosing not to fly when it
+  was flyable.  I spent time trying to tweak the models and the
+  topography to make it work better but the turn around time was so
+  long to see if it made any difference that I eventually gave up and
+  stopped running it in late 2014.  Plus, some of the computers
+  running the model died.
+<p>
+  Then we were left with just visualizing the HRDPS output as it
+  seemed to be quite accurate as an indicator for flyability and
+  soarability in our local flying areas.
+<p>
+  From May to Sept 2018, I upgraded the system to handle the entire
+  Pan-Canadian HRDPS model output as we were missing many of the pilots in the
+  east and the north with the western only output.
+  This takes a reasonable amount of
+  computing power (this all runs on relatively big iron in Amazon
+  EC2), so I am hoping my viewers consider donating.  The processing back
+  end costs $800 CAD/year, so $5/user/year would easily cover that.  It would also be nice to cover some of the development costs and be able to expand the system to handle a couple of the global models and the NAM3 for high resolution for the rest of the USA so you can have windgrams for sites you travel to.
+<p>
+  Also, if you would like any windgram locations added (or you want to generate windgrams for an area that is not currently covered), please
+  email <a href="mailto:ajberkley@gmail.com">me</a>.<p>
+
+  <h2>Planned Changes</h2>
+<ol>
+<li>
+Add a map of cumulus cloud base (lifting condensation level).
+<li>
+Move away from google maps to something like Leaflet.
+<li>
+Add some more weather models: GDPS or GFS for global coverage for people who travel to Central and South America, the NAM3 to cover with high resolution the rest of the United States of America and the RDPS to provide predictions for several days out.
+
+<li>
+Add more complete on-demand windgram generation (there is a limited implementation available off the main map page).  Add a better interface to this (long press, or context menu).
+
+<li>
+Maybe change to a prettier javascript front-end viewer like windy or ventusky.
+If you are a web developer with a talent for making nice interfaces, I could sure use some help.
+
+<li>
+Also look more closely at better ways to present estimated top of lift with sensitivity information.
+<li>
+More compact output files for the map page and a smoother interface.
+</ol>
+<h2>Changelog</h2>
+<b>9 September 2018 ajb</b> Shutdown old.canadarasp.com and the old generation infrastructure.  Added dynamic windgram generation to <a href="http://www.canadarasp.com/windgrams-continental/select-windgram.htm">windgram selector page</a>, changed map interface for dynamic windgrams from an enable checkbox to a long press on the map surface.  Please send me any feedback you have... it's a long winter coming up.<p>
+<b>6 September 2018 ajb</b> Fixed surface dewpoint (I am plotting dew point depression in the new maps), resurrected the average thermal strength plot.  Did final comparision versus the previous production runs.  Moved the main website to my new Amazon webserver and have rolled out what was the alpha code to production.  <del>The old maps and windgrams will continue to run on <a href="http://old.canadarasp.com">old.canadarasp.com</a> for a few more days until I'm sure everything is working well, and then they will be shut down.</del><p>
+<b>3 September 2018 ajb</b> Better wind arrow drawing, scales as you zoom a bit. Working on clipping wind to terrain.  Got the rain map back and switched surface pressure map to the correct source (surface pressure MSL).  DNS service is now Amazon.  www.canadarasp.com is the old production server, and alphatest.canadarasp.com is the new testing domain.  I will switch the alpha to production in a few days after I make sure the latest changes are stable.</p>
+<b>2 September 2018 ajb</b> Added a dynamic windgram generator.  <del>Click the dynamic windgram box, then click a place on the map...</del>Press and hold on the map... only works for places near other existing windgrams.  I'm improving the back end so all tiles will be covered. Also added a windgram for Yamaska, Quebec to try and get the new folks from the central and eastern parts of Canada into using this site.<p>
+<b>28 August 2018 ajb</b> I'm in the process of moving my webserver from Go Daddy to Amazon...<p>
+<b>25 August 2018 ajb</b> Moved wind direction drawing to client, reduces compute requirements on server side which frees up space and time for loading other model data in the future.<p>
+<b>23 August 2018 ajb</b> Added continental coverage! This required a huge amount of back-end work (mainly to make the processing fast enough so as not to drive me broke with Amazon EC2 costs). This should enable me to add NAM3, HRRR, and GFS model output data and on-demand windgram generation for any location and model (this will cost some extra money to keep the data around, but it doesn't look too bad). I replaced the crusty old NCL map generator with some 10x faster Common Lisp code (my language of choice) with the GIS part handled by GDAL and graphics generation by my new Lisp code including a tiny hand-rolled vector graphics implementation for the wind arrows. I use eccodes, cl-png, cl-gd, cl-gdal, and libgd. Currently the winds are not getting clipped to terrain properly and there is no rain map... <del>will fix soon!</del> fixed<p>
+  <b>7 August 2018 ajb </b> For tomorrow's run: fixed surface dewpoint. Added boundary layer depth, average thermal velocity, and cloudbase. Added a parameter description page.<p>
+  <b>5 August 2018 ajb</b> Added a map of expected top of lift above ground.
+  This is similar to the height the paragliders get drawn on on the windgrams.
+  I'm thinking this indicator is a bit pessimistic.  I will get the boundary
+  layer height map on soon which will be the most optimistic.  This top of lift
+  indicator ignores cloud suck and ridge lift and uses a model for the shape of
+  thermals and their lift distribution versus altitude.  I think we can probably
+  do better.  On some days with a slightly inverted layer the top of lift can
+  be very sensitive to ground heating.  You have to look at the windgrams to see
+  and judge yourself.  I can add a sensitivity map too (ie assume ground temperatures
+  are 0.5C higher or lower), but in the end these are just meant to give you a rough
+  indicator of soarability.<p>
+  <b>5 July 2018 ajb</b> The old windgram generator failed to run today, so I
+  switched everyone over to the new one.  There is now only the new page
+  running.  Old bookmarks will work fine, but the map interface will be the
+  new one only.  Remember to check the bottom left corner of each windgram to
+  be sure it is the newest one.<p>
+  <b>3 July 2018 ajb</b> Another oops, windgrams were being generated in
+  the wrong spot, so sorry if it put you off flying.  The old versions
+  were fine (and most people link directly to them).<p>
+  <b>2 July 2018 ajb</b> Oops, some windgrams were not being generated
+  properly.  Fixed.  Also shrank back the clouds on the two day
+  windgrams and got the time access colored properly and the pressure
+  back to kPa.  Show windgrams checkbox is now persistent too (saved in
+  bookmark).<p>
+  <b>30 June 2018 ajb</b> The <a href="/"> tiled
+  map viewer</a> is currently in beta test with all of you as my
+  testers.  You can no longer access the old viewer and old windgrams.<p>
+  <b>10 April 2018 ajb</b> Added a donate button.
+</body>

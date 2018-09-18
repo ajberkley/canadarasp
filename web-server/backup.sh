@@ -1,0 +1,1 @@
+tar zcvf backup-15-Sept-2018.tar.gz /mnt /home/ubuntu/continental-test /etc/rc.local --exclude /mnt/tiles --exclude /mnt/tiles-new --exclude /mnt/windgram-tiles --exclude /mnt/windgrams/oneDay --exclude /mnt/windgrams/twoDay

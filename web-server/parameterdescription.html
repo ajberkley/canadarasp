@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 5.0 FINAL//EN">
+<html>
+<head>
+  <title>Canada RASP help</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=US-ASCII" >
+  <meta HTTP-EQUIV="Content-Script-Type" content="text/javascript">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+<style>
+  table {
+ border-collapse: collapse;
+}
+tr { 
+  border: solid;
+  border-width: 1px 0;
+  }
+  
+td { background-color: #AF4C50; color: white }
+td~td { background-color: #4CAF50; color: white }
+thead {
+  background-color: #4CAF50;
+  color: white;
+}
+
+</style>
+</head>
+<body>
+<h2>Introduction</h2>
+There are two major parts of Canada RASP: the <a href="windgrams-continental/">windgram pages</a> and the <a href="/RASPtable-continental.html">map pages</a>.  There is also an <a href="aboutcanadarasp.html">about page</a> which describes any recent changes.<p>
+The windgrams are plots that summarize the predicted atmospheric parameters such as wind and temperature at a single point in space across one or two days, for example your favorite flying spot.  An example windgram and description of its parts can be found here (not done yet... volunteers to help?).<p>
+The map page shows a single atmospheric parameter at a single time, such as wind speed at 500ms, or cloud cover, overlaid on a map.  An example map and description of controls can be found here (not done yet... volunteers to help?)<p>
+<b>Dynamic windgram generation:</b> You can generate a windgram at any location (as long as it is within about 100 km of a current windgram --- I will add all the tiles after some more back end work) from the <a href="/windgrams/select-windgram.htm">windgram selector</a> or from the <a href="/">map page</a>.  On either page, press and hold for a second on a point on the map.  A new window should appear --- if you get a message that a popup has been blocked please allow popups from this site.  After several seconds a 2 day windgram should appear for that spot.  You can bookmark that page if you like, it will be generated on demand if there is new data each time you access that page.  You can also embed this on your website, for example.<p>
+The maps and windgrams are updated twice daily, at around 7AM and 7PM pacific daylight time.<p>
+<h2>Parameter Description</h2>
+<table>
+  <tbody>
+    <tr><td>Sfc. Wind</td><td>Wind at specified altitudes above ground level</td></tr>
+    <tr><td>Wind</td><td>Wind at specified absolute altitudes</td></tr>
+ <tr><td>Vertical winds</td><td>Vertical wind speed at specified altitude due to ridge lift and convergence.</td></tr>
+ <tr><td>Thermal Updraft Velocity (W*)</td><td>Average dry thermal updraft strength near mid-BL height.  Updraft strengths will be stronger than this forecast if convective clouds are present, since cloud condensation adds buoyancy aloft (i.e. this neglects cloudsuck).  W* depends upon both the surface heating and the boundary layer depth</td></tr>
+ <tr><td>Top of Lift (AGL)</td><td>This parameter estimates the height over ground at which the average dry updraft strength drops below 1 m/s.  This parameter tends to under predict the actual altitude.  On days with clouds you might get a better estimate by looking at the cloudbase map.</td></tr>
+ <tr><td>BL Depth</td><td>This parameter estimates the height over ground at which thermal mixing.  It is equivalent to the the height where the thermal index is zero, where a parcel of air lifted from the ground would stop rising.  If one is optimistic, one might be able to thermal all the way to this height.</td></tr>
+ <tr><td>Sfc. Heating</td><td>Heat transferred into the atmosphere due to solar heating of the ground, creating thermals.</td></tr>
+ <tr><td>Sfc. Temperature</td><td>Temperature at 2 m above ground level.  This can be compared to observed surface temperatures as an indication of model simulation accuracy; e.g. if observed surface temperatures are significantly below those forecast, then soaring conditions will be poorer than forecast.</td></tr>
+ <tr><td>Sfc.DewpointDepr.</td><td>Temperature at 2m above ground level minus the dew point temperature.  If this is less than 2.5C then there will likely be ground fog.  This can be compared to observed surface dew point temperatures as an indication of model simulation accuracy; e.g. if observed surface dew point temperatures are significantly below those forecast, then BL cloud formation will be poorer than forecast.</td></tr>
+ <tr><td>Cloud Cover</td><td>Percentage cloud coverage for all levels of cloud</td></tr>
+ <tr><td>Rain</td><td>Rain accumulated over the last hour</td></tr>
+    <tr><td>CAPE</td><td>Convective Available Potential Energy indicates the atmospheric stability affecting deep convective cloud formation above the BL.  A higher value indicates greater potential instability, larger updraft velocities within deep convective clouds, and greater potential for thunderstorm development (since a trigger is needed to release that potential).  Note that thunderstorms may develop in regions of high CAPE and then get transported downwind to regions of lower CAPE.</td></tr>
+ <tr><td>Surface Pressure MSL</td><td>Surface pressure extrapolated to mean sea level.  Can sometimes give an indication of the synoptic condition.</td></tr>
+ <tr><td>Terrain Height</td><td>This is the model terrain that is used in the calculation --- it helps connect reality and forecast.  It can show that very small valleys are not resolved well, or that your favorite windgram location is not in the spot you think it is.</td></tr>
+ </tbody>
+</table>
+</body>
