@@ -1,17 +1,21 @@
+#!/usr/bin/sbcl --script
+
 (load "~/quicklisp/setup.lisp")
 
 (require :hunchentoot)
 (require :cl-ppcre)
+(require :cl-fad)
 (require :iterate)
-(require :localtime)
+(require :local-time)
+(require :parse-number)
 
+(use-package :parse-number)
 (use-package :cl-ppcre)
 (use-package :iterate)
 (use-package :hunchentoot)
-(use-package :localtime)
-
-;; need to put a cache in front of
-;; this
+(use-package :cl-fad)
+(use-package :local-time)
+(load "utils.lisp")
 
 (defun tile-id (lon lat)
   (let* ((lon (read-from-string lon))
@@ -25,37 +29,67 @@
 
 (defparameter *counter* 0)
 
-(defun generate-windgram (lon lat)
-  (check-type lon 'float)
-  (check-type lon 'float)
+(defun read-binary-file (file)
+    (with-open-file (str file :element-type '(unsigned-byte 8) :direction :input)
+      (let ((buffer (make-array (file-length str)
+				:element-type '(unsigned-byte 8))))
+	(read-sequence buffer str)
+	buffer)))
+
+(hunchentoot:define-easy-handler (windgram-handler :uri "/windgram") (lon lat)
+  (or (ignore-errors
+	(setf (hunchentoot:content-type*) "image/png")
+	(assert (and (<= (length lon) 100) (<= (length lat) 100)))
+	(parse-real-number lon) ;; this will error if it fails
+	(parse-real-number lat) ;; this will error if it fails
+	(generate-windgram lon lat))
+      (progn
+	(setf (hunchentoot:content-type*) "text/plain")
+	"Invalid location: please send an email to ajberkley@gmail.com to request this general area be added.  Generally anything within about 100 km of an existing windgram will work for now (hope to have the entire domain available soon -- ajb Sept 2018)")))
   
-  (let ((tile (tile-id lon lat))
-	(temporary-filename (format nil "/mnt/~A-~A.png
-    (
-	
-(defun handle-locations (&optional (filename "/home/ubuntu/continental-test/plot-generation/locations.txt") (outputfilename "/home/ubuntu/continental-test/plot-generation/run-my-windgrams.sh"))
-  (let ((result-hash (make-hash-table :test 'equalp))
-	(*print-pretty* nil))
-    (with-open-file (str filename :direction :input)
-      (read-line str)
-      (loop :for line = (read-line str nil nil)
-	    :for index :from 0
-	    :while line
-	    :do
-	       (destructuring-bind (region location lon lat max-altitude flag)
-		   (mapcar (lambda (x) (string-trim '(#\Space) x)) (cl-ppcre:split "," line))
-		 (declare (ignorable flag max-altitude flag region))
-		 (push (list :label-lat-lon (format nil "~A,~A,~A" location lon lat) :index index) (gethash (tile-id lon lat) result-hash)))))
-    (with-open-file (out outputfilename :direction :output :if-exists :supersede)
-      (iter (for (tile-id list-of-sites) in-hashtable result-hash)
-	       (for labels_lats_lons = "")
-	       (for outputfiles = "")
-	       (iter (for site in list-of-sites)
-		     (setf labels_lats_lons (concatenate 'string labels_lats_lons ";" (getf site :label-lat-lon)))
-		     (setf outputfiles (concatenate 'string outputfiles (format nil "~Awindgram~A.png" (if (first-time-p) "" ";") (getf site :index)))))
-	       (when (not (string= labels_lats_lons ""))
-		 (format out "$NCARG_ROOT/bin/ncl -n windgram-continental.ncl 'input_files=\"/mnt/tiles/~A/hrdps_*.grib2\"' 'output_dir=\"/mnt/windgrams/\"' 'output_files=\"~A\"' 'labels_lats_lons=\"~A\"'~%"
-			 tile-id outputfiles labels_lats_lons))))))
 
-(handle-locations)
+(hunchentoot:define-easy-handler (default :uri (lambda (x) (not (string= "/windgram" (script-name* x))))) ()
+   (setf (hunchentoot:content-type*) "text/plain")
+   (format nil "Access denied"))
 
+(defun start-webserver ()
+  (hunchentoot:start (make-instance 'hunchentoot:easy-acceptor :port 8080)))
+
+(defparameter *ncarg-root* (or (sb-posix:getenv "NCARG_ROOT") "/home/ubuntu/NCARG/"))
+
+(defun find-latest-date (directory)
+  (let ((files (cl-fad:list-directory directory)))
+    (iter (for file in files)
+          (destructuring-bind (date run)
+	      (coerce (nth-value 1 (cl-ppcre:scan-to-strings "hrdps_continental_(.*)-run([0-9]*)_P" (format nil "~A"file))) 'list)
+	    (finding (list date run) maximizing (local-time:timestamp-to-universal (local-time:parse-timestring (format nil "~AT~A:00:00Z" date run))))))))
+          
+
+(defun generate-windgram (lon lat)
+  ;; filenames are like: hrdps_continental_2018-09-02-run06_P017.grib2
+  (sb-posix:setenv "TZ" "America/Vancouver" 1)
+  (sb-posix:setenv "NCARG_ROOT" *ncarg-root* 1)
+  ;; Need to choose the latest files... hrmph.  Scan through files, choose the latest date and the latest hour
+  ;; then generate the input_files glob for that
+  (let* ((tile-id (print (tile-id lat lon))))
+    (destructuring-bind (date run)
+	(find-latest-date (format nil "/mnt/windgram-tiles/~A" tile-id))
+      (format t "Initialized at ~A run hour ~A~%" date run)
+      (let* ((output-filename (format nil "windgram-~A-~A-~A-~A.png" date run lon lat))
+	     (real-output-file (format nil "/mnt/windgrams/twoDay/~A/~A"  date output-filename)))
+	(ensure-directories-exist real-output-file)
+	(if (cl-fad:file-exists-p real-output-file)
+	    (progn (format t "File exists!~%")
+		   (read-binary-file real-output-file))
+	    (progn 
+	      (print/run-program (format nil "~A/bin/ncl" *ncarg-root*)
+				 (list "-n" "windgram-continental.ncl"
+				       (format nil "input_files=\"/mnt/windgram-tiles/~A/hrdps_continental_~A-run~A_*.grib2\"" tile-id date run)
+				       "output_dir=\"/mnt/windgrams/\""
+				       (format nil "output_files=\"~A\"" output-filename)
+                                       "plot_days=2"
+				       (format nil "labels_lats_lons=\";~,4f ~,4f,~A,~A\"" (parse-real-number lat) (parse-real-number lon) lat lon)))
+	      (read-binary-file real-output-file)))))))
+
+(start-webserver)
+(iter (sleep 3600))
