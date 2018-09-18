@@ -1,0 +1,2 @@
+DirectoryIndex index.htm
+Header set Cache-Control "max-age=1000, no-cache, no-store, must-revalidate"
