@@ -28,7 +28,7 @@ if [ -z $NOCLIP ]; then     # if string is NULL
             echo "( cat $TOPO $HGT $UGRD $VGRD | $WGRIB2 - -v0 -set_grib_type simple -if :HGT:surface: -rpn 'sto_1' -fi -if \":HGT:[0-9]+ mb:\" -rpn 'rcl_1:>:sto_2' -fi -if \":UGRD:[0-9]+ mb:\" -rpn 'rcl_2:mask' -grib_out $UGRD.masked  -fi -if \":VGRD:[0-9]+ mb:\" -rpn 'rcl_2:mask' -grib_out $VGRD.masked  -fi >& /dev/null ; mv $UGRD.masked $UGRD ; mv $VGRD.masked $VGRD )" >> /mnt/paralleljobs
         done
     done
-    echo "running `wc -l paralleljobs`"
+    echo "running `wc -l /mnt/paralleljobs`"
     parallel --gnu -j $PARALLELTILE < /mnt/paralleljobs
     export -n OMP_NUM_THREADS
     echo "Done clipping data below terrain elevation at `date`"
