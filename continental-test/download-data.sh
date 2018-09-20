@@ -1,11 +1,12 @@
 #!/bin/bash
-# Usage ./download-data.sh [hrdps | gdps | rdps]
-
+# Usage ./download-data.sh model directory
+MODEL=${1:-$MODEL}
+DOWNLOADDIRECTORY=$2
+echo Downloading $MODEL data to $DOWNLOADDIRECTORY
 export RASPBASEDIR=`pwd`
-
 source ./guess-time.sh $MODEL
 source ./model-parameters.sh $MODEL
-mkdir -p $OUTPUTDIR
+mkdir -p $DOWNLOADDIRECTORY
 
 rm -f /tmp/wget.jobs
 
@@ -19,9 +20,9 @@ done
 echo "Done generating $DIRECTORY file names"
 
 if [ -z $NODEL ]; then     # if string is NULL
-  rm -f $OUTPUTDIR/*
+  rm -f $DOWNLOADDIRECTORY/*
 fi
-cd $OUTPUTDIR
+cd $DOWNLOADDIRECTORY
 
 # check that the data is on the server. Looking for hour $TIMESTOP
 echo "Checking data is on the server"
@@ -41,7 +42,7 @@ do
   sleep 60 # sleep for a minute
 done
 
-echo "downloading $DIRECTORY data from time 0 to $TIMESTOP by $TIMESTEP hours input $OUTPUTDIR"
+echo "downloading $DIRECTORY data from time 0 to $TIMESTOP by $TIMESTEP hours input $DOWNLOADDIRECTORY"
 parallel --gnu -n 8 -j 8 wget --timeout=120 -c -nc -nv {} < /tmp/wget.jobs
 echo "Second time"
 parallel --gnu -n 8 -j 4 wget -c -nc -nv {} < /tmp/wget.jobs
