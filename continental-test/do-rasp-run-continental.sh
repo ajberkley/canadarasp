@@ -5,10 +5,15 @@
 # You can export NODOWNLOAD=1 to not re-download data, make sure to mount /mnt first
 
 ./setup-drives.sh
+PATH=$PATH:/home/ubuntu/canadarasp/aws-utils
+MY_INSTANCE_ID=`get-my-instance-id.sh`
+MODEL=`aws-read-tag.sh $MY_INSTANCE_ID model`
 MODEL=${MODEL:-$1}
 export MODEL=${MODEL:-"gdps"}
+echo Running RASP for model $MODEL
 source ./model-parameters.sh $MODEL
 source ./guess-time.sh $MODEL
+exit 1
 echo Moving downloaded data to local disk starting at `date`
 source /home/ubuntu/canadarasp/aws-utils/create-download-box.sh /download-box
 cd /download-box
