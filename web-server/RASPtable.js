@@ -107,19 +107,13 @@ function setSize() {
     var scaleBox = document.getElementById("botScale");;
     var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
     var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-    //console.log("height is " + height + " width is " + width)
-    // titleBox.style.left     = 0  + "px" ;
-    // titleBox.style.top      = 0  + "px";
     titleBox.style.height   =  "68px";
-    //titleBox.style.maxHeight = "68px";
-    //    titleBox.style.width = imgWid * 0.6 + "px";
     titleBox.style.overflow = "hidden" ;
     titleBox.style.position = "relative" ;
 
     zoomBox = document.getElementById("zoomBox");
-    //zoomBox.style.height   = (height - 68 - 41) + "px";
     zoomBox.style.width = "100vw";
-    zoomBox.style.overflow = "hidden";//"visible" ;
+    zoomBox.style.overflow = "hidden";
     zoomBox.style.position = "relative" ;
 
     scaleBox = document.getElementById("botScale");
@@ -128,13 +122,12 @@ function setSize() {
     scaleBox.style.position = "relative" ;
 }
 
-
 function setupParamset () {
     var paramel = document.getElementById("Param");
     var idx;
     var newParams;
     if(model() == "hrdps") { newParams=HRDPSparamListFull; } else { newParams=GDPSparamListFull; };
-    
+    paramel.options = true;   
     for (var i = 0; i < newParams.length; i++) {
 	paramel.options[i] = new Option(newParams[i][2], newParams[i][1]);
 	paramel.options[i].className = newParams[i][0];
@@ -177,7 +170,8 @@ function set_datetime_options () {
     var msperhour = 60 * 60 * 1000; // milliseconds in an hour
     var j = 0;
     var selected = false;
-    
+    var datetime = document.getElementById("datetime");
+    datetime.options = true;
     if(model() === "hrdps") {
 	hourfuture = 48; } else { hourfuture = 99; }
     for (var i = hourpast ; i < hourfuture ; i++ ) {
@@ -187,7 +181,7 @@ function set_datetime_options () {
 	var year = newDate.getFullYear();
 	var hour = newDate.getHours();
 	//console.log("hour is " + hour)
-	if((model == "hrdps" && (hour > 4 && hour < 22)) || ( model != "hrdps" && ((newDate.getUTCHours() % 3) == 0))) {
+	if((model() == "hrdps" && (hour > 4 && hour < 22)) || ( model() != "hrdps" && ((newDate.getUTCHours() % 3) == 0))) {
 	    datetime.options[j] = new Option(year+"-"+month+"-"+day+" "+padwithzero(hour)+"00");
 	    if(i==0) { datetime.options[j].selected = true; selected = true;};
 	    if(!selected && i>0) { datetime.options[j].selected = true; selected = true; };
@@ -197,32 +191,24 @@ function set_datetime_options () {
 }
 
 function initIt() {
-    // Disable Scrolling
     document.getElementById("model").onchange = (function () { set_datetime_options(); setupParamset(); set_params_for_model(); doChange(); });
     document.body.style.overflow = "auto";
     oldParam = document.getElementById("Param").options.value;
-    /* Build the Initial Date Menus */
-    var datetime = document.getElementById("datetime");
     var T = new Date();      // Instantiate a Date object
-    var monthName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     var lat = 49.05
     var lon = -122.18;
     var zoom = 10;
 
-    
     setupParamset();  // set the short param list
     set_datetime_options();
-    // Install Handlers
+
     document.getElementById("Param").onchange = doChange;
     document.getElementById("datetime").onchange = doChange;
     windgram_checkbox = document.getElementById('windgram_checkbox');
-    // Install Time options
     
-    document.getElementById("Param").options[4].selected  = true;        // wstar
-    //document.getElementById("popup").info[0].checked      = true;        // "Value" in infoWindow (not "Day" or "SkewT")
-    //updateParamDescription();
+    document.getElementById("Param").options[4].selected  = true;
     
-    whichBrowser();  // Determine punter's Browser
+    whichBrowser();
     /*****************************************
      * Process URL tail and set menu options *
      *****************************************/
@@ -261,12 +247,6 @@ function initIt() {
 		    }
 		}
 	    }
-	    // if(prams[0] == "time"){
-	    // 	for(j = 0; j < document.getElementById("Time").options.length; j++){
-	    // 	    if(document.getElementById("Time").options[j].value == prams[1])
-	    // 		document.getElementById("Time").options[j].selected = true;
-	    // 	}
-	    // }
 	    if(prams[0] == "lat") {
 		lat = 1*prams[1];
 	    }
@@ -283,18 +263,6 @@ function initIt() {
 		    windgram_checkbox.checked = false;
 		}
 	    }
-
-	    // if(prams[0] == "date"){
-	    // 	var T = new Date(prams[1].substr(0,4), prams[1].substr(4,2) - 1, prams[1].substr(6,2), 0, 0, 0, 0);
-	    // 	var Month = document.getElementById("Month");
-	    // 	var Year = document.getElementById("Year");
-	    // 	Month.options[T.getMonth()].selected = true;
-	    // 	Year.options[1].selected = true;
-	    // 	oldMonth = document.getElementById("Month").value;
-	    // 	updateDays();
-	    // 	document.getElementById("Day").options[T.getDate()-1].selected = true;
-	    // 	oldDay = document.getElementById("Day").value;
-	    // }
 	}
     }
 
@@ -362,11 +330,6 @@ function initIt() {
 	},1000);
     });
 }
-
-/****************************************
- *      END OF INITIALISATION STUFF     *
- *      Start of functions              *
- ****************************************/
 
 var ie;
 
@@ -477,7 +440,7 @@ function getImage(filename) {
 }
 
 function lat_in_bounds (lat) {
-    if(model === "hrdps") {
+    if(model() == "hrdps") {
 	if(lat > 29 && lat < 70) {
 	    return true;
 	} else {
@@ -489,7 +452,7 @@ function lat_in_bounds (lat) {
 }
 
 function lng_in_bounds (lng) {
-    if(model === "hrdps") {
+    if(model() == "hrdps") {
 	if(lng>= -153 && lng < -43) {
 	    return true;
 	} else {
@@ -504,7 +467,7 @@ function getTilesIn(bounds) {
     var result = [];
     var lngstart = sw.lng();
     var lngmid = ne.lng();
-    //console.log("ne is " + ne + " sw is " + sw);
+    console.log("ne is " + ne + " sw is " + sw);
     if(ne.lng() < sw.lng()) { // wrap around the globe
 	lngmid = 180;
     } else {
@@ -527,6 +490,7 @@ function getTilesIn(bounds) {
 	    }
 	}
     }
+    console.log(result);
     return result;
 }
 
