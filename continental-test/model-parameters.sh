@@ -37,7 +37,7 @@ if [ $MODEL = "hrdps" ]; then
    export XMIN=-152
    export XMAX=-42
    export XSTEP=2
-   export YMIN=36
+   export YMIN=27
    export YSTEP=2
    export YMAX=70
 
