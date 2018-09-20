@@ -21,7 +21,6 @@ var opacity = 50;  // default opacity
 var OPACITY_MAX_PIXELS = 57; // Width of opacity control image
 
 var step = 2;
-var donotuserealtiles = false;
 
 var regions = [ "Lower Mainland", "Sea to Sky", "Vancouver Island", "Kamloops Area","North Okanagan","South Okanagan","Kootenays","Smithers Area","Jasper Area","Alberta","Washington","Ski","Cariboo", "Montreal"];
 var windgrammarkers = Array();
@@ -165,10 +164,8 @@ function model () {
 function set_params_for_model () {
     if(model() === "hrdps") {
 	step = 2;
-	donotuserealtiles = false;
     } else if(model() === "gdps") {
 	step = 10;
-	donotuserealtiles = true;
     }
 }
 
@@ -553,10 +550,10 @@ function clearOverlaysnotIn (tiles) {
 }
 
 function realtilelat(lat) {
- if(donotuserealtiles) { return lat; } else {return realtilelats[lat]};
+ return realtileinfo[model()].lats[lat];
 }
 function realtilelng(lng) {
- if(donotuserealtiles) { return lng; } else {return realtilelons[lng]};
+ return realtileinfo[model()].lons[lng];
 }
 
 function addOverlay(tile, image, map, zoom) {
@@ -573,7 +570,7 @@ function addCanvasOverlay(tile, image, map, zoom) {
         new google.maps.LatLng(  realtilelat(tile.lat), realtilelng(tile.lng) ),
         new google.maps.LatLng(  realtilelat(tile.lat+step) , realtilelng(tile.lng + step) )
     );
-    console.log("Adding canvas overlay to tile " +tile);
+    //console.log("Adding canvas overlay to tile " +tile);
     overlays.push({tile: tile, zoom: zoom, overlay: new CanvasOverlay(bounds, image, map)});
 }
 
@@ -628,7 +625,7 @@ function loadImages()
     tiles.forEach(function(tile) {
 	var fullURL = tileName(tile,splittime,param)+ ".body.png";
 	var image = getImage(fullURL);
-	console.log("Trying to get image: " + fullURL);
+ //	console.log("Trying to get image: " + fullURL);
 	if(image) {
 	    addOverlay(tile,image.src, map);
 	}
