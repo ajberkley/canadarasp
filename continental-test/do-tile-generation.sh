@@ -72,14 +72,14 @@ if [ -z $NOTILES ]; then
    echo "Generating commands starts at `date`" # This actually takes two minutes or so!
    rm -f /mnt/parallel-jobs
    rm -f /mnt/args
-       ARGSFILES=""
-       for H in ${TIMES[*]}
-       do
-	   echo ./generate-tile-commands.lisp $YEAR $MONTH $DAY $HOUR $H /mnt/args$H >> /mnt/parallel-jobs
-	   ARGSFILE+="/mnt/args$H "
-       done
-       parallel --gnu -n 1 -j $PARALLELTILE < /mnt/parallel-jobs
-       cat $ARGSFILE > /mnt/args
+   ARGSFILES=""
+   for H in ${TIMES[*]}
+   do
+      echo ./generate-tile-commands.lisp $YEAR $MONTH $DAY $HOUR $H /mnt/args$H >> /mnt/parallel-jobs
+      ARGSFILE+="/mnt/args$H "
+   done
+   parallel --gnu -n 1 -j $PARALLELTILE < /mnt/parallel-jobs
+   cat $ARGSFILE > /mnt/args
    echo "Done generating commands at `date`"
    echo "Generating grib tiles starts at `date`"
    export OMP_NUM_THREADS=1
@@ -87,7 +87,6 @@ if [ -z $NOTILES ]; then
    export -n OMP_NUM_THREADS
    echo "Done generating grib tiles at `date`"
 fi
-exit 1
 rm -f /mnt/args
 rm -f /mnt/parallel-jobs
 echo "Starting concatenating files for each hour at `date`"
@@ -100,16 +99,12 @@ if [ -z $NOTILES ]; then
 	    do
 		DIRECTORYNAME=$TILEDIR/$X:$((X+XSTEP)):$Y:$((Y+YSTEP))
 		P=$DIRECTORYNAME
-		OUTPUT=$DIRECTORYNAME/$MODEL_$YEAR-$MONTH-$DAY-run$HOUR"_P0"$H".grib2"
-		CATLIST="$P/*VGRD_ISBL_*_P0$H-00.grib2 $P/*UGRD_ISBL_*_P0$H-00.grib2 $P/*DEPR_ISBL_*_P0$H-00.grib2 $P/*TMP_ISBL_*_P0$H-00.grib2 $P/*HGT_SFC*_P0$H-00.grib2 $P/*HGT_ISBL*_P0$H-00.grib2 $P/*TGL*_P0$H-00.grib2 $P/*PRATE*_P0$H-00.grib2 $P/*TCDC_SFC*_P0$H-00.grib2 $P/*PRMSL*_P0$H-00.grib2  $P/*HTFL*_P0$H-00.grib2"
+		OUTPUT=$DIRECTORYNAME/$MODEL"_"$YEAR-$MONTH-$DAY-run$HOUR"_P0"$H".grib2"
+		CATLIST="$P/*VGRD_ISBL_*_P0$H$TAIL $P/*UGRD_ISBL_*_P0$H$TAIL $P/*DEPR_ISBL_*_P0$H$TAIL $P/*TMP_ISBL_*_P0$H$TAIL $P/*HGT_SFC*_P0$H$TAIL $P/*HGT_ISBL*_P0$H$TAIL $P/*TGL*_P0$H$TAIL $P/*PRATE*_P0$H$TAIL $P/*TCDC_SFC*_P0$H$TAIL $P/*PRMSL*_P0$H$TAIL  $P/*HTFL*_P0$H$TAIL"
 		cat $CATLIST > $OUTPUT
 		# $P/*CAPE*_P0$H-00.grib2
 		# $P/*VVEL*_P0$H-00.grib2
-                ls $CATLIST
-                ls $OUTPUT
-                exit 1
 		rm $CATLIST
-
 	    done
 	done
     done

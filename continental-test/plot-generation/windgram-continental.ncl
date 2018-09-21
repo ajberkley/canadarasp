@@ -24,7 +24,6 @@ load "windgram-continental-colormap.ncl"
 ; it has not been completely "error trapped" but it catches some.
 
 defaultFillValue = 999900026055400882176.
-locations = "/home/ubuntu/continental-test/plot-generation/locations.txt"
 
 begin
 
@@ -126,9 +125,32 @@ begin
   input_file_names = systemfunc("ls -1 " + input_files + " | sort") ;; to guarantee they are in increasing hour order, so a[47] is P048, a[0] is P001
 
   a = addfiles(input_file_names,"r");
-
   ;; FORECAST INITIALIZATION TIME DETECTION
-  ter := a[:]->HGT_P0_L1_GST0 ;; Grab some variable so we can see when the model was initialized
+;; (0)	TMP_P0_L100_GLL0
+;; (1)	TMP_P0_L103_GLL0
+;; (2)	DEPR_P0_L100_GLL0
+;; (3)	DEPR_P0_L103_GLL0
+;; (4)	LHTFL_P0_L1_GLL0
+;; (5)	SHTFL_P0_L1_GLL0
+;; (6)	UGRD_P0_L100_GLL0
+;; (7)	UGRD_P0_L103_GLL0
+;; (8)	VGRD_P0_L100_GLL0
+;; (9)	VGRD_P0_L103_GLL0
+;; (10)	PRMSL_P0_L101_GLL0
+;; (11)	HGT_P0_L1_GLL0
+;; (12)	HGT_P0_L100_GLL0
+;; (13)	TCDC_P0_L1_GLL0
+;; (14)	lv_HTGL1
+;; (15)	lat_0
+;; (16)	lon_0
+;; (17)	lv_ISBL0
+  if(isvar("a[:]->HGT_P0_L1_GST0")) then
+   ter := a[:]->HGT_P0_L1_GST0 ;; Grab some variable so we can see when the model was initialized
+   timesinfiles:=a[:]->HGT_P0_L1_GST0!0  ;forecast_times
+  else
+   ter := a[0]->HGT_P0_L1_GLL0 ;; Grab some variable so we can see when the model was initialized
+   timesinfiles:=a[0]->HGT_P0_L1_GLL0!0  ;forecast_times
+  end if;
   initialization_date = str_get_field(ter@initial_time,1," ")
   yyyy_mm_dd = systemfunc("date -u -d " + quote + initialization_date + quote + " +%Y-%m-%d")
   run_str = str_get_field(ter@initial_time,2," ");
@@ -146,12 +168,16 @@ begin
   print("First hour of the model " + local_start_time)
 
   ;; LEARN ABOUT OUR GRID
-  XLAT=a[0]->gridlat_0
-  XLONG=a[0]->gridlon_0
-  rot=a[0]->gridrot_0
-
+  if(isvar("a[0]->gridlat_0")) then
+   XLAT=a[0]->gridlat_0
+   XLONG=a[0]->gridlon_0
+   rot=a[0]->gridrot_0
+  else
+   LAT=a[0]->lat_0
+   LONG=a[0]->lon_0
+  end if;
   ;; WHAT TIMES ARE AVAILABLE?
-  timesinfiles:=a[:]->HGT_P0_L1_GST0!0  ;forecast_times
+  
   numtimes=dimsizes(timesinfiles)
   print("numtimes " + numtimes)
   taus:=ispan(0,numtimes-1,1)   ;coordinate variable for Time dimension
@@ -239,17 +265,23 @@ begin
    end if
 
     print("Processing " + site_name + " at " + site_lat + "," + site_lon + " and writing output to " + outputfile);
-
-    locij:=wrf_latlon_to_ij(XLAT,XLONG,site_lat, site_lon)
-    locX=locij(1)
-    locY=locij(0)
-    ;; Always use these to functions as locY, locX
-    ; print(site_lon + " gives locX = "+locX  + " and actual lon = " + XLONG(locY,locX))
-    ; print(site_lat + " gives locY = "+locY  + " and actual lat = " + XLAT(locY,locX))
+    if(isvar("XLAT")) then
+      locij:=wrf_latlon_to_ij(XLAT,XLONG,site_lat, site_lon)
+      locX=locij(1)
+      locY=locij(0)
+      ;; Always use these to functions as locY, locX
+      ; print(site_lon + " gives locX = "+locX  + " and actual lon = " + XLONG(locY,locX))
+      ; print(site_lat + " gives locY = "+locY  + " and actual lat = " + XLAT(locY,locX))
+    else
+      print("NOT VERIFIED X AND Y TO I J")
+      locX=ind_nearest_coord(site_lat,a->lat_0,0)
+      locY=ind_nearest_coord(site_lon,a->lat_0,0)
+    end
 
     lasthour = ListCount(a)-1
     print("Last hour is " + lasthour)
     ListSetType(a,"cat")
+    print("HAVENOT FINISHED THIS YET")
     h = a[lasthour]->HGT_P0_L1_GST0(locY,locX)
     ListSetType(a,"join")
     zloc := a[:]->HGT_P0_L100_GST0(:,::-1,locY,locX) ;level altitudes ;; this is now hte reverse order?
@@ -285,9 +317,14 @@ begin
     windVr = a[:]->VGRD_P0_L100_GST0(:,::-1,locY,locX)
     uloc:=new((/numtimes,numlevels/) ,float)
     vloc:=new((/numtimes,numlevels/) ,float)
-    radian_rot = rot(locY,locX)
-    uloc = (sin(radian_rot)*windVr + cos(radian_rot)*windUr)*3.6  ; convert from m/s to km/h
-    vloc = (cos(radian_rot)*windVr - sin(radian_rot)*windUr)*3.6  ; rotate to N/S grid
+    if(isvar("rot")) then
+     radian_rot = rot(locY,locX)
+     uloc = (sin(radian_rot)*windVr + cos(radian_rot)*windUr)*3.6  ; convert from m/s to km/h
+     vloc = (cos(radian_rot)*windVr - sin(radian_rot)*windUr)*3.6  ; rotate to N/S grid
+    else
+     uloc = windUr*3.6;
+     vloc = windUr*3.6;
+    end if;
     delete(windUr)
     delete(windVr)
     uloc!0 = "Time"

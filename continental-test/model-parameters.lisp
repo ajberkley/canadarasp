@@ -40,3 +40,13 @@
 	      (decf y *ystep*)
 	      (setf x minx)))
 	  nil))))
+
+(defun tile-id (lon lat)
+  (let* ((lon (read-from-string lon))
+         (lat (read-from-string lat))
+         (latq (* *xstep* (floor (/ lat *xstep*))))
+         (lonq (* *ystep* (floor (/ lon *ystep*)))))
+    (assert (< lonq lon (+ *ystep* lonq)))
+    (assert (< latq lat (+ *xstep* latq)))
+    (format nil "~A:~A:~A:~A" latq (+ *xstep* latq) lonq (+ *ystep* lonq))))
+

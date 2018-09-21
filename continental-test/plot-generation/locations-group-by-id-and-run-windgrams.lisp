@@ -1,22 +1,12 @@
 #!/usr/local/bin/sbcl --script
 
 (load "~/quicklisp/setup.lisp")
-
+(load "../model-parameters.lisp")
 (require :cl-ppcre)
 (require :iterate)
 
 (use-package :cl-ppcre)
 (use-package :iterate)
-
-(defun tile-id (lon lat)
-  (let* ((lon (read-from-string lon))
-	 (lat (read-from-string lat))
-	 (latq (* 2 (floor (/ lat 2.0))))
-	 (lon-floor (floor lon))
-	 (lonq (if (oddp lon-floor) lon-floor (- lon-floor 1))))
-    (assert (< lonq lon (+ 2 lonq)))
-    (assert (< latq lat (+ 2 latq)))
-    (format nil "~A:~A:~A:~A" latq (+ 2 latq) lonq (+ 2 lonq))))
 
 (defun handle-locations (&optional (filename "/home/ubuntu/continental-test/plot-generation/locations.txt") (outputfilename "/home/ubuntu/continental-test/plot-generation/run-my-windgrams.sh"))
   (let ((result-hash (make-hash-table :test 'equalp))
@@ -39,8 +29,8 @@
 		     (setf labels_lats_lons (concatenate 'string labels_lats_lons ";" (getf site :label-lat-lon)))
 		     (setf outputfiles (concatenate 'string outputfiles (format nil "~Awindgram~A.png" (if (first-time-p) "" ";") (getf site :index)))))
 	       (when (not (string= labels_lats_lons ""))
-		 (format out "$NCARG_ROOT/bin/ncl -n windgram-continental.ncl 'input_files=\"/mnt/tiles/~A/hrdps_*.grib2\"' 'output_dir=\"/mnt/windgrams/\"' 'output_files=\"~A\"' 'labels_lats_lons=\"~A\"'~%"
-			 tile-id outputfiles labels_lats_lons))))))
+		 (format out "$NCARG_ROOT/bin/ncl -n windgram-continental.ncl 'input_files=\"/mnt/tiles/~A/~A/~A_*.grib2\"' 'output_dir=\"/mnt/windgrams/\"' 'output_files=\"~A\"' 'labels_lats_lons=\"~A\"'~%"
+			 *model* tile-id *model* outputfiles labels_lats_lons))))))
 
 (handle-locations)
 

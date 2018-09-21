@@ -13,11 +13,10 @@ export MODEL=${MODEL:-"gdps"}
 echo Running RASP for model $MODEL
 source ./model-parameters.sh $MODEL
 source ./guess-time.sh $MODEL
-exit 1
 echo Moving downloaded data to local disk starting at `date`
 source /home/ubuntu/canadarasp/aws-utils/create-download-box.sh /download-box
 cd /download-box
-cp -R * /mnt
+cp -R * /mnt/input/$MODEL
 sync
 cd /home/ubuntu/canadarasp/continental-test
 source /home/ubuntu/canadarasp/aws-utils/unmount-download-box.sh

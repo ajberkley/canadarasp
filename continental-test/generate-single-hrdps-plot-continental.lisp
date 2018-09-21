@@ -438,24 +438,6 @@
     (rm-file filename-warped)
     t))
 
-;; Simplest way to break it up is to write the whole thing after generating the scaled up image
-;; it won't be the fastest, but whatever.  Let's do it.
-
-(defun tile-id (lon lat)
-  (let* ((lon (read-from-string lon))
-	 (lat (read-from-string lat))
-	 (latq (* *xstep* (floor (/ lat *xstep*))))
-	 (lonq (* *ystep* (floor (/ lon *ystep*)))))
-    (assert (< lonq lon (+ *ystep* lonq)))
-    (assert (< latq lat (+ *xstep* latq)))
-    (format nil "~A:~A:~A:~A" latq (+ *xstep* latq) lonq (+ *ystep* lonq))))
-
-;; echo Using domain continental
-;;     XVALS=($(seq -150 2 -50))
-;;     YVALS=($(seq 37 2 70))
-
-
-
  ;;A chunk-generator gives me null or a list of ulx uly lrx lry bounds
 
 (defun combine-winds-warp-and-return-new-files (ugrib vgrib)

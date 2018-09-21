@@ -4,6 +4,7 @@
 MNT=${1:-/mnt}
 export -n VOL_ID=
 export DBOXNAME="download-box-$MODEL"
+echo Going to get a $DBOXNAME and mount it at $MNT
 export VOL_ID=`aws ec2 describe-volumes --filters Name=tag:Name,Values=$DBOXNAME Name=status,Values=available | head -1 | awk '{ print $7 }'`
 export MY_INSTANCE_ID=`curl -s http://169.254.169.254/latest/meta-data/instance-id`
 export MY_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
