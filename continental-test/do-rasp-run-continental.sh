@@ -5,7 +5,7 @@
 # You can export NODOWNLOAD=1 to not re-download data, make sure to mount /mnt first
 
 ./setup-drives.sh
-PATH=$PATH:/home/ubuntu/canadarasp/aws-utils
+PATH=$PATH:/home/ubuntu/canadarasp/aws-utils:/home/ubuntu/.local/bin
 MY_INSTANCE_ID=`get-my-instance-id.sh`
 MODEL=`aws-read-tag.sh $MY_INSTANCE_ID model`
 MODEL=${MODEL:-$1}
