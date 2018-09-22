@@ -12,7 +12,6 @@ export MODEL=${MODEL:-"gdps"}
 echo Running RASP for model $MODEL, SHUTDOWN=$SHUTDOWN
 source ./model-parameters.sh $MODEL
 source ./guess-time.sh $MODEL
-exit 1
 echo Moving downloaded data to local disk starting at `date`
 source /home/ubuntu/canadarasp/aws-utils/create-download-box.sh /download-box
 cd /download-box
