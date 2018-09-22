@@ -6,7 +6,7 @@
 ;    ncl windgram-continental.ncl 'input_files="/mnt/tiles/-122:-120:49:51/hrdps_*.grib"'   ;; input information
 ;                                 [plot_day=0|1|2] output_files="woodsidewgram.png ; bridalwgram.png"
 ;                                 labels_lat_lons="Woodside, 49.0,-122.0 ; Bridal Falls, 49.5, -122.5 ; ..."
-;                                 [max_altitude=4500 dp_cut=0.5 debug=1 sink_rate=1 unit_scheme=4 show_wind=1]
+;                                 [max_altitude=4500 dp_cut=0.5 debug=1 sink_rate=1 unit_scheme=4 show_wind=1 model=hrdps]
 ;    This will generate output files called "twoDay/2018-06-22/woodsidewgram.png" "oneDay/2018-06-22/..."
 
 ;; Load helper functions
@@ -25,6 +25,43 @@ load "windgram-continental-colormap.ncl"
 
 defaultFillValue = 999900026055400882176.
 
+if(.not.isvar("model")) then
+   model = "hrdps";
+end if
+
+;; Global variables... I hate NCL
+initialization_date = "";
+run_time = "";
+pmb = True;
+numtimes=0;
+zloc=0
+h=0
+tkloc=0
+tdloc=0
+tSfc=0
+dpSfc=0
+mslp=0
+shf=0
+lhf=0
+rainloc=0
+cloudloc=0
+lclloc=0
+agl=0
+uloc=0
+vloc=0
+ulocSfc=0
+vlocSfc=0
+taus=0
+show_rain=1
+
+if(model .eq. "hrdps") then
+ print("Loading HRDPS procedures")
+ loadscript("windgram-hrdps.ncl");
+else
+ print("Loading GDPS procedures")
+ loadscript("windgram-gdps.ncl");
+end if
+
 begin
 
   operator="ajb & ps (ec2)"                       ; your name here :-)
@@ -35,6 +72,10 @@ begin
   line_color = 13
   templine_color = 22
 
+  if(.not.isvar("model")) then
+     model = "hrdps";
+  end if
+  
   if(.not.isvar("max_altitude")) then
      max_altitude = 4500
   end if
@@ -126,37 +167,10 @@ begin
 
   a = addfiles(input_file_names,"r");
   ;; FORECAST INITIALIZATION TIME DETECTION
-;; (0)	TMP_P0_L100_GLL0
-;; (1)	TMP_P0_L103_GLL0
-;; (2)	DEPR_P0_L100_GLL0
-;; (3)	DEPR_P0_L103_GLL0
-;; (4)	LHTFL_P0_L1_GLL0
-;; (5)	SHTFL_P0_L1_GLL0
-;; (6)	UGRD_P0_L100_GLL0
-;; (7)	UGRD_P0_L103_GLL0
-;; (8)	VGRD_P0_L100_GLL0
-;; (9)	VGRD_P0_L103_GLL0
-;; (10)	PRMSL_P0_L101_GLL0
-;; (11)	HGT_P0_L1_GLL0
-;; (12)	HGT_P0_L100_GLL0
-;; (13)	TCDC_P0_L1_GLL0
-;; (14)	lv_HTGL1
-;; (15)	lat_0
-;; (16)	lon_0
-;; (17)	lv_ISBL0
-  if(isvar("a[:]->HGT_P0_L1_GST0")) then
-   ter := a[:]->HGT_P0_L1_GST0 ;; Grab some variable so we can see when the model was initialized
-   timesinfiles:=a[:]->HGT_P0_L1_GST0!0  ;forecast_times
-  else
-   ter := a[0]->HGT_P0_L1_GLL0 ;; Grab some variable so we can see when the model was initialized
-   timesinfiles:=a[0]->HGT_P0_L1_GLL0!0  ;forecast_times
-  end if;
-  initialization_date = str_get_field(ter@initial_time,1," ")
+  initialization_date = True;
+  get_initial_info(a) ;; sets up numtimes, initialization_date, run_time, pmb
+
   yyyy_mm_dd = systemfunc("date -u -d " + quote + initialization_date + quote + " +%Y-%m-%d")
-  run_str = str_get_field(ter@initial_time,2," ");
-  ;; run_str is something like (06:00).  So we just want the first two
-  run_str_array = stringtochar(run_str);
-  run_time = chartostring(run_str_array(1:2))
   print ("Plotting data for model initialized on date " + yyyy_mm_dd + " at " + run_time + ":00 UTC")
   ;; Now some complex conversions to local time.
   offset = stringtoint(systemfunc("date -d "+quote + yyyy_mm_dd + quote+ " +%z"))/100 ;; For this date (in UTC? local?), what is the offset in hours from UTC 
@@ -167,23 +181,8 @@ begin
   local_start_time = systemfunc(date_str)
   print("First hour of the model " + local_start_time)
 
-  ;; LEARN ABOUT OUR GRID
-  if(isvar("a[0]->gridlat_0")) then
-   XLAT=a[0]->gridlat_0
-   XLONG=a[0]->gridlon_0
-   rot=a[0]->gridrot_0
-  else
-   LAT=a[0]->lat_0
-   LONG=a[0]->lon_0
-  end if;
-  ;; WHAT TIMES ARE AVAILABLE?
-  
-  numtimes=dimsizes(timesinfiles)
-  print("numtimes " + numtimes)
-  taus:=ispan(0,numtimes-1,1)   ;coordinate variable for Time dimension
 
   ;; WHAT LEVELS ARE AVAILABLE?
-  pmb:= a[0]->lv_ISBL0(::-1) ; in Pa
   numlevels=dimsizes(pmb) ; How many levels we have predicted wind speeds at.
   print("num z levels is " + numlevels)
   ;; The HRDPS data has nominal output levels at
@@ -265,37 +264,12 @@ begin
    end if
 
     print("Processing " + site_name + " at " + site_lat + "," + site_lon + " and writing output to " + outputfile);
-    if(isvar("XLAT")) then
-      locij:=wrf_latlon_to_ij(XLAT,XLONG,site_lat, site_lon)
-      locX=locij(1)
-      locY=locij(0)
-      ;; Always use these to functions as locY, locX
-      ; print(site_lon + " gives locX = "+locX  + " and actual lon = " + XLONG(locY,locX))
-      ; print(site_lat + " gives locY = "+locY  + " and actual lat = " + XLAT(locY,locX))
-    else
-      print("NOT VERIFIED X AND Y TO I J")
-      locX=ind_nearest_coord(site_lat,a->lat_0,0)
-      locY=ind_nearest_coord(site_lon,a->lat_0,0)
-    end
-
-    lasthour = ListCount(a)-1
-    print("Last hour is " + lasthour)
-    ListSetType(a,"cat")
-    print("HAVENOT FINISHED THIS YET")
-    h = a[lasthour]->HGT_P0_L1_GST0(locY,locX)
-    ListSetType(a,"join")
-    zloc := a[:]->HGT_P0_L100_GST0(:,::-1,locY,locX) ;level altitudes ;; this is now hte reverse order?
-
-    zloc@units = "m"
-    zloc!0 = "Time"
-    zloc!1 = "levels"
-
-    agl := zloc ; copy metadata too
-    agl = agl - h
-
-
-
-    ; find minimum & max z index
+  locij:=ij_from_lat_lon_generic(a, site_lat, site_lon)
+  locY=locij(0)
+  locX=locij(1)
+  print("locY is " + locY + ", locX is " + locX)
+  load_variables_one_point(a,locY,locX)
+     ; find minimum & max z index
     do zBot=0,numlevels-1
       if (zloc(0,zBot) .gt. (h*1.05+20)) then
         break
@@ -312,90 +286,11 @@ begin
 
     print ("Windgram for "+site_name+" at point "+locY+" "+locX+" "+site_lon+" "+site_lat+" model elevation:"+h+"m ASL")
     
-
-    windUr = a[:]->UGRD_P0_L100_GST0(:,::-1,locY,locX)  ; reverse vertical coordinate
-    windVr = a[:]->VGRD_P0_L100_GST0(:,::-1,locY,locX)
-    uloc:=new((/numtimes,numlevels/) ,float)
-    vloc:=new((/numtimes,numlevels/) ,float)
-    if(isvar("rot")) then
-     radian_rot = rot(locY,locX)
-     uloc = (sin(radian_rot)*windVr + cos(radian_rot)*windUr)*3.6  ; convert from m/s to km/h
-     vloc = (cos(radian_rot)*windVr - sin(radian_rot)*windUr)*3.6  ; rotate to N/S grid
-    else
-     uloc = windUr*3.6;
-     vloc = windUr*3.6;
-    end if;
-    delete(windUr)
-    delete(windVr)
-    uloc!0 = "Time"
-    uloc!1 = "levels"
-    ;uloc&levels = znom
-    ;uloc&Time = taus
-    vloc!0 = "Time"
-    vloc!1 = "levels"
-    ;vloc&levels = znom
-    ;vloc&Time = taus
-    windUr = a[:]->UGRD_P0_L103_GST0(:,0,locY,locX) ; this is the lowest level... 10 m above the ground
-    windVr = a[:]->VGRD_P0_L103_GST0(:,0,locY,locX)
-
-    ulocSfc:=new((/numtimes/) ,float)
-    vlocSfc:=new((/numtimes/) ,float)
-    ulocSfc = (sin(radian_rot)*windVr + cos(radian_rot)*windUr)*3.6  ; convert from m/s to km/h
-    vlocSfc = (cos(radian_rot)*windVr - sin(radian_rot)*windUr)*3.6  ; rotate to N/S grid
-    delete(windUr)
-    delete(windVr)
-    ulocSfc!0 = "Time"
-    vlocSfc!0 = "Time"
-
-    tkloc := a[:]->TMP_P0_L100_GST0(:,::-1,locY,locX)      ; temperature (K)
-    tdloc := a[:]->DEPR_P0_L100_GST0(:,::-1,locY,locX)      ; dew point depression temperature (K)
-
-    tkloc@_FillValue = defaultFillValue
-    tkloc@units = "K"
-    tkloc!0 = "Time"
-    tkloc!1 = "levels"
-    ;tkloc&levels = znom
-    ;tkloc&Time = taus
-
-    tdloc@_FillValue = defaultFillValue
-    tdloc@units = "K"
-    tdloc!0 = "Time"
-    tdloc!1 = "levels"
-
-    ;tdloc&levels = znom
-    ;tdloc&Time = taus
-
-      tSfc     := a[:]->TMP_P0_L103_GST0(:,0,locY,locX)  ; sfc temperature in K (2m elevation)
-      dpSfc    := a[:]->DEPR_P0_L103_GST0(:,0,locY,locX) ; sfc dew point temperature in K (2m elevation)
-      mslp     := a[:]->PRMSL_P0_L101_GST0(:,locY,locX)/1000       ; Sea Level Pressure
-      shf      := a[:]->SHTFL_P0_L1_GST0(:,locY,locX)                ; sfc sensible heat flux
-      lhf      := a[:]->LHTFL_P0_L1_GST0(:,locY,locX)                ; sfc latent heat flux
-      rainloc  := a[:]->PRATE_P0_L1_GST0(:,locY,locX) * 3600.  ; precipitation rate mm/hour
-      cloudloc := a[:]->TCDC_P0_L1_GST0(:,locY,locX)   ; cloud cover in %
-
-    lclloc  := dpSfc*121. + h  ; quick and dirty cloud base calculation - result in meters
-    tSfc!0 = "Time"
-    dpSfc!0 = "Time"
-    lclloc!0 = "Time"
-    mslp!0 = "Time"
-    shf!0 = "Time"
-    lhf!0 = "Time"
-    rainloc!0 = "Time"
-    cloudloc!0 = "Time"
-
-    ; -------------            calculate "local" lapse rates                              ---------------------------;
-    ;;---------------------------------------------------------------------------------------------------------------;
-    ;;---------------------------------------------------------------------------------------------------------------;
-
-
+    ;; Calculate local lapse rate
     lapse := (tkloc(:,1:)-tkloc(:,:numlevels-2))/(zloc(:,1:)-zloc(:,:numlevels-2))  ; local lapse rates in C/m.
     lapse!0 = "Time"
     lapse!1 = "levels"
-    ;lapse&levels = zloc0(zBot:zTop-1)
-    ;lapse&Time = taus
-    ;print(" delta z " + zdiffs(0,:) + ", delta T " +  tdiffs(0,:) + ", Lapse rate " +  lapse(0,:))
-
-
+    ;; Calculate boundary layer depth
     blDepth:=new((/numtimes/) ,float)
 
     do j=tFrom,tTo
@@ -412,8 +307,6 @@ begin
       end do
     end do
 
-
-
   ; calculate the virtual temperature heat flux (see Garratt, Ch 2)
   ; vhf = shf + 0.61*Cp/L * T * lhf
   ; where Cp is the heat capacity of the air (1006J/kg K),
@@ -421,8 +314,6 @@ begin
   ;    and L is the heat of vaporization of water (2.0502MJ/kg
   ; The constant terms are: 0.61*cp/L=0.61*(1006J/Kkg)/(2.502x106J/kg)=0.000245268
   vhf := shf +  0.000245268*tSfc*lhf
-
-
 
   ;      ;see http://www.drjack.info/blip/INFO/parameter_details.html for w* calculation
   ;      ; w* =  [ (g/To) Qv D ]^1/3
@@ -449,8 +340,8 @@ begin
   ;
   ; constant is 9.8/1006/1.29 = 0.0075516
 
-  	 potTemp := tSfc*(pmb(0)/pmb(zBot))^0.28482
-     wstar := new(numtimes,float)
+    potTemp := tSfc*(pmb(0)/pmb(zBot))^0.28482
+    wstar := new(numtimes,float)
     do j=tFrom,tTo
        ;print("vhf(j)=" + vhf(j) + " blDepth(j)=" + blDepth(j) )
        if (vhf(j) .le. 0) .or. (blDepth(j) .le. 0)  then
@@ -524,10 +415,6 @@ begin
       end do;
     end if
 
-
-
-
-
     ;;-----------------------------          end of lapse calculations  ---------------------------------------------;
     ;;---------------------------------------------------------------------------------------------------------------;
 
@@ -547,25 +434,22 @@ begin
       "wkBackgroundColor" : background_color              ; set at top
     end setvalues
 
-
-
     ;;---------------------------------------------------------------------------------------------------------------;
     ;--------------------------start windgram  ----------------------------------------------------------------------
-
 
     if(plot_day .gt. -1)then ; only plot part of the data
       tstride=1
       toffset=0
       init_date_str = "date "+quote+"+%a %H:%M %Z" + quote+" -d " + quote + yyyy_mm_dd + " +" + tostring(stringtoint(run_time)+1) + "hours UTC" + quote
       date_initialized = systemfunc(init_date_str)
-      MainTitle = "HRDPS Windgram for "+ site_name + " for " + local_day + " (initialized " + date_initialized + ")"
+      MainTitle = str_upper(model) + " Windgram for "+ site_name + " for " + local_day + " (initialized " + date_initialized + ")"
       lstDayColor = "white"
       barbLen = 0.03
     else
       tstride=2
       toffset=1
 
-      MainTitle = "HRDPS Windgram for "+ site_name + ". First hour is " + local_start_time
+      MainTitle = str_upper(model) + " Windgram for "+ site_name + ". First hour is " + local_start_time
       lstDayColor = "gold"
       barbLen = 0.023
       ; smooth the LCL and HCRIT results
@@ -803,6 +687,8 @@ begin
 
 
         ;show_this_rain=0
+	print("tFrom " + tFrom + " tTo " + tTo);
+	printVarSummary(rainloc)
     if(show_rain.ne.0) then
       if (max(rainloc(tFrom:tTo)) .gt. 0.02) then
         rain_res = strip_res
@@ -1307,6 +1193,7 @@ begin
     ;;-----------------------------------------------------------------------------------------------------------------;
   end do
   end do
+
   status_exit(0)
 
 end
