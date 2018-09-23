@@ -6,14 +6,6 @@
 (use-package :cl-fad)
 (use-package :cl-ppcre)
 (load "model-parameters.lisp")
-(defun tile-id (lon lat)
-  (let* ((lon (read-from-string lon))
-	 (lat (read-from-string lat))
-	 (latq (* *xstep*  (floor (/ lat *xstep*))))
-	 (lonq (* *ystep* (floor (/ lon *ystep*)))))
-    (assert (< lonq lon (+ *ystep* lonq)))
-    (assert (< latq lat (+ *xstep* latq)))
-    (list latq lonq (+ *xstep* latq) (+ *ystep* lonq))))
 
 (defun find-all-tile-ids (&optional (filename "/home/ubuntu/continental-test/plot-generation/locations.txt"))
   (let (tile-ids)
@@ -26,7 +18,7 @@
 	 (destructuring-bind (region location lon lat max-altitude flag)
 	     (mapcar (lambda (x) (string-trim '(#\Space) x)) (cl-ppcre:split "," line))
 	   (declare (ignorable flag max-altitude region region location))
-	   (pushnew (tile-id lon lat) tile-ids :test #'equalp))))
+	   (pushnew (multiple-value-list (tile-id lon lat)) tile-ids :test #'equalp))))
     tile-ids))
 
 (defun only-required-tile-iterator ()
@@ -60,15 +52,15 @@
 				     :if (and (> count 0) (or (= count limit) (not tile))) :collect (enough-namestring file)
 				     :while (and tile (< count limit))
 				     :collect
-				     (destructuring-bind (lon1 lat1 lon2 lat2) tile
-				       (format nil "-small_grib ~f:~f ~f:~f ~A/~d:~d:~d:~d/~A "
-					       (- lon1 0.2) (+ lon2 0.2) lat1 lat2 *tiledir* lon1 lon2 lat1 lat2 f))
+				     (destructuring-bind (tile-id (lon1 lat1 lon2 lat2)) tile
+				       (format nil "-small_grib ~f:~f ~f:~f ~A/~A/~A "
+					       (- lon1 0.2) (+ lon2 0.2) lat1 lat2 *tiledir* tile-id f))
 				     ;;:finally (when (> count 0) (format t "Wrote ~A lines ~%" count))
 				     :do (incf count)))))
 		       (write-line 
 			(apply #'concatenate 'string
 			       "wgrib2 -v0 -set_grib_type simple "
-			       (do-it 604))
+			       (do-it 400))
 			str)
 		       (let ((res (do-it 100000)))
 			 (when res

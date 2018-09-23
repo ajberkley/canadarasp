@@ -45,7 +45,7 @@ begin
 end
 
 procedure load_variables_one_point (a, locY, locX)
-local lasthour, windUr, windVr, windUrSfc, windVrSfc
+local lasthour, windUr, windVr, windUrSfc, windVrSfc, numlevels
 begin
     radian_rot=a[0]->gridrot_0(locY,locX)
     ListSetType(a,"cat")
@@ -59,6 +59,7 @@ begin
     zloc!1 = "levels"
     agl := zloc ; copy metadata too
     agl = agl - h
+    numlevels = dimsizes(pmb)
     windUr = a[:]->UGRD_P0_L100_GST0(:,::-1,locY,locX)  ; reverse vertical coordinate
     windVr = a[:]->VGRD_P0_L100_GST0(:,::-1,locY,locX)
     uloc:=new((/numtimes,numlevels/) ,float)
@@ -76,7 +77,7 @@ begin
     ulocSfc:=new((/numtimes/) ,float)
     vlocSfc:=new((/numtimes/) ,float)
     ulocSfc = (sin(radian_rot)*windVrSfc + cos(radian_rot)*windUrSfc)*3.6  ; convert from m/s to km/h
-    vlocSfc = (cos(radian_rot)*windVr - sin(radian_rot)*windUr)*3.6  ; rotate to N/S grid
+    vlocSfc = (cos(radian_rot)*windVrSfc - sin(radian_rot)*windUrSfc)*3.6  ; rotate to N/S grid
     ulocSfc!0 = "Time"
     vlocSfc!0 = "Time"
 

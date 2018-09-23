@@ -62,7 +62,7 @@ for Y in ${YVALS[@]}
 do
     for X in ${XVALS[@]}
     do
-	DIRECTORYNAME=$TILEDIR/$X:$((X+STEP)):$Y:$((Y+YSTEP))
+	DIRECTORYNAME=$TILEDIR/$X:$((X+XSTEP)):$Y:$((Y+YSTEP))
 	mkdir -p $DIRECTORYNAME
     done
 done

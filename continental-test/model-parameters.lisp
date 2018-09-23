@@ -48,5 +48,6 @@
          (lonq (* *ystep* (floor (/ lon *ystep*)))))
     (assert (< lonq lon (+ *ystep* lonq)))
     (assert (< latq lat (+ *xstep* latq)))
-    (format nil "~A:~A:~A:~A" latq (+ *xstep* latq) lonq (+ *ystep* lonq))))
+    (values (format nil "~A:~A:~A:~A" latq (+ *xstep* latq) lonq (+ *ystep* lonq))
+	(list latq lonq (+ *xstep* latq) (+ *ystep* lonq)))))
 
