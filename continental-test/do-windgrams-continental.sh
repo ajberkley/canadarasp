@@ -45,9 +45,9 @@ if [ -z $NOCALCULATE ]; then
   echo Done with wingram-continental
 fi
 if [ -z $NOUPLOAD ]; then 
-	ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "mkdir -p html/windgrams-continental-new/twoDay/$TWODAYDATESTRING html/windgrams-continental-new/oneDay/$DATESTRINGDAY0 html/windgrams-continental-new/oneDay/$DATESTRINGDAY"
-	scp -i ~/.ssh/montreal.pem -r $OUT_DIR/twoDay/* ubuntu@$WEBSERVERIP:html/windgrams-continental-new/twoDay/
-	scp -i ~/.ssh/montreal.pem -r $OUT_DIR/oneDay/* ubuntu@$WEBSERVERIP:html/windgrams-continental-new/oneDay/
+	ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "mkdir -p html/windgrams/twoDay/$TWODAYDATESTRING html/windgrams/oneDay/$DATESTRINGDAY0 html/windgrams/oneDay/$DATESTRINGDAY"
+	scp -i ~/.ssh/montreal.pem -r $OUT_DIR/twoDay/* ubuntu@$WEBSERVERIP:html/windgrams/twoDay/
+	scp -i ~/.ssh/montreal.pem -r $OUT_DIR/oneDay/* ubuntu@$WEBSERVERIP:html/windgrams/oneDay/
 fi
 ##############################################################################################
 # create a javascript version of the location.txt file
@@ -76,9 +76,8 @@ js.close()
 print "Converted " + fn + " to a javascript format file, " + fout
 END
     echo "scp -i ~/.ssh/montreal.pem locations.js new-locations.js ubuntu@$WEBSERVERIP:html/windgrams-continental-new"
-    scp -i ~/.ssh/montreal.pem locations.js new-locations.js ubuntu@$WEBSERVERIP:html/windgrams-continental-new
+    scp -i ~/.ssh/montreal.pem locations.js new-locations.js ubuntu@$WEBSERVERIP:html/windgrams
     scp -i ~/.ssh/montreal.pem locations.js new-locations.js ubuntu@$WEBSERVERIP:html/
-    
 fi
 exit 1
 echo "Uploading windgram tiles"
