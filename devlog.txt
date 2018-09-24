@@ -55,7 +55,6 @@ that code. One problem I have is that the NCL code is such an awful
 mess that I take one look at it and get demotivated.  I will be
 re-writing that in Lisp at some point, but not yet.
 
-
 TODO:
  1) rewrite windgram code in Lisp.
  2) Figure out timezone handling
@@ -95,6 +94,11 @@ Eventually could run the webservice locally
 (https://github.com/graphhopper/timezone) or just grab the data and
 use that.  For the future.
 
+Or here are some geoJSON stores for that info ... probably the best choice for
+the back-end.
+https://github.com/candu/efele-tz-world-geojson
+https://github.com/straup/whereonearth-timezone
+
 Thinking about the storage scheme.  I currently store the web tiles for the map
 at the following location  (with gdps and hrdps possible MODEL names):
 
@@ -102,7 +106,7 @@ at the following location  (with gdps and hrdps possible MODEL names):
 
 with header / footer information stored as PNGs at
 
-/tiles/MODEL/lng1:lng2:lat1:lat2/2018-09-17/paramname_2018-09-17.header.png / .footer.png
+/tiles/MODEL/paramname_2018-09-17.header.png / .footer.png
 
 That won't work, because the headers / footers are not necessarily
 good for a days period.  Ugh.  Will need to turn that into something a
@@ -119,6 +123,30 @@ initialization information.  I only keep several days of tiles around, so
 a JSON store of tile hour -> initialization date would be pretty easy.
 
 OK, thinking through some of this some more.
+
+I checked my inode usage on the webserver, not a problem--- ratio of
+inode to disk usage was fine, will run out of disk space first.
+
+Send an email to EC about slow download times from dd.weather.gc.ca.
+
+So here is the plan.  The backend will store data in UTC times:
+/tiles/MODEL/tile-id/YYYY-MM-DD/paramname_YYYY-MM-DD_HH:MM.mag.png  ;; magnitude of the paramname
+/tiles/MODEL/tile-id/YYYY-MM-DD/paramname_YYYY-MM-DD_HH:MM.angle.png ;; for winds gives the angle of the wind with respect to east encoded in grayscale 8-bit with scale factor
+/tiles/MODEL/paramname.magscalebar.png ;; this is the color bar for the magnitude data
+
+The front end will decide on a UTC offset based on the center of the
+view, update the date/time selector in that LOCAL time and requests
+will be in UTC time.
+
+Headers will not be encoded in PNG anymore.  They will just be HTML in a file
+
+/tiles/MODEL/YYYY-MM-DD/paramname_YYYY-MM-DD-HH:MM_.title.html
+
+The scale bars will be stored in
+
+/tiles/MODEL/YYYY-MM-DD/paramname_2018-09-17.magscalebar.png
+
+for consistency and ease of data management
 
 22 Sep 2018
  Working on integrating windgrams for a few hours... got the GDPS sort of working.  rain doesn't work because there is no info on the 0 hour --- I'll have to come up with a way to make that work.  Otherwise it's just a matter of getting hours labelled right, stretching the axes, and making sure the X,Y coords are right.  OK, HRDPS works again too.  Dynamic windgrams just need to distinguish gdps from hrdps and use proper tile-ids... easy fix, but time to do other stuff.
