@@ -1,0 +1,1291 @@
+﻿Upgrade and development notes
+TODO
+ 0) Integrate new HRDPS code with windgrams again (in progress)
+0.25) something wrong with the BLDEPTH calculation...
+0.3) Track vertical velocity during bldepth instead of using sillly thermal model and wstar...
+ 0.5) HRDPS guess-time isn't working? guessed wrong time at 7PM.  Think I fixed it... verify
+ 1) Integrate GDPS code with windgrams (in progress)
+ 2) Use local time in javascript, store data in backend in UTC time.  Probably fast enough to do all HRDPS maps now anyway...
+ 3) Lumby area sites being wrong, Mackenzie in the valley, Golden location
+ 4) Try 4 degree x 4 degree gridding to see if it is faster for wgrib break-up.
+ 7) Add documentation to CanadaRASP webpage... in progress
+ 40) Fix label bar numbers to not have infinite digits
+ 41) Add wind gust data (now in HRDPS!) and maybe more vertical wind heights.
+ 42) Add relative humidity as function of height...
+ 43) Use geopotential height to generate high altitude pressure contours...
+ 11) Change to leaflet or other mapping API.  No need yet.  3000 requests/month, 1/10th of the billable amount.
+ 12) Work on javascript front end visualizer
+ 14) Try looking at HRRR or NAM3 or GFS data once (15) is done
+ 18) More color steps for HWCRITAGL?
+ 19) Debug **** ERROR: local table = 0 is not allowed, set to 1 *** in wgrib2.
+ 20) Figure out CLOUDBASE how to make it show no clouds where no clouds
+ 23) Speed up the generate-new-variables code, it takes 3 minutes.  On 1 hour who cares...
+ 24) Figure out a way around the disk space problem when generating all tiles (it takes roughly the same time to generate just the limited set for windgrams).  This is on the way to a dynamic windgram generator.  Generating them compressed takes a lot of time.  Ugh.  Can go to bigger tiles though, maybe that will be quicker.
+ 26) Clip winds in the lisp generation code.  OK, so it's clipped using wgrib2 now, but now the drawing needs some information.  Encode as 255 or something.  OK, encoded as 0.  But, the clipping is ugly...
+ 35) Consider turning off terrain clipping again and going back to bilinear on gdalwarp.
+ 36) Stop using Lambda for on/off, use crontab on the t3.micro (have a version commented out in crontab in web server dev)
+  38) More compact PNGs.  Use palette based files.  Something weird with transparency and them... could use a color for transparency and a kludge on the display side.
+39) Can I remove the gdalwarp and double wind thing for the GDPS?  It's a lat/lon grid, I don't need to rotate the U/V winds either, etc.  That would speed things up somewhat.  I should also re-enable the real-lat-lon thing for the GDPS.
+40) Integrate satellite imagery into the visualization so that we can compare forecast versus reality... for clouds and precip... which are the least well forecasted things :(  But would be fun!
+
+24 Sep 2018
+
+Need to think through timezone handling.  I've been storing processed
+data in pacific time because historically I was just doing the west
+coast of Canada.  Now we have the whole world.  OK, first step would
+be to store data in UTC time.  Also, I've been a bit sloppy about
+labelling which data comes from which run.  Let's fix that at the same
+time.
+
+Still going to stick with storing data in a filesystem not a database,
+just doesn't seem worth the effort right now to use a DB since things
+are naturally ordered.  Just like storing quadtile data in a
+filesystem is probably as efficient as in a DB because you put the
+access information into the filesystem layout.  You can't beat that
+for speed and efficiency would be my guess.  Anyway, none of this is
+about speed or efficiency, just ease of development.  As long as I
+keep the reading/writing somewhat well seperated from the rest of the
+code I can easily move to a database backed back and front end.
+Speaking of software quality, so far I have put zero effort into it,
+just prototyping and using what I can get running.  Eventually I'll
+hit some development drag because of this. Worth spending some time
+cleaning things up and looking at issues like I mentioned here.
+Probably the time handling will be a good excuse to clean up part of
+that code. One problem I have is that the NCL code is such an awful
+mess that I take one look at it and get demotivated.  I will be
+re-writing that in Lisp at some point, but not yet.
+
+TODO:
+ 1) rewrite windgram code in Lisp.
+ 2) Figure out timezone handling
+ 3) Factor out the reading / writing of files into a more generic
+    interface so I can easily move to a different storage backend.
+
+Today, I will work on timezone handling.  For both the front and back
+end I'm going to need to convert from lat/lon to a UTC offset.  I'm
+going to punt on what happens on the day a timezone changes from/to
+daylight savings, I'm going to use local time on the day of
+generation.  As long as I label timezones to users as UTC +/- N it
+should be OK.
+
+Let's start with the problem of lat / lon / [time] -> timezone
+
+Google offers an easy web service for this with 40000 free calls per month, which
+given my maps API usage which is < 25000 calls per month this should be fine.  That's
+fine for the front end.
+
+https://maps.googleapis.com/maps/api/timezone/json?location=38.908133,-77.047119&timestamp=1458000000&key=YOUR_API_KEY
+
+{
+   "dstOffset" : 3600,
+   "rawOffset" : -18000,
+   "status" : "OK",
+   "timeZoneId" : "America/New_York",
+   "timeZoneName" : "Eastern Daylight Time"
+}
+
+For the backend, GeoNames offers a similar service with a similar credit limit: http://www.geonames.org/export/#ws
+Someone has also wrapped it in a common lisp library: cl-geonames.  I will use that.
+
+https://github.com/nlamirault/cl-geonames
+
+I'd rather not rely on a webservice, but this will get me started.
+Eventually could run the webservice locally
+(https://github.com/graphhopper/timezone) or just grab the data and
+use that.  For the future.
+
+Or here are some geoJSON stores for that info ... probably the best choice for
+the back-end.
+https://github.com/candu/efele-tz-world-geojson
+https://github.com/straup/whereonearth-timezone
+
+Thinking about the storage scheme.  I currently store the web tiles for the map
+at the following location  (with gdps and hrdps possible MODEL names):
+
+/tiles/MODEL/lng1:lng2:lat1:lat2/2018-09-17/paramname_2018-09-17_09:00.body.png
+
+with header / footer information stored as PNGs at
+
+/tiles/MODEL/paramname_2018-09-17.header.png / .footer.png
+
+That won't work, because the headers / footers are not necessarily
+good for a days period.  Ugh.  Will need to turn that into something a
+bit more complex.  The footers don't change as everything is fixed
+scale, so I can get rid of the date in them.  The headers should not
+be drawn as a PNG anyway.  The headers are just:
+
+"Wind at 40m"
+"GDPS initialized 2018-09-22 (12:00) UTC"
+
+those I can just do in the front end code off the param names and a
+simple JSON store of information about param names / descriptions and
+initialization information.  I only keep several days of tiles around, so
+a JSON store of tile hour -> initialization date would be pretty easy.
+
+OK, thinking through some of this some more.
+
+I checked my inode usage on the webserver, not a problem--- ratio of
+inode to disk usage was fine, will run out of disk space first.
+
+Send an email to EC about slow download times from dd.weather.gc.ca.
+
+So here is the plan.  The backend will store data in UTC times:
+/tiles/MODEL/tile-id/YYYY-MM-DD/paramname_YYYY-MM-DD_HH:MM.mag.png  ;; magnitude of the paramname
+/tiles/MODEL/tile-id/YYYY-MM-DD/paramname_YYYY-MM-DD_HH:MM.angle.png ;; for winds gives the angle of the wind with respect to east encoded in grayscale 8-bit with scale factor
+/tiles/MODEL/paramname.magscalebar.png ;; this is the color bar for the magnitude data
+
+The front end will decide on a UTC offset based on the center of the
+view, update the date/time selector in that LOCAL time and requests
+will be in UTC time.
+
+Headers will not be encoded in PNG anymore.  They will just be HTML in a file
+
+/tiles/MODEL/YYYY-MM-DD/paramname_YYYY-MM-DD-HH:MM_.title.html
+
+The scale bars will be stored in
+
+/tiles/MODEL/YYYY-MM-DD/paramname_2018-09-17.magscalebar.png
+
+for consistency and ease of data management
+
+22 Sep 2018
+ Working on integrating windgrams for a few hours... got the GDPS sort of working.  rain doesn't work because there is no info on the 0 hour --- I'll have to come up with a way to make that work.  Otherwise it's just a matter of getting hours labelled right, stretching the axes, and making sure the X,Y coords are right.  OK, HRDPS works again too.  Dynamic windgrams just need to distinguish gdps from hrdps and use proper tile-ids... easy fix, but time to do other stuff.
+19 Sep 2018
+ Finished some integration for specifying multiple models between the two systems.  Testing HRDPS, it works.  But windgrams don't anymore (filenames or something).  Anyway, for another day!  Now I can use the crontab to start and stop the HRDPS and GDPS at the proper hours, or AMQP, etc.
+18 Sep 2018
+ Vertical velocity was wrong... need to scale by -0.088.  Oops.  The scale factor depends linearly on pressure and temperature, but I'm not bothering.  Corrections are small.  Increases with increasing temperature, increases with decreasing pressure.  Tried to fix colorbar problem.  Checking that HRDPS works with the new code, and the scale factor change and the color scale change.  Could work on using a t3.micro instance to create a volume, mount it, download the data to it, then unmount the volume, then boot the processing unit, then have that one destroy the volume when done.  Install aws-cli using pip as we need the newest version.
+
+
+OK, so added all my code to github.  That way I can share it back and forth between the machines easily.  So, I have something that creates a volume, downloads the gdps to it, and starts the compute server.  I don't know when it gets updated, so hard to say when tos tart this.  Will do the AMQP thing with the GDPS data.
+
+
+Have to be careful not to add keys or anything important to the github stuff since this is a public repo.
+
+
+Tweaking and testing... did a lot of reading about other weather models.  Updates to the GFS coming some time.  Found some more beautiful weather web sites.  wxcharts.eu is a beautiful interface to chart level stuff, with the ability to look closely when you need.
+
+
+OK, things seem to run OK.  Did not test the HRDPS, but got the whole process working and moved all the code to git.
+
+
+17 Sep 2018
+ Got a version of GDPS being processed and displayed.  See dev webserver and dev compute machine.  Many of the plots don't work, and I can't handle wrap around with the overlays yet, but it looks good!!! Takes very little time to process.  I shouldn't have broken HRDPS, but will probably need several tweaks to get it running again.  Moved away from the even / odd tile labelling to a more flexible floor().  Fixed a bunch of crud.  Looks like it might be ready to go.  Would have to add a big disk to it and try an HRDPS run too.  The GDPS PNG data is only 500MB for the 99 hours I do!  Wow.  The input data is 2.4 GB.  Hm.  GDPS is pretty much finished.  Now I just need to verify the HRDPS stuff runs in the same code base, then I can roll it out.  I'd like to finish the windgram integration and come up with a solution for timezones first though... that might take awhile.
+16 Sep 2018
+ Finished generate-new-variables.lisp and made the configuration stuff a bit more sane.
+ Starting on generate-single-hrdps... got bored.
+ Setup elastic-ip for the webserver... should be able to switch things around without too much
+ work now... and bring up a new image for the webserver without too much downtime (without a load balancer and all that crud).
+15 Sep 2018
+ Imaged the webserver.  The name of the webserver is Webserver Dev, if I move to production make sure to update /etc/rc.local and webserver-ip.sh, or put it into environment definition somehow.
+
+
+9 Sep 2018
+ Shut off the N. Virginia HRDPS PROD server.  To turn it back on place:
+"1330;1530;utc;all" in scheduler:ec2-startstop and "0115;0315;utc;all" in scheduler:ec2-startstop:two. Created a final image of it in us-east-1c and removed the volume.  The t3.micro is running on a reserved instance which cost $115 / 3 years, so cheap.  The compute is $1.20/day, the main volume is 5 cents a day and the 60GB storage is 31 cents a day,  data transfer in is 3 cents a day,  7 cents a day for snapshots, DNS is less than 1 cent a day.  So, total is roughly $1.50 a day, or $585/year (including $115/3 for the t3.micro reserved instance).  In CAD that is $760/year. Copied the old HRDPS PROD SNAPSHOT to canada.central.  Will remove everything in us-east-1c for simplicity.  WHOIS transfer is not complete yet.  Still waiting.  I'm only using 30% of the 60GB volume... could cut it down to 40GB safely.  Let's leave it for now in anticipation of more tiles for dynamic windgram generation and NAM data.
+Added long click dynamic windgram generation to main page and to windgram selector page (with banner instructions) and updated parameterdescription.html and about page.
+Playing with AMQP again:
+in ~/Downloads sr_subscribe -n foreground dd_hrdps.conf  don't forget ~/.cache/sarra/... caches stuff.
+
+
+OK, starting to look at RDPS / GDPS.  Also the GFS or the UK global model or German ICON looks good.  RDPS / GDPS at least has identical naming I think as the HRDPS so if I parameterize that it should work out of the box.  The tile size is a bit small for global, but whatever...
+
+
+Starting.  First, let's create a DEV server.  Snapshot the main system.
+snap-00293d62370bc935e 
+
+
+OK, modified download-data.sh and guess-time.sh.  Hoping to support GDPS, RDPS, and HRDPS.  Will need some robustness since data is only available every 3 hours for some fields for RDPS and same for GDPS.
+
+
+For now putting the model dependent stuff everywhere until I figure out what I can pull out generally.  Looks like file name generation, but that spans lisp and bash... ugh  Should just use lisp for everything.
+started on generate-new-variables.lisp... got tired.
+
+
+6 Sep 2018
+ Checking versus old production in anticipation of shutting it down.  I was missing WSTAR.  Added.  Parameters checkout except:
+ * maybe vertical wind seemed wrong in the old maps... new ones seem right.
+ * Surface dewpoint is wrong <--- ok I was plotting dew point depression.  Fixed.  Changed paramlist.
+Now, once this run finished and looks good I will move www.canadarasp.com to point to the alphatest.
+Hm, didn't seem to work.  Checking to see why wstar didn't show up
+Getting an SSL certificate for canadarasp.com again... using Let's Encrypt  Certbot.  Looks good!
+3 Sep 2018
+Moved DNS servers around.  Now using Amazon for primary.  Got a reserved 3 year instance for the webserver.
+Setup topo clipping on the continental wind files.  That shrinks them a bit.
+Now need to figure out the size issue on generating tiles?  Waiting for data and DNS NS names.  Then will transfer the domain.  FIXME: Old windgram files are not being removed.  That's OK, fixed the generator
+Clipping seems to make the gdalwarp go bad and kills a lot of valid points if there aren't enough neighbors...  i switched to average from bilinear to see what happens.  Makes it better, but not sure it's the right solution.  May turn off terrain clipping 
+
+
+2 Sep 2018
+OK, there was nothing wrong with tile edges.  I did implement the real lat / lon shift thing to get them exact but the error is unimportant.  I had to add img {} rendering options (hard to get firefox and chrome to both work, but I found a magic incantation that works).
+Today
+Implemented dynamic windgrams!!!! YAY!!!  It's a bit slow... will work on the ncl or do it in lisp.
+ 1) I would like to create a t3.micro for the webserver (extra vCPU). In progress.  Using XFS for the 60GB filesystem.  We seem to only use about 20GB for the active PNGs, so that gives us 40GB for tiles.  That should be enough (a day is roughly 20GB compressed, which we should be able to maintain if done properly).  Setup.  Now the default for alpha.  Good.  Now, let's get some tiles over there. DONE
+ 2) Generate a prod version with the small updates I did
+ 4) Move DNS over to amazon
+ 5) Later transfer the domain handling over, and figure out SSL key
+ 6) Shut down the old server....
+ 7) Move surface pressure to MSL pressure
+ 8) Fix Rain
+ 9) Code to copy tiles over... even if I don't generate them all I can see what I have. DONE upload-windgram-tiles.sh  COOL. DONE
+10) Have a low zoom wind arrow mode.. 
+The NCL code runs out of the box to create windgrams on the webserver.  It takes a second or two.
+1 Sep 2018
+Copied ncl code to webserver... it starts up, but have no tiles to play with yet.
+31 Aug 2018
+Things running well on the main alpha system.   Added terrain map.  Installed NCL on the web machine --- should upgrade it to a t3.micro (gets me a free vCPU).
+19 Aug 2018
+Two things.  Boot up the dev system, work on the generate-tile-commands.sh so it takes no time-- that means generate a list of tiles, and have a script that makes the command.  That is what gets parallelized?  Output must be compressed if we do them all, which will slow it down, that's why I will have to restrict tiles until I move the tiles off onto S3 for real time generation of windgrams.  For now, will leave uncompressed and only generate the ones I need.
+Looks like it is running... put some updated files on the webserver with -new suffix and will annouce
+a link to the alpha test tonight when the files get uploaded properly... and then will re-start it with today's data.  Clipping to topography is not working... hm.
+18 Aug 2018
+Finished speeding up image generation.  80 seconds per wind file and it works correctly.
+For the windgrams I will just generate the required tiles, that will take no time!
+using cl-gd
+Working on scale bar generation using libgd2-dev... don't forget to compile cl-gd-glue.so
+sudo add-apt-repository ppa:glasen/freetype2
+sudo apt update && sudo apt install freetype2-demos
+sudo apt-get install ttf-mscorefonts-installer
+have to install proj4 ... downloaded source and installed.  ubuntu package doesn't work.
+Wow.  All is working!!!  Now need to integrate with system, and fix the tile generator not to take so long.
+
+
+14 Aug 2018
+A few hours to speed things up.  200 seconds per hour file is now 82 seconds per hour file for the winds (the rest is super fast).  24*10*82/16/2 = 10 minutes if all is perfect.  Nice!  So maybe 40 minutes for everything... the tiles for windgrams is now a big deal... with the running out of space issue and the speed if I try and recompress them.
+13 Aug 2018
+Had to break up the GRIB files to do the warping.  It just doesn't handle the multiband data properly.  Anyway, now that works.  I screwed up the wind direction though.  I can't figure out why I need to rotate my arrow with the negative of what I think I should do.  Weird.  Anyway, it's a lot slower now for the wind arrows.  Will need to speed that up.  It takes 200 seconds per hour file, 48 hours, 10 wind levels.  So that is 48*10*200 / 16 / 2 presumably.  Roughly 3000 seconds, or an hour.  The rest takes no time (the no arrow stuff takes a few seconds each.  OK, it'll work fine... but would like to speed the drawing up.  Will have to profile and find out what it is spending time doing.  Maybe reversing order of iteration to use cache better.  Actually only do about 24 hours, so maybe only half an hour.
+
+
+12 Aug 2018
+Installing my progress on amazon dev machine
+sudo apt install libjasper-dev # needed for JPEG coding / reading for libgdal
+sudo apt install libpng12-dev # need by the cl-png library
+compiling and install libgdal-2.3.1 
+upgrading to sbcl-1.4.10 (and sudo apt remove sbcl)
+SOME FIXES TO GENERATE-NEW-VARIABLES (HCRIT, ETC)
+generate-new-variables takes 32 seconds per hour, so 1.5 minutes or so when run 16x parallel but system runs out of memory as I have no swap.  Added a 16GB swap file just in case, dynamic-space-size 6GB is good enough.  That means I have to limit parallelization because the machine doesn't have enough memory.  This is going to be an issue!  had to add manual cache clearing and a gc :full t.  Now they top at around 2.6GB, still can't fully parallelize.  That's holding several of those files in memory.  There is certainly room for improvement in this code --- lots of non-optimality in the fzero finding, but it used to be so little time that it didn't matter.  Well, it takes 3 minutes now. OK.  Moving on.
+
+
+GENERATE-TILE-COMMANDS.SH takes 23 minutes!  I hope I don't hit the wgrib2 argument limit? I forgot how to change that.
+Maybe the script generators would be faster if I was writing to the /mnt drive, because they keep seeking to the end of the files?  getting a lot lot of system time!  Moved some of the scripts to use /mnt.  Also keeps my backups easier, etc.  Won't help, since they should all be cached in memory anyway.  It's all cache time.  Ugh.  Well, I can do this better.  Put it on the TODO list.  But continue on for now.
+
+
+DOWNLOAD: 1-4 minutes
+GENERATE-NEW-VARIABLES: 3 minutes
+FIXING FILES:  20 seconds
+GENERATE-TILE-COMMANDS: 23 minutes (!!!) this one for sure needs work
+GENERATE-TILES: 20 minutes
+WINDGRAMS:
+HRDPS-PLOTS: <-- needs me to finish the rewrite and upload the new code
+Takes 4 seconds to generate CLOUD for 1 HOUR and write all the tile PNGs for CONTINENTAL.  OMG!
+SO FAST!
+For winds it takes 9 seconds!  (ON MY COMPUTER, Needs 16GB dynamic space size, so not
+much parallelization, or need a memory optimized machine... hrm.  Or generate the data on the fly while chunking instead of generating the whole image at once (which is silly, I agree))
+
+
+OK, ran out of space on /mnt?  That's a 400GB drive!  Maybe shouldn't be storing things uncompressed?  Maybe just some simple fast compression... ugh.  OH WELL.  Calling it a night for this.  Working on the lisp code a bit.  OK, the gdalwarp on the huge files goes nuts if you leave it in simple packing... went to ieee which is raw floats.... maybe better (should try compressed)  Didn't work.  NEED TO USE IEEE FORMAT AND CHECK FOR NANS, AND THEN IT WORKS.  Trying to integrate with the web server on my computer /var/www/html/  
+cloud looks fine, but the winds don't... something about gdalwarp and the two bands screws things up royally. should probably just warp them singly? or maybe it is the new_grib command...
+in which case I just need to determine the grid direction and no need for that.
+CLOUDS WORK WELL THOUGH!
+check out
+http://localhost/RASPtable-continental.html?param=cloud,opacity=50,zoom=3,lat=49.495701996307275,lon=-76.23577892312619,windgrams=false
+for 20180812 1200 cloud
+
+
+
+
+ Aside from a weird u/v reversal in the code, all works well.  10x faster at least compared with
+ NCL.  Now trying some integration.  OK, working well, now working on slicing and dicing into tiles without calling gdal_transform explicitly.  It would be nice if I could just write the PNG out myself.  Not sure why
+I have to convert.  See if I got far enough with libpng?   Ugh, had to add brief ALPHA support to libpng, not full support, but it writes fine... not sure why it wasn't there to begin with.  Will have to fix the grovel
+thing and then can push it back upstream.  Or should switch to ZPNG.  or IMAGO.  Whichever is fastest.  This works now so will stick with it.  Since it takes 2.5 seconds to write the full PNG, it's probably best to choose one based on speed. Anyway, working on the breaking it up.  File is identical to what is written by GDAL, but saves some time because of the extra call to gdal_translate.  Cool.  Breaking it up seems to work.  I'm now moving things onto the amazon development server.  Will start with continental!
+
+
+11 Aug 2018
+ Still working on reproducing
+  http://geoexamples.blogspot.com/2013/05/drawing-wind-barbs-gdal-python.html
+To my local machine:
+sudo apt install libjasper-dev
+sudo apt install libpng12-dev ## unfortunately libgdal needs libpng12... ugh ok.
+Downloaded libgdal source, ./configure; make ; sudo make install
+Downloaded new sbcl
+Downloaded new slime (sudo apt remove slime ; sudo apt purge slime)
+DO NOT DO THIS
+Download libpng16 ... should also make sure I have a fast zlib (TODO, there are optimized versions)
+https://sourceforge.net/projects/libpng/files/libpng16/1.6.35/libpng-1.6.35.tar.gz/download?use_mirror=astuteinternet&download=
+Then in cl-png need to change version string to 1.6.35
+END DO NOT DO THIS
+local bug-fix to ogr::get-points... ugh.
+Ugh installed a 32 bit sbcl.  fixed that installed the amd64 version
+Hm, the example code I'm looking at generates an image directly... I guess I will do the same, say using cl-png.  Let's see... I was hoping to write out an OGR / vector GIS file.
+Checked encode / decode, they take no time... 70 ms to read and then write the a full hour image map on my laptop
+
+
+OK, don't need libpng --- going to use the gdal tools.
+Anyway, what am I trying to do?  Am I trying to compete with
+https://www.ventusky.com/?p=49.30;-121.67;8&l=wind-10m&m=hrrr&w=fast
+https://www.windy.com/overlays?radar,2018-08-12-20,50.263,-122.653,10,p:off
+spotwx
+windguru
+and xcskies?  Not really.  The features I want to provide are what make it easy
+for a pilot to determine if it's flyable. The maps are not really that, though they help.  Less eye candy, more usefulness.  I found ventusky impossible because I couldn't see terrain and windspeed color scale was set too large, but it can put numbers on the plot.  But no HRDPS....  Windy is pretty good too, but nothing about thermalling height, etc.  That's what we want as pilots.  So, HRDPS, and thermalling predictions and windgrams is really what I provide.  The maps are important too.  They just cost too much.  I think I can download and split the continental data into bits relatively well, that means I could do
+windgram generation easily.  
+
+
+OK, I am drawing wind arrows and coloring, but now I've messed up the projection somehow-- looks like it's losing the center of the polar sterographic projection or the scale or something.  Ugh.  Can't reproduce nicely.  Maybe new gdal issue?  Tried a few variants of processing.  Will fix tomorrow.  It takes 3-4 seconds to process 1 hour sfc wind.   So with 8*48*30/16 cores parameters = 720 seconds, 7 minutes.  But the machine I use is also 2x faster, so say 5 minutes. Should scale to 50 minutes with continental.  NICE!  Pretty much there.  I can speed up the lisp another factor of 2 or so and we can be down to say 2 seconds.  BUT NEED TO GET PROJECTION RIGHT...  WTF IS GOING ON NOW?
+
+
+I could put off warping until the end if I figure out the transformation stuff and can rotate the winds... but don't want to operate on the huge grid.  Best that be the PNG output step.  TOMORROW!
+
+
+10 Aug 2018
+ Cleaned up instances, backed things up, snapshots and AMIs.  All good.  Started DEV 3.1, where I
+ will work on gdal_transform stuff.  First I want to make sure I can do vectors.  Probably going to have to use the GDAL API and CFFI to get it working.  But, it shouldn't be a problem.
+
+
+OK, so let's get moving on this.  Let's try and generate wind vectors.
+downloaded devel cl-gdal.  It doesn't load cleanly... wtf.  OK, had to load gdal-core.lisp manually first.  whatever.  Going to use example at: http://geoexamples.blogspot.com/2013/05/drawing-wind-barbs-gdal-python.html
+to see if I can do that in lisp for one of our files.
+making slow progress
+
+
+
+
+8 Aug 2018
+Fixed some typos in the prod system... oops... should have tested it first after I removed cloudbase :(
+
+
+
+
+
+
+gdal_translate FTW!
+wgrib2 for warping the grid I can't get it to work because of the mercator overspecification
+gdal_warp looks good!  But check this out
+gdal_translate -of png -ot Byte -scale 0 6000 1 255 CMC_hrdps_continental_HGT_SFC_0_ps2.5km_2018080818_P001-00.grib2 test.png
+takes 1.5 seconds! and west takes 0.16 seconds.  On my local PC.  That's better than NCL by a long shot!  ncl dies on the continental.  So, the reason is that I'm not computing contours, or anything like that.  So, I just need to run this.  Now, how can I restrict with a polygon?
+ time gdal_translate -projwin -122 51 -120 49 -projwin_srs EPSG:4326 -of png -ot Byte -scale 0 6000 1 255 CMC_hrdps_west_HGT_SFC_0_ps2.5km_2018080818_P001-00.grib2 test2.png
+
+
+WOW!
+
+
+OK, so now I can colorize by creating a vrt file, and inserting a colormap!  Then gdal_translate it!
+EG, add the below into the VRTRasterBand section
+<ColorTable>
+    <Entry c1="0" c2="0" c3="0" c4="255"/>
+    <Entry c1="255" c2="255" c3="255" c4="255"/>
+    <Entry c1="0" c2="151" c3="164" c4="255"/>
+    <Entry c1="203" c2="0" c3="23" c4="255"/>
+    <Entry c1="131" c2="66" c3="37" c4="255"/>
+    <Entry c1="201" c2="234" c3="157" c4="255"/>
+    <Entry c1="137" c2="51" c3="128" c4="255"/>
+    <Entry c1="255" c2="234" c3="0" c4="255"/>
+    <Entry c1="167" c2="226" c3="226" c4="255"/>
+    <Entry c1="255" c2="184" c3="184" c4="255"/>
+    <Entry c1="218" c2="179" c3="214" c4="255"/>
+    <Entry c1="209" c2="209" c3="209" c4="255"/>
+    <Entry c1="207" c2="164" c3="142" c4="255"/>
+</ColorTable>
+
+
+Create vrt file first with 
+ gdal_translate -of VRT CMC_hrdps_continental_HGT_SFC_0_ps2.5km_2018080818_P001-00.grib2 blarg.vrt
+then run the gdal_translate on the file blarg.vrt after modifying the colormap!  Super fast!
+
+
+This appears to be the way to go.  I use eccodes to do some calculations on the grib files (top of lift, etc) and then just use gdal_translate to generate either raw raster data and I cut it up, or cut up the gribs and then raster it.  Will have to experiment!!!  This is GREAT!  I will easily get a 10x speed-up on the image generation this way!
+
+
+Looks like it runs, just run it tomorrow and modify the visualization and it should be good to go.  cloudbase seems weird.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+6 Aug 2018
+ 1) Cleaned up AWS instances, snapshots, and AMIs (should pay less for storage now)
+ 2) Cleaned up canadarasp.com (deleted a lot of old stuff)
+ 3) Backup AWS instances to google drive (full including ncl and just scripts one)
+ 4) Backup canadarasp.com (full)
+ 5) Cleaned up NCL code and removed unused things in development system (still more to do)
+ 6) Remove ncl-jack-fortran (finally!)
+ 7) Update the changelog on the page and added a NEW note for top of lift.
+ 8) Updated system software (a security patch and some other stuff)
+ 9) Worked on speeding things up.
+* Parallelized min/max calculation
+* Parallelized generate-new-variables, now takes no time
+* Fixed bug in the TGL renaming, needed OMP_NUM_THREADS=1, this now takes no time
+* Looks like grib2table isn't used... it's the NCARG file only
+* Variables are CLOUDBAS (?) WSTAR HCRITAGL BLDEPTH
+* Takes 2 minutes to generate the tile commands and 1:20 minutes to run them!
+* clipping data seems slow.
+Added BLDEPTH, CLOUDBASE, and WSTAR, but haven't run it all the way or added to rasptable
+Added variables to the files, but didn't add the plotting yet
+Current cost is about $3 per day or $1000/year which isn't covered by donations, but I don't mind covering $500/year.  If I just brute forced this to continental which is 10x more data, then it is $30/day, or $10000/year.  Need something like a 4x speed-up to be happy.  Let's look at larger tiles and reduced resolution
+
+
+
+
+
+
+
+
+Pre 6 Aug 2018 development notes
+Upgrading Canada RASP to the continental model
+ 1) download continental data
+ 2) use it
+ 3) add some windgrams in eastern canada
+ 4) Change the regional indicators to use a JS file to label regions?
+
+
+Tile provider for google maps
+1. Setup wgrib2 to use multiple cores.  Recompile and export OMP_NUM_THREADS=2
+2. Figure out the zoom levels and lat/lon boundaries for google map tiles
+3. See how long it takes to break up the U/V stuff into tiles using -new_grid mercator:lad lon0:nx:dx:lonn lat0:ny:dy:latn outfile… generate some tiles.
+4. Try and get them to display on a map
+
+
+Working:
+1. Install make: apt-get install make
+2. Install gfortran: apt-get install gfortran
+ 
+Installing new WGRIB2
+
+
+Download wgrib2 source, untar
+export CC=gcc
+export FC=gfortran
+make
+This is now openMP capable.  It lives currently under ~/new-wgrib2/grib2/wgrib2/wgrib2
+
+
+Downloading the continental files
+ download-continental.sh works
+ guess-time.sh works
+ do-rasp-run-continental.sh seems to work
+
+
+Working in ~/continental-test/
+
+
+Seems to work so far.  Sped things up a bit.  Using new wgrib2 with OMP_NUM_THREADS=2
+
+
+We now have 48 hour down, not just 44 hour data, so we get a peak at noon on the day after next instead of just 8AM... not bad!
+
+
+total file size: 9.4 GB
+
+
+OK, so I'm going to setup a new instance using a bigger machine.
+
+
+Options C5.large using an EBS volume.  That might work OK.  Then, I need to upgrade the linux kernel to linux-aws to get support for all the fast stuff too probably... not sure which ubuntu I'm using, let's try and upgrade it.  Let's use C5.large... it's 20% cheaper and slightly faster.  Though the disk IO may cause a problem... we'll have to pay for provisioned SSD
+
+
+c3.large $0.105 / hr 2 vCPU 3.75 GB 7 ECU local 2x16GB SSD
+c3.xlarge $0.21 / hr 4 vCPU 7.5 GB 14 ECU local 2x40GB SSD
+c5.large $0.085 / hr  2 vCPU 4 GB 8 ECU EBS-optimized, no local ephemeral store
+c5.xlarge $0.17 / hr 4 vCPU 8 GB 16 ECU EBS-optimized, no local ephemeral store
+
+
+To use C5, I need to start an new AMI, and move things over... eeeeeeeek.  That will take awhile.
+
+
+For now, playing with c3.xlarge.  That gives me enough room to run the continental and the 2x CPUS may speed things up enough to offset the cost a bit.  If I split the locations.txt into a bunch of different files, then I can parallelize the windgram generation.  But would need more memory for that I imagine... the GRIB2 file is 9.4GB.  OK, maybe I need to snip it into sections....  WEST, CENTRAL, EAST, US, ETC.
+
+
+OK, started up the c3.xlarge instance
+ Have a second block device, /dev/xvdc which is a 40GB SSD
+ The download is averaging 6 MB/sec, and have 9.6GB, so needs half an hour..
+
+
+Takes 20-25 minutes to download
+
+
+It takes an hour for the files to be generated and half an hour to download them... So, really I could check for hour 35 or something before starting.  Could save 15 minutes or so... but at more cost on the  machine.
+
+
+Note -N on wget doesn't work well... it randomly downloads file... misconfigured server?  went back to -c -nc
+
+
+Combining into a netcdf file takes forever, and too much space.  Going back to grib version.
+
+
+The total disk space is only 17GB.  Maybe I can get away with the 2x16GB ones on the c3.large guy if I move back to GRIB2 and use /mnt2 for input.nc.
+
+
+
+
+Trying it all again from the start:
+17 min 24 seconds to do everything up to starting the windgrams.
+
+
+Second download looks like it is throttled.
+
+
+Two Day Windgrams started 4:59pm
+./do-windgrams-continental.sh: line 91: 21029 Segmentation fault          (core dumped) ncl -n windgramPS-continental.ncl use_grib=1
+
+
+Maybe out of memory???
+# sudo mkswap /dev/xvdc 30000000
+# sudo swapon /dev/xvdc
+Maybe need to try a new ncl version... ugh.  Doesn't appear to be using much memory... 
+
+
+OK.  Going to try splitting the grib2 files.
+Turns out it takes a damn long time to do it!
+
+
+Ugh.
+
+
+OK, let's assume we can parallelize this and make it work in finite time.
+
+
+How do I determine the lat/lon bounds of a given google tile at zoom level zoom and tile index x and y
+
+
+First, each tile is 256x256 pixels.  So when we do a new grid, we need to
+interpolate the new grid to 256x256 points if we are going to be doing map level stuff.
+
+
+Once I have the tile server up, then I can just request a given lat/lon point for doing the windgrams
+and they will run fast them.  So, let's start with the tile splitting.
+
+
+Found a python script that given a zoom level and a lat / lon will return which tile it is and the 
+bounding box of it, but I need to now get all the bounding boxes at each zoom level, and generate the grib2 tiles.  Hrmph.  The ideal would be the lower zoom levels would be -new_grid interpolated
+but that will take forever!  Then the windgrams use the highest zoom level.
+
+
+So, let's start with the highest zoom level and just straight generate them.
+
+
+sudo apt-get install gdal-bin
+to get gdal-info ... gdal can read grib2 and make tiles maybe... ugh not correct, needs some intel libraries I dno't have.  Ugh.  OK.  Bailing on this for now... maybe tomorrow when I have more energy.
+s
+
+
+
+
+Starting a C5.large instance
+Using the base Ubuntu 16.04 instance
+
+
+sudo apt-get update
+sudo apt-get install gcc
+sudo apt-get install apt-file
+sudo apt-file update
+sudo apt-get install ncl-ncarg  # note that this is version doesn't work... need to compile own
+sudo apt-get install gfortran
+sudo mkfs.ext4 /dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_vol0d8972459fa87249e
+sudo mount /dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_vol0d8972459fa87249e /mnt
+#That's a 100 GB disk
+#There is a grads package that has some grib manipulation and presentation tools... hm.
+wget ftp://ftp.cpc.ncep.noaa.gov/wd51we/wgrib2/wgrib2.tgz
+tar zxvf wgrib2.tgz
+cd grib2
+export CC=gcc
+export FC=gfortran
+make
+# missing zlib?
+sudo cp wgrib2/wgrib2 /usr/bin
+
+
+#Stop the system
+# Created a snapshot of my c3.xlarge instance, which I will then attach to this instance so I can copy
+# over the rasp code... then I created a volume for it
+# this should be /dev/sdf now
+# Start the system
+
+
+sudo mount /dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_vol0161e08bee10323a6-part1 /mnt
+
+
+# This is now the newish canadarasp continental test        
+
+
+sudo mount /dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_vol0d8972459fa87249e /mnt2
+# my scratch space
+sudo mkdir /mnt2/input
+sudo chown ubuntu.ubuntu /mnt2/input
+ln -s /mnt2/input input
+sudo apt-get install parallel
+parallel --bibtex # type will cite
+./do-rasp-run-continental.sh
+sudo apt install emacs
+
+
+# adding ability to switch between west and continental... will do development of the tiling on
+# west and then decide if it is worth doing continental... or just add east, or something.
+# looks like it is fast when tiling just west, so let's stick with that for development now.
+
+
+Splitting up a single HRDPS continental file into 2 degree by 2 degree
+chunks (about 4000 chunks) takes 9-11 seconds running with roughly 4
+cores.  User time is 25 seconds, so parallelization is good.  There
+are 101 files to be split up per hour, and 14 hours per day, and two
+days. 2828*9 seconds is roughly 30000 seconds or about 8 hours.  I
+need this less than 1 hour.  So, let's ditch the SSD since we are
+close to CPU dominated, and let's download to a shared storage, split
+it across 8 machines with 4 cores each costing roughly 10 cents an
+hour, so it will cost roughly $1 per day to split the files alone.
+
+
+Maybe compiling WGRIB2 with the intel compiler will gain me something,
+a 2x speed-up?
+
+
+OK, I had to turn on jpeg compression on the output... oh oh.  This
+will take even longer.  That can benefit from a better compiler and
+bigger machine.  It's not running parallel anymore...  Takes 2 minutes
+but 219kB per file.  So, 220kB per file times 101 files times 48 hours
+
+
+(* 220000 101 48 1e-9)
+
+
+Only 1 GB with set_grib_type jpeg
+
+
+Changing to set_grib_type same... looks just as bad. other options are
+simple, ieee, complex1 complex2 and complex3 complex1-bitmap
+
+
+complex3 does a linear fit, then a delta encoding
+complex1 does just a delta encoding.  smooth grids should work well
+
+
+complex1-bitmap takes 50 seconds instead of 2 minutes and parallelizes OK.
+
+
+Well, OK, so lets take the space hit and use simple encoding... space
+is cheaper than CPU... and we'll be putting it on EBS anyway
+
+
+one more try... complex1 (the bitmap thing is unnecessary...)  this
+will be very small.  It takes 50 seconds (the first file CAPE should
+not be looked at as it is easier).  About the same size as JPEG,
+(250kB per file or so)
+
+
+It does not parallelize as well it seems, so changed to external 4x
+parallelization.  Super slow now.  Looks like reading the file and
+decoding is about 10 seconds of the processing...  so, explains why
+the simple encoding was 10 seconds.  Change to 2x external
+parallelization.  Still slower.
+
+
+Need to look into the jpeg2000 stuff in the wgrib2 build... can
+maybe get an AVX speed-up if I get it built right.  That should be
+definitely get 2-3x.
+
+
+I don't think I can get enough storage to keep this stuff
+
+
+uncompressed...
+
+
+17 April 2018 ajb
+
+
+Moved to a c5.large instance.  Using west domain only to see how fast / slow things are
+using the complex1 it takes 18-19 seconds per file instead of 50 seconds.  Same problem though,
+20 seconds 101 files 48 hours
+(* 20 101 48 (/ 1.0 3600.0)) -> 27 hours
+going for simple output, it takes 3.5-5 seconds per file with 2x parallelization (0.25s system ie file read time).  So we could in principle parallelize up to 10x more.
+
+
+OK, now restricting to just the west region for output speeds things up to 0.2 seconds per file with not much parallelization (should external parallelize?  switched to 2x)
+
+
+1 hour is roughly 1 meg, so keep with simple, this should be fast.
+tile-ization takes no time
+
+
+huh??? it's slow now... wtf.
+
+
+If I don't parallzlei externally then it takes 3m38 seconds with average parallelization of 1.7 on a 2 CPU system.  That's fine.
+
+
+18 April 2018 ajb
+Debugging the clipping... we seem to be missing sometimes the clipped wind files... maybe the terrain is always higher than that height?  Debugged.  Was an rm -f of the parallel jobs before I ran them.  Why am I writing this in BASH?
+
+
+clipping should be done before splitting... too slow otherwise... actually it's not too bad for WEST, but will be for the real deal... leaving it for now (takes 1-2 minutes for west).
+
+
+All the wgrib work takes 12 minutes 22 seconds on the c5.large for the west.
+
+
+copied over lib-jack-fortran
+
+
+Current problem now is
+that running
+cd continental-test/plot-generation
+./generate-single-hrdps-plots-continental.sh ../tiles/-124:-122:49:51/hrdps_west_2018-04-17-run06_P026.grib is
+
+
+missing HGT_P0_L100_GST0
+
+
+Shutting down for now...
+
+
+2018 April 22 ajb
+
+
+./setup-drives.sh # mounts the drive with the input and stuff for now.  I should clear it so EC2 doesn't charge me... delete on termination, etc.
+
+
+According to https://weather.gc.ca/grib/grib2_HRDPS_HR_e.html 
+
+
+HGT_ISBL_xxxx
+HGT_SFC_0
+
+
+change name of file to .grib2
+
+
+now getting fatal:NclGRIB2: Invalid Product Definition Template.
+
+
+Could be a problem with ncl version on 64 bit machine.  I will copy the NCL stuff that exists on the old machine.
+
+
+sudo mount /dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_vol0161e08bee10323a6-part1 /mnt2
+
+
+export NCARG_ROOT=/home/ubuntu/NCARG
+and update hrdps2gm-continental.ncl
+
+
+bingo... fixed
+
+
+./generate-single-hrdps-plots-continental.sh ../tiles/-124\:-122\:49\:51/hrdps_west_2018-04-17-run06_P026.grib2  /tmp/
+
+
+was forgetting the /tmp/ so couldn't write to output
+
+
+missing "convert"
+
+
+sudo apt-get install imagemagick
+Holy shit it's running!
+missing RANGS directory
+export NCARG_RANGS=/home/ubuntu/NCARG/database/rangs/
+
+
+So it's a rotated grid, so I need to change how I output things.
+
+
+So I am asking wgrib2 to limit to a lat:lon box which should give me a square outline, but I'm not seeing that.
+
+
+Trying to get wgrib2 to rotate the tile files
+
+
+Doesn't work because of U, V variable ordering
+
+
+Trying
+FILE=tiles/-124\:-122\:49\:51/hrdps_west_2018-04-17-run06_P026.grib2 
+wgrib2 $FILE | sed -e 's/:UGRD:/:UGRDa:/' -e 's/:VGRD:/:UGRDb:/'  | \
+   sort -t: -k3,3 -k5,8 -k4,4 | wgrib2 -i $FILE -new_grid_winds earth -new_grid mercator:50 -124:200:0.01:-122 49:200:0.01:51 blarg.grib2
+
+
+tried 201, etc...
+something wrong... but at least the UV order is right...
+Tried changing ordering with
+wgrib2 IN.grb -rpn alt_x_scan -set table_3.4 64 -grib_out OUT.grb
+
+
+didn't work
+
+
+Trying
+
+
+FILE=tiles/-124\:-122\:49\:51/hrdps_west_2018-04-17-run06_P026.grib2 
+wgrib2 $FILE | sed -e 's/:UGRD:/:UGRDa:/' -e 's/:VGRD:/:UGRDb:/'  | \
+   sort -t: -k3,3 -k5,8 -k4,4 | wgrib2 -i $FILE -new_grid_winds earth -new_grid latlon -124:200:0.01 49:200:0.01 blarg.grib2
+
+
+That works, but I really want the mercator projection because all the code wants it... ugh.  so,
+likely something with the dx/dy.
+        
+else if (gdt == 10 && nx > 0 && ny > 0) {               // mercator, not thinned
+            dlat         = GDS_Mercator_dy(gds);
+            dlon         = GDS_Mercator_dx(gds);
+            lat1 = GDS_Mercator_lat1(gds);
+            lat2 = GDS_Mercator_lat2(gds);
+            lon1 = GDS_Mercator_lon1(gds);
+            lon2 = GDS_Mercator_lon2(gds);
+    
+        kgds[0]= 1;
+            kgds[1]= nx;
+            kgds[2]= ny;
+            kgds[3]= floor(lat1*1000.0+0.5);
+            kgds[4]= floor(lon1*1000.0+0.5);
+            kgds[5]= 128;                       // resolution flag - winds N/S
+            kgds[6]= floor(lat2*1000.0+0.5);
+            kgds[7]= floor(lon2*1000.0+0.5);
+            kgds[8] = floor(GDS_Mercator_latD(gds)*1000+0.5);
+            kgds[9]= 0;
+            kgds[10]= scan;
+            kgds[11]=  floor(dlon + 0.5);
+            kgds[12]=  floor(dlat + 0.5);
+
+
+(error in error message, one based? --- kgds[1] is really kgds[0] and it doesn't go to 12
+ IPOLATES error: kgds[1] input 5 output 1
+ IPOLATES error: kgds[2] input 75 output 201
+ IPOLATES error: kgds[3] input 103 output 201
+ IPOLATES error: kgds[4] input 48801 output 49000
+ IPOLATES error: kgds[5] input -123908 output 236000
+ IPOLATES error: kgds[6] input 136 output 128
+ IPOLATES error: kgds[7] input -113000 output 51000
+ IPOLATES error: kgds[8] input 2500 output 238000
+ IPOLATES error: kgds[9] input 2500 output 50000
+ IPOLATES error: kgds[10] input 0 output 0
+ IPOLATES error: kgds[11] input 64 output 64
+ IPOLATES error: kgds[12] input 0 output 0
+
+
+patched the wgrib2 source to print all the kgds...
+
+
+IPOLATES error: kgds[1] input 5 output 1
+ IPOLATES error: kgds[2] input 75 output 101
+ IPOLATES error: kgds[3] input 103 output 101
+ IPOLATES error: kgds[4] input 48801 output 49000
+ IPOLATES error: kgds[5] input -123908 output 236000
+ IPOLATES error: kgds[6] input 136 output 128
+ IPOLATES error: kgds[7] input -113000 output 51000
+ IPOLATES error: kgds[8] input 2500 output 238000
+ IPOLATES error: kgds[9] input 2500 output 50000
+ IPOLATES error: kgds[10] input 0 output 0
+ IPOLATES error: kgds[11] input 64 output 64
+ IPOLATES error: kgds[12] input 0 output 0
+ IPOLATES error: kgds[13] input 0 output 0
+
+
+
+
+Giving up for now....
+
+
+23 April 2018 ajb
+Set it up so that I overgenerate the tiles, and then clip them back.  That gives me mercator squares.
+
+
+cd continental-test/
+export NOCLIP=true
+export NODEL=true
+export NOSUB=true
+./do-hrdps-plots-continental.sh 2018 04 17 06 /tmp
+
+
+Generating just sfcwind for now.. and then will put them
+It takes 1-2 seconds per plot
+
+OK, tar'ed up some of those and am ready to send them off to canadarasp and to work on the visualization.
+
+
+2018 June 3 --- moved the api key version of google maps page to the main canada rasp page, setup a 25000/day limit to the api and the key only usable on canadarasp.com
+
+
+Removing the 100GB storage and some other things mounted on the xlarge instance.  I'll have to remake them later.  /dev/xdvb
+
+
+RASP.c3.xlarge  I am taking this one down
+
+
+continental-experimental is the main one I am using  It's a c5.large.  The idea being is that it is up to date and uses the most recent stuff so it should be a good starting point if I need to scale to larger instances.
+
+
+continental-experimental
+You will want to make a storage 100GB for this one provisioned with default 300IOPS gp2 to store the data when you are actively working on this.
+
+
+
+
+2018 June 16
+Back to working on visualization.  Seems I lost the javascript files for displaying the tiles I had done.  Ugh.  Looking for them.  They are lost.  BUT, the pngs I generate look OK.  Let's see if I can get them displayed again.  Working in local canadarasp directory and moved these tiles to my local drive.  Using RASPtable-continental.js
+
+
+OK, it all works now!
+
+
+2018 June 17
+Now we need to roll this out as a Western Canada replacement.  Ugh, but it looks like the NCL plot generation takes too long.
+
+
+c3.large: 10.5 cents/hr, 2 vcpu / 7 ecu 3.75GB memory,2x16SSD
+c5.large: 8.5 cents/hr, 2 vcpu / 8 ecu 4GB, EBS only
+c5.xlarge: 17 cents/hr, 4 vcpu, 16 ecu 8GB, EBS only
+c5d.large: 9.6 cents/hr, 2 vcpu, 8 ecu 4GB, EBS+50GB NVME SSD
+c5d.xlarge: 19.2 cents/hr, 4 vcpu, 16ecu 8GB, EBS+100GB NVME SSD
+c5d.2xlarge: 38.4 cents/hr, 8 vcpu, 31ecu, 16GB, EBS+200GB NVME SSD
+c5d.4xlarge: 76.8 cents/hr, 16 vcpu, 62ecu, 32GB, EBS+400GB NVME SSD
+c5d.9xlarge: $1.728/hr, 36 vcpu, 139ecu, 72 GB, EBS+900GB NVME SSD
+
+
+Created ami-2bf1bf54 as my reference starting point for the continental RASP.  It has some data on it, so will have to recreate it later without the data.  It's just a 16GB image with the tools on it.
+
+
+Currently 45 minutes to windgrams and 1:30 roughly to windmaps is what it takes.  I think we can hit windgrams in way less than 45 minutes with the new code, but the windmaps are the hard part.
+
+
+We will need to delete anything older than a few days from CanadaRASP web server.  How easy would it be to move to an amazon web server?  Could try lightsail for free for 1 month.  Might make it easier to be all Amazon.
+
+
+OK, setup the c5d.xlarge off a new AMI Continental RASP Reference 1.  Have a 100GB nvme drive available.  That might scale to continental size, we'll see!  Need to write the new windgram thing to look up tiles, but will leave that for now.
+
+
+The drive doesn't come formatted, so need to set it up on boot... all done.
+
+
+Now, I still need to fix the following:
+ * multiple generation of header / footers
+ * wind stream line arrows seem to have an autoscale on them
+ * Make sure scaling is consistent across all plots
+ * The weird imagemagick png error on trim.
+ * Need output of tiles somewhere easier to get to?
+ * Upload to canada rasp web server
+ * Delete old data from canada rasp web server
+ * Backwards compatibility for domain specification on web address (sets center)
+ 
+Each tile-hour takes about 30 seconds, with parallelization 2 (ie 15 seconds).
+There are 60 tiles, and about 14 hours of sunlight each day, so 28*60*30/2 seconds = too long
+
+
+So, let's suppose I could boost this to a c5d.4xlarge, and I got perfect 16x parallelization
+28*60*30/16 = 3150 seconds or 52 minutes.
+
+
+The wind streamlines take 1.5-2 seconds each.  The rest take under 1 second per parameter.
+
+
+OK, how to speed this up?  It's not the data loading at all... 
+
+
+Header and footer take about 0.3 seconds out of 1 to 2 seconds, so that should be an easy speed-up of roughly 20% let's say.... OK.  Let's ditch them for now and see what we get...  using a full time on the generate-single-hrdps-plots.sh we get that the NCL reported time is about right (so no overhead for reading the files, actually about 0.2 seconds overhead, but that's fine on roughly 20-30 seconds).  Now we get 13-30 seconds and a load average 2.3 on my 4 core machine... hrmph.  Let's see what we can do better.
+
+
+Well in principle we can even scale across computers without much overhead.  Ugh.
+
+
+With parallel 4 getting load average 5, which is too much.  Let's reduce it to 3.  Looks like we can use ncore - 1.  OK.  Let's go for the 16xlarge
+
+
+DAY2 has 14 hours, 60 tiles, so 840 jobs.  Each job takes 30 seconds, with parallel 3, say 10 seconds.  This means 8400 seconds, or 2.5 hours.  Wall clock time for 10 jobs was 100 seconds, so this estimate is about right.  So for 2 days, this would be roughly 5 hours.
+
+
+So, let's fix the header / footer thing anyway and make it a separate job.
+One header / footer generator run per hour.
+
+
+So right now with a c5d.xlarge we would take 5 hours, so we need something that is 5x larger.
+
+
+Let's go with a c5d.9xlarge at $1.73 / hour and hope we can keep it to 1 hour per run, or 2 hours per day, which is $3.46 USD per day * 30 days = $135 CAD/month.  Ugh.
+
+
+
+
+Initial formatting of SSD drive for XFS with -K takes no time
+Downloading of HRDPS west data takes under 2 minutes
+Fixing file labels takes 1 minute, but parallelizes well (can boost PARALLELSUB to 8 or something)
+Generating commands for tiles takes awhile... maybe 1-2 minutes
+OK, for generating tiles, export OMP_NUM_THREADS=1 and then with -j 4 parallelization it takes 1 min 16 seconds with a load average about 2 on average.  If I export -n OMP_NUM_THREADS and use no parallelization of wgrib2 (-j 1) then I get 2:17, then with -j 8 it takes 1:15, so no win with a load average of 6 (OK, but maybe that means we can boost this on the bigger machine)
+
+
+TODO: boost PARALLEL settings in plot-hrdps-continental.sh
+
+
+Clipping data below terrain elevation takes 1:15 or so.  Could probably speed it up.
+
+
+So the complete overhead some of which is parallelizable is roughly
+
+
+Initial setup: 0
+Download: 2-4 minutes
+Per DAY:
+Fixing file labels: 1 minute (but parallelizes well PARALLELSUB=8)
+Generating commands for tiles: 2 minutes NO PARALLELIZATION
+Generating tiles: 1:16 (but parallelizes well)
+Clipping data below terrain: 1:15, NO PARALLELIZATION
+
+
+TODO:
+ 1) trim 2 minutes by generating commands for tiles while running previous chunks or speed up the bash scripting.
+ 2) Clipping data below terrain, parallelize.
+ 3) See how much we can parallelize the NCL stuff
+ 4) Fix the header / footer generation
+
+
+Roughly overhead I expect is something like 7*2 minutes (measured 13 minutes) for initial start-up (maybe on the big machine it goes down to 5*2 minutes).  Then it's all NCL and then it's SCP to the canadarasp server.  So maybe with the c5d.9xlarge, we can get this all down to 14 minutes + 5/9 hour (33 minutes) = 47 minutes twice a day.  Right now the c3.large takes 1:40 to generate maps (the windgrams show up faster after only 40 minutes or so).  I haven't added the windgram generation yet.  I imagine this will take no time at all...
+
+
+So with the c3.large costing $0.105 / hr for 2*1.4 hours is 30 cents a day, or $9 / month plus disk storage (real bill is 128.5 hours = 13.50 USD).  The new version would cost $1.73*2*50/60 = $3 a day, or $90 / month, $1080/year !!  Shaving 1 minute off a run saves $20 / year... holy crap.  I could spend an hour on each minute I shave off and still make it worth the effort.
+
+
+The c5d.4xlarge, on the other hand would take 1:30 total and cost $66/month or $800/year instead of my current $162/year.  Will have to tune it to wake up at the right time.
+
+
+Eventually if I run the continental model it will be 100x slower, or roughly $100K/year in compute power.  WTF.
+
+
+Or, I can start hacking on NCL and speed it up by say 5x for my work-load.  Maybe not a bad idea.
+
+
+OK, let's go with the c5d.4xlarge solution for now, and eat the $800/year.  I wonder if we can do the NAM 3 km results.  These grids are available for Hawaii / Puerto Rico / Alaska / CONUS.
+
+
+OK, first step tonight is boot the system, fix the header / footer issue.  Then re-make a new AMI.  Then try the 4xlarge.
+
+
+Try the below instead of the convert -trim call
+res@gsnMaximize = True
+res@gsnPaperMargin = 0.0
+might have to play with gsnPaperWidth
+couldn't get the above working... ncl insists on outputing transparent stuff around... even when I make sure the output is square, etc.
+
+
+18 June 2018 ajb
+Using new C5d.4xlarge
+Downloading, set it ot 8 files x 8 wgribs seems to be best --- something is throttling us if we ask for too many files in a single connection.
+2 minutes to download total size 656 MB of data
+
+
+I turned one of the parallel numbers up too high as the load average hit 40.  Oops.
+Building the file list is too slow.
+
+
+Anyway started at roughly 22:31
+
+
+One of the parallel numbers was too high as the load average hit 40
+Building the file list is too slow (1 minute)
+Clipping data below terrain doesn't use the cpu effectively at all (1 minute)
+Finding min/max at least uses wgrib2 parallelization well.
+
+
+Runs for Day 1 started 7 minutes later at 22:38.  This could be sped up a couple minutes for sure.
+
+
+NCL parallelization at 15 is too high, getting average load of 30.  Weird.  Looks like convert runs a bit parallel?  Getting still about 30 seconds per run tile-hour, but with 15 NCLs running.  So, about 2 seconds per tile hour?  Let's do a rough check... 3 seconds per tile hour.  With 60 tiles, 28 hours 3 seconds is 60*28*3 + 14 minutes = 5900 seconds = 98 minutes.  Too slow.  Let's see what I can do here.
+
+
+Yes, convert has OPENMP support.  Ugh.  Need to export OMP_NUM_THREADS=1
+
+
+Now 20 in 50 seconds, or 2.5 seconds each.  OK, not too bad.  5040 seconds or 84 minutes with that tweak.  OK.  Let it finish and let's move the data to canada rasp.  While it is running up lets start working on windgrams
+
+
+Turned off the coast line drawing... it's a useful debugging tool but presumably takes some time to draw.  The option lives in opts_bg.ncl.  Now 2.3-2.4 seconds per...
+
+
+Wind is still the worst offender --- let's see if I can perhaps do something about it.  It is 1.5 seconds per plot.
+ setting up initial options is 10 ms
+ contour plot call is 70ms
+ The draw call is 1.2 seconds
+ Then some change workstation and another draw call gives 200 ms
+ convert is 120 ms
+
+
+Did not manage to speed things up... ugh.  Anyway, set the width and height to a fixed 1024 pixels instead of doing a weird crop calculation.  Removed the bg draw call since we don't use it, and some other minor fiddles.
+
+
+Now, running
+
+
+It took 30 minutes to run on a 3 hour day plus a 14 hour day.  Not bad.  Started working on windgramPS-continental.ncl.  wrote a file called getTileName.ncl which handles tile naming, need to write a group-items function to be able to sort the items into tiles so we can minimize file loading and the like.  Should be quick.  Full tiles are 1.4 GB!  Ooof!
+
+
+Had to install python to use make-new-locations.  Making great progress!
+
+
+2018 Jun 19
+
+
+sudo timedatectl set-timezone America/Vancouver
+Changed it to generate all the hours.  But then we need to only generate some of the maps.
+windgram work ongoing in windgram-continental.  Changed things to use addfiles which is making things complicated, but I think it's working now... just moving [:] things around.
+
+
+22 June 2018
+Almost done.  The two day windgrams need work (the wind barbs are too dense).  Some windgrams not being generated!  Upload works well.
+
+
+24 June 2018
+ Goals for today:
+  1) fix windgrams so I can stop running the old stuff DONE (was single quotes in locations.txt... and didn't make tiles far enough north
+  2) add delete old map data
+  3) Add backwards compatibility for the domain key
+  4) Update the current url with the map center and zoom and if the date is today, make it today, otherwise use the date.
+  5) Clean up the code a little bit, try and remove some NCL crud.  DID SOME WORK
+  6) TwoDay windgrams need work (dense windgrams)
+
+
+Broke the wind map generation.. oops.  something in the script I screwed up (maybe the concatenating part)
+
+
+25 June 2018
+ 1) Fix map generation DONE
+ 2) Add delete old map data DONE
+ 3) Update the current url with the map center and zoom DONE
+ 4) Cleaned up the javascript viewer a bit! DONE
+ 5) Add backwards compatibility for the domain key DONE
+ 6) Cleaned up the NCL a tiny bit DONE
+
+
+30 June 2018
+ 1) Start up scheduled runs of the full west model DONE
+ 2) Fix twoDay windgrams (time steps too dense) DONE
+ 3) Fix contour plots when they are constant (it should fill with correct color) FAIL
+ 4) Make sure raster fill is being used for contours NO SEEMS TO SLOW IT DOWN!
+ 5) Front end work to make alpha continental be default page NO
+ 6) Change time selector for alpha continental to be a single pulldown DONE
+ 7) Make PT/MT time selector NOT NOW
+ 8) Limit max zoom out DONE
+ 9) Try and speed-up the interface slightly (timer on loadImages?) WAS ALREADY DONE
+10) Add John Lang stuff to old and new locations, make sure locations is consistent DONE
+11) Set default view to be slightly smaller if domain isn't specified DONE
+12) Add clickable windgrams DONE
+13) Pressure is in the wrong units... is rain as well??? (Turns out not a worry, fixed pressure later)
+14) The header mentions the time / date... wrong! DONE
+
+
+31 June 2018
+TODO:
+ 1) Pressure is in the wrong units (rain is fine, compared both). Need / 1000
+ 2) PT/MT time selector
+3) Lumby area sites being wrong
+4) Constant contours still being generated empty
+5) Night day coloring of hours on windgram is broken
+6) Clouds are too big on the two day windgram
+7) uploading via tar doesn't overwrite files, so windgrams and tile labels aren't updated! is there a -k somewhere? 
+
+
+2 July 2018
+1) locations.txt file got single quotes back in it... ugh... fix it  DONE
+2) Fixed the pressure units DONE
+3) Night / day color of hours DONE
+4) Clouds are too big on two day windgram DONE
+5) Make windgram checkbox persistent / bookmarkable DONE
+6) Updated changelog and added planned changes
+Remaining TODO:
+ 1) PT/MT time selector
+ 2) Lumby area sites being wrong
+ 3) Constant contours still being generated empty
+ 4) uploading via tar doesn't overwrite files, so windgrams and tile labels aren't updated! is there a -k somewhere? Not sure this is true... windgrams were broken by locations.txt.  Tile labels not sure.
+ 5) Try 3 degree x 3 degree gridding to see if it is 2x faster
+ 6) Try reducing resolution from 1000x1000 to 700x700 to see if it is 2x faster
+ 7) Still getting cnConstFEnableFill warnings on RAIN and other things (see 3)
+
+
+Seems to be taking 1 - 1.5 hours.  Added more detailed logs and copying them to back-up logs.
+
+
+2 July 2018
+Starting on a common lisp interface to eccodes so that I can use it to do the maps of top of lift, etc.
+Installed eccodes library, needed to install libopenjpeg-dev.  Started on code eccodes.lisp.
+
+
+Installed plplot
+Installed new version of cmake
+installed cl-plplot!
+
+
+had to install libx11-dev libgtk-3dev to compile plplot
+use ccmake to configure plplot to have a png driver
+seems to work...
+
+
+4 Aug 2018
+ eccodes-2.8.0
+ make sure to make a build directory to use ccmake or it spams everything
+ make sure to install libopenjpeg-dev
+ see notes on the spleen eccodes.lisp file.  nice! installed ncl also on spleen.
+
+
+5 Aug 2018
+ Created new DEV image "HCRIT".  Now need to handle the variable names and plotting and scale
+ up the sbcl part.  ec2-dev.sh connects to the dev image.
+ added export NCARG_ROOT=/home/ubuntu/NCARG/ to .bashrc
+ sudo mv /usr/bin/ncl /usr/bin/ncl-broken
+ sudo ln -s /home/ubuntu/NCARG/bin/ncl /usr/bin/ncl
+
+
+ First, install eccodes library:
+  wget https://confluence.ecmwf.int/download/attachments/45757960/eccodes-2.8.0-Source.tar.gz
+  sudo apt-get install libopenjpeg-dev
+  mkdir eccodes
+  cd eccodes
+  mv ../eccodes-2.8.0-Source.tar.gz .
+  tar zxvf eccodes-2.8.0-Source.tar.gz
+  sudo apt install cmake-curses-gui
+  ccmake eccodes-2.8.0-Source (hit c for configure twice, then g for generate)
+  make ; sudo make install ; sudo ldconfig -v
+
+
+copy eccodes.lisp source from spleen to the machine
+
+
+modify .emacs
+(package-initialize)
+(setq inferior-lisp-program "/usr/bin/sbcl")
+(setq slime-contribs '(slime-fancy))
+(global-set-key (kbd "C-h") 'backward-kill-word)
+(require 'slime-autoloads)
+
+
+Add PRES_SFC_0 to HRDPS_FILES
+
+
+OK, the new variable I added does not get small_grib'ed by wgrib2.  UGH.  STUPID DESIGN.
+
+
+Added export GRIB2TABLE=/home/ubuntu/continental-test/grib2table
+Then for NCL edited ~/NCARG/lib/ncarg/grib2_codetables/ncep/4/4.2.0.190.table
+ and added 190:190:HCRITAG:m:HCRITAGL
+
+
+This seems to make things better?
+ Good.  And the long_name was generating the label at the top.   UGH
+ Looks good so far!  Let's upload it and see how it goes, and add hwcrit to a testing list at canadarasp
+ DONE!!!!
+
+
+Next, finish the TODO above and add hcrit absolute, lcl, bldepth and terrain map and change the top of lift calculation to use peters more optimistic version.
