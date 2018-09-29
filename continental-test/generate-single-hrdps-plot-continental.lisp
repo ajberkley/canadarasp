@@ -42,8 +42,10 @@
   (format nil "~A:~A:~A:~A/" 
 	  (first lat-lon-info) (third lat-lon-info) (second lat-lon-info) (fourth lat-lon-info)))
 
-(defun directory-from-date (yyyy mm dd)
-  (format nil "~A-~2,'0d-~2,'0d/" yyyy mm dd))
+(defun directory-from-date (yyyy mm dd &optional (hh nil))
+  (if hh
+    (format nil "~A-~2,'0d-~2,'0d_~2,'0d/" yyyy mm dd hh)
+    (format nil "~A-~2,'0d-~2,'0d/" yyyy mm dd)))
 
 (defparameter *wind-color-scale*  
   '((0f0 (255 255 255))
@@ -261,11 +263,12 @@
 
 (load "model-parameters.lisp")
 
-(defun make-tile-directories (yyyy mm dd)
+(defun make-tile-directories (yyyy mm dd initialized-yyyy initialized-mm initialized-dd initialized-hh)
   (let ((tile-iterator (tile-iterator)))
     (iter (for tile = (funcall tile-iterator))
 	  (while tile)
-	  (for directory = (format nil "~A/~A/~A/" (base-directory) (directory-from-tile-info tile) (directory-from-date yyyy mm dd)))
+	  (for directory = (format nil "~A/~A/~A/~A/" (base-directory) (directory-from-date initialized-yyyy initialized-mm initialized-dd initialized-hh)
+				   (directory-from-date yyyy mm dd) (directory-from-tile-info tile)))
 	  (ensure-directories-exist directory))))
 
 (defmacro with-drawable-image ((draw-func image y-size x-size &key debug (channels 4) (bits 8)) &body body)
@@ -405,7 +408,7 @@
     ;; Our chunk-image function goes from x-pixel-min to below x-pixel-max, same for y, so the lat/lon bounds we
 ;; derive above are truly the upper left and lower right.
 
-(defun draw-magnitude (file color-scale filename &optional (scale #'identity))
+(defun draw-magnitude (file color-scale output-directory filename &optional (scale #'identity))
   (declare (optimize (speed 3)))
   (cl-gdal::maybe-initialize-gdal-ogr)
   (let ((filename-warped (tmp-filename "blarg" "grib2")))
@@ -434,32 +437,37 @@
 			  (values (tile-bounds-to-pixel-bounds tile lon-lat-to-pixel-transformer)
 				  tile)))
 	     (lambda (lat-lon-info)
-	       (format nil "~A~A~A" (base-directory) (directory-from-tile-info lat-lon-info) filename)))))))
+	       (format nil "~A~A~A" output-directory (directory-from-tile-info lat-lon-info) filename)))))))
     (rm-file filename-warped)
     t))
 
  ;;A chunk-generator gives me null or a list of ulx uly lrx lry bounds
 
 (defun combine-winds-warp-and-return-new-files (ugrib vgrib)
-  (let ((both-grib-rotated (tmp-filename "both-rotated" "grib2"))
-	(ugrib-rotated (tmp-filename "ugrd-rotated" "grib2"))
-	(vgrib-rotated (tmp-filename "vgrd-rotated" "grib2"))
-	(utif-rotated (tmp-filename "ugrd-rotated" "tif"))
-	(vtif-rotated (tmp-filename "vgrd-rotated" "tif")))
-    (print/run-program "./combine-and-rotate-winds.sh" (list ugrib vgrib both-grib-rotated))
-    (print/run-program "/usr/bin/wgrib2" (list both-grib-rotated "-match" "^(1):" "-grib" ugrib-rotated))
-    (print/run-program "/usr/bin/wgrib2" (list both-grib-rotated "-match" "^(2):" "-grib" vgrib-rotated))
-    (print/run-program "/usr/local/bin/gdalwarp" (list "-overwrite" "-r" "average" "-t_srs" "EPSG:3857"  ;; bilinear
-						       "-dstnodata" (format nil "~A" +dst-no-data-double+) "-of" "GTiff" "-wo" "SAMPLE_GRID=YES"
-						       "-wo" "SOURCE_EXTRA=1000" "-wo" "SAMPLE_STEP=100" ugrib-rotated utif-rotated))
-    (print/run-program "/usr/local/bin/gdalwarp" (list "-overwrite" "-r" "average" "-t_srs" "EPSG:3857" "-of" "GTiff" "-wo" "SAMPLE_GRID=YES"
-						       "-dstnodata" (format nil "~A" +dst-no-data-double+) ;; bilinear
-						       "-wo" "SOURCE_EXTRA=1000" "-wo" "SAMPLE_STEP=100" vgrib-rotated vtif-rotated))
-    ;; not sure bilinear is worth it, another second... but better than nothing.
-    (rm-file both-grib-rotated)
-    (rm-file ugrib-rotated)
-    (rm-file vgrib-rotated)
-    (list utif-rotated vtif-rotated)))
+  (destructuring-bind (ugrib-rotated vgrib-rotated)
+      (if (string= *model* "gdps")
+	  (list ugrib vgrib) ;; gdps is already a lat/lon grid, no rotation needed
+	  (let ((both-grib-rotated (tmp-filename "both-rotated" "grib2"))
+		(ugrib-rotated (tmp-filename "ugrd-rotated" "grib2"))
+		(vgrib-rotated (tmp-filename "vgrd-rotated" "grib2")))
+	    (print/run-program "./combine-and-rotate-winds.sh" (list ugrib vgrib both-grib-rotated))
+	    (print/run-program "/usr/bin/wgrib2" (list both-grib-rotated "-match" "^(1):" "-grib" ugrib-rotated))
+	    (print/run-program "/usr/bin/wgrib2" (list both-grib-rotated "-match" "^(2):" "-grib" vgrib-rotated))
+	    (rm-file both-grib-rotated)
+	    (list ugrib-rotated vgrib-rotated)))
+    (let ((utif-rotated (tmp-filename "ugrd-rotated" "tif"))
+	  (vtif-rotated (tmp-filename "vgrd-rotated" "tif")))
+	(print/run-program "/usr/local/bin/gdalwarp" (list "-overwrite" "-r" "average" "-t_srs" "EPSG:3857" ;; bilinear
+							   "-dstnodata" (format nil "~A" +dst-no-data-double+) "-of" "GTiff" "-wo" "SAMPLE_GRID=YES"
+							   "-wo" "SOURCE_EXTRA=1000" "-wo" "SAMPLE_STEP=100" ugrib-rotated utif-rotated))
+	(print/run-program "/usr/local/bin/gdalwarp" (list "-overwrite" "-r" "average" "-t_srs" "EPSG:3857" "-of" "GTiff" "-wo" "SAMPLE_GRID=YES"
+							   "-dstnodata" (format nil "~A" +dst-no-data-double+) ;; bilinear
+							   "-wo" "SOURCE_EXTRA=1000" "-wo" "SAMPLE_STEP=100" vgrib-rotated vtif-rotated))
+	;; not sure bilinear is worth it, another second... but better than nothing.
+	(when (not (string= *model* "gdps"))
+	  (rm-file ugrib-rotated)
+	  (rm-file vgrib-rotated))
+	(list utif-rotated vtif-rotated))))
 
 (defun prepare-files-for-draw-winds (ufile vfile)
   (combine-winds-warp-and-return-new-files ufile vfile))
@@ -469,17 +477,17 @@
 ;; full 16x parallelization and 2x faster CPU -> (/ 62400 32) -> 1950 seconds or 32 minutes.
 ;; Cutting down to 24 hours (only daylight hours) gives us 16 minutes.
 
-(let ((wind-levels 13)
-      (hours-for-two-days 48)
-      (time-per-file 80)
-      (parallelization 16)
-      (cpu-factor 2))
-  (* wind-levels hours-for-two-days time-per-file (/ parallelization) (/ cpu-factor) (/ 3600) 60.0))
+;; (let ((wind-levels 13)
+;;       (hours-for-two-days 48)
+;;       (time-per-file 80)
+;;       (parallelization 16)
+;;       (cpu-factor 2))
+;;   (* wind-levels hours-for-two-days time-per-file (/ parallelization) (/ cpu-factor) (/ 3600) 60.0))
 ;; 26 minutes for winds
 
 ;; There are 10 other levels, each takes 4 seconds or so, so... another couple minutes.
 
-(defun draw-winds** (ufile-input vfile-input filename vector-output-filename &key (color-scale *wind-color-scale*))
+(defun draw-winds** (ufile-input vfile-input output-directory filename vector-output-filename &key (color-scale *wind-color-scale*))
   (declare (optimize (speed 3)))
   (cl-gdal::maybe-initialize-gdal-ogr)
   (destructuring-bind (ufile vfile)
@@ -540,8 +548,8 @@
 					 ;;   (format t "angle is ~A -> ~A~%" angle (round (+ 3145 (* angle 1000f0))))
 					 ;;   (sleep 0.1))
 					 (draw-vector x-real y-real (1+ (round (+ (* pi 37f0) (* angle 37f0))))))))))) ;; -pi to pi, (* 2 pi 37f0)
-		     (png::encode-file image (format nil "~A/~A/~A" (base-directory) (directory-from-tile-info tile) filename))
-		     (png::encode-file image-vector (format nil "~A/~A/~A" (base-directory) (directory-from-tile-info tile) vector-output-filename))
+		     (png::encode-file image (format nil "~A/~A/~A" output-directory (directory-from-tile-info tile) filename))
+		     (png::encode-file image-vector (format nil "~A/~A/~A" output-directory (directory-from-tile-info tile) vector-output-filename))
 		     ))))))
     (rm-file ufile)
     (rm-file vfile)))))
@@ -683,18 +691,17 @@ Doesn't work, tried a bunch of stuff.  UGH.  So, let's split the files before wa
 (defparameter *forecast-init-day* (parse-integer (or (sb-posix:getenv "DAY") "17")))
 (defparameter *forecast-init-hour* (parse-integer (or (sb-posix:getenv "HOUR") "6")))
 
-
-(defun do-it-if-necessary (forecast-hour &key (forecast-init-year *forecast-init-year*) (forecast-init-month *forecast-init-month*) (forecast-init-day *forecast-init-day*) (forecast-init-hour *forecast-init-hour*)
-					   (only-generate-header-footer nil) (params-and-names *params-and-names*))
+(defun do-it-if-necessary (forecast-hour &key (forecast-init-year *forecast-init-year*) (forecast-init-month *forecast-init-month*) (forecast-init-day *forecast-init-day*)
+					   (forecast-init-hour *forecast-init-hour*) (only-generate-header-footer nil) (params-and-names *params-and-names*))
   (local-time::reread-timezone-repository)
   (let* ((t0 (local-time:encode-timestamp 0 0 0 forecast-init-hour forecast-init-day forecast-init-month forecast-init-year :timezone local-time:+gmt-zone+))
 	 (forecast-valid-time (local-time:timestamp+ t0 forecast-hour :hour))
-	 (timezone (local-time:find-timezone-by-location-name "America/Vancouver"))
-	 (hourpt (local-time:timestamp-hour forecast-valid-time :timezone timezone))
-	 (daypt (local-time:timestamp-day forecast-valid-time :timezone timezone))
-	 (monthpt (local-time:timestamp-month forecast-valid-time :timezone timezone))
-	 (yearpt (local-time:timestamp-year forecast-valid-time :timezone timezone)))
-    (make-tile-directories yearpt monthpt daypt)
+	 (timezone local-time:+utc-zone+) ;; (local-time:find-timezone-by-location-name "America/Vancouver")
+	 (hourutc (local-time:timestamp-hour forecast-valid-time :timezone timezone))
+	 (dayutc (local-time:timestamp-day forecast-valid-time :timezone timezone))
+	 (monthutc (local-time:timestamp-month forecast-valid-time :timezone timezone))
+	 (yearutc (local-time:timestamp-year forecast-valid-time :timezone timezone)))
+    (make-tile-directories yearutc monthutc dayutc forecast-init-year forecast-init-month forecast-init-day forecast-init-hour)
     (labels ((gen-input-filename/s (filelabel/s)
 	       (labels ((d (filelabel)
 			  (format nil "~A/~A_~A~A~A~2,'0d~2,'0d~2,'0d_P~3,'0d~A"
@@ -702,14 +709,16 @@ Doesn't work, tried a bunch of stuff.  UGH.  So, let's split the files before wa
                                   (if (string= filelabel "HGT_SFC_0") 0 forecast-hour)
                                   *tail*)))
 		 (if (listp filelabel/s) (mapcar #'d filelabel/s) (d filelabel/s))))
+	     (output-directory ()
+	       (format nil "~A/~A/~A/" (base-directory) (directory-from-date forecast-init-year forecast-init-month forecast-init-day forecast-init-hour) (directory-from-date yearutc monthutc dayutc)))
 	     (output-file-name (param &optional (tag "body"))
-	       (format nil "~A/~A_~A-~2,'0d-~2,'0d_~2,'0d00.~A.png" (directory-from-date yearpt monthpt daypt)
-		       param yearpt monthpt daypt hourpt tag))
+	       (format nil "~A_~A-~2,'0d-~2,'0d_~2,'0d00.~A.png" param yearutc monthutc dayutc hourutc tag))
 	     (vector-output-file-name (param)
-	       (format nil "~A/~A_~A-~2,'0d-~2,'0d_~2,'0d00.vector.png" (directory-from-date yearpt monthpt daypt)
-		       param yearpt monthpt daypt hourpt))
+	       (output-file-name param "vector"))
+	     (header/footer-directory ()
+	       (format nil "~A/~A" (base-directory) (directory-from-date forecast-init-year forecast-init-month forecast-init-day forecast-init-hour)))
 	     (header/footer-file-name (param tag)
-	       (format nil "~A/~A_~2,'0d-~2,'0d-~2,'0d.~A.png" (base-directory) param yearpt monthpt daypt tag))
+	       (format nil "~A/~A_~2,'0d-~2,'0d-~2,'0d.~A.png" (header/footer-directory) param yearutc monthutc dayutc tag))
 	     (handle (param full-name  filelabel/s type color-scale units scale)
 	       (cond
 		 (only-generate-header-footer
@@ -722,14 +731,13 @@ Doesn't work, tried a bunch of stuff.  UGH.  So, let's split the files before wa
 		    (ecase type
 		      (:wind
 		       (let ((output-vector-filename (vector-output-file-name param)))
-			 (draw-winds** (car input-filename/s) (cadr input-filename/s) output-filename output-vector-filename :color-scale color-scale)))
+			 (draw-winds** (car input-filename/s) (cadr input-filename/s) (output-directory) output-filename output-vector-filename :color-scale color-scale)))
 		      (:mag
-		       (draw-magnitude input-filename/s color-scale output-filename scale))))))))
-	  (when (or (not (string= *model* "hrdps")) (<= 4 hourpt 22)) ;; 4 instead of 7 because of the 3 hour change to eastern canada!
+		       (draw-magnitude input-filename/s color-scale (output-directory) output-filename scale))))))))
 	    (let ((*unique-identifier* forecast-hour))
 	      (map nil (lambda (x)
 			 (destructuring-bind (param full-name filelabel type color-scale units &optional (scale #'identity)) x
-			   (ignore-errors (handle param full-name filelabel type color-scale units scale)))) params-and-names))))))
+			   (ignore-errors (handle param full-name filelabel type color-scale units scale)))) params-and-names)))))
   
 (if (string= (cadr *posix-argv*) "--only-generate-header-footer")
     (map nil (lambda (hour) (do-it-if-necessary hour :only-generate-header-footer t)) (iter (for hour from *timestart* to *timestop* by 8) (collect hour)))
