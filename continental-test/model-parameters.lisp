@@ -10,6 +10,7 @@
 (defparameter *tail* (or (sb-posix:getenv "TAIL") "-00.grib2"))
 (defparameter *resolution* (or (sb-posix:getenv "RESOLUTION") "_ps2.5km_"))
 (defparameter *tiledir* (or (sb-posix:getenv "TILEDIR") "/mnt/tiles/hrdps"))
+(defparameter *pngdir* (or (sb-posix:getenv "PNGDIR") "/mnt/tiles/hrdps"))
 
 (defparameter *ulx* (parse-integer (or (sb-posix:getenv "XMIN") "-152")))
 (defparameter *lrx* (parse-integer (or (sb-posix:getenv "XMAX") "-42")))

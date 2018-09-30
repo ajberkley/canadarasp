@@ -14,14 +14,6 @@ else
     # The swapfile will be setup in the background while we are startup the downloading process
     ( dd if=/dev/zero of=/mnt/swapfile bs=1000000 count=16000 ; sudo chown root.root /mnt/swapfile ; sudo chmod 0600 /mnt/swapfile ; sudo mkswap /mnt/swapfile ; sudo swapon /mnt/swapfile ) &
 fi
-mkdir -p /mnt/input/hrdps
-mkdir -p /mnt/input/gdps
-mkdir -p /mnt/input/rdps
-mkdir -p /mnt/tiles/hrdps
-mkdir -p /mnt/tiles/gdps
-mkdir -p /mnt/tiles/rdps
-mkdir -p /mnt/html/tiles/hrdps
-mkdir -p /mnt/html/tiles/gdps
-mkdir -p /mnt/html/tiles/rdps
-ln -s /mnt/input input
-ln -s /mnt/tiles tiles
+mkdir -p $PNGDIR
+mkdir -p $OUTPUTDIR
+mkdir -p $TILEDIR

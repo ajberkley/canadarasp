@@ -36,7 +36,7 @@
 (load "model-parameters.lisp") ;; our config file 
 
 (defun base-directory ()
-  (format nil "/mnt/html/tiles/~A/" *model*))
+  (format nil "~A/" *pngdir*))
 
 (defun directory-from-tile-info (lat-lon-info)
   (format nil "~A:~A:~A:~A/" 

@@ -4,7 +4,6 @@
 # If you have already downloaded some data this will not re-download it.
 # You can export NODOWNLOAD=1 to not re-download data, make sure to mount /mnt first
 SHUTDOWN=${1:-false}
-./setup-drives.sh
 PATH=$PATH:/home/ubuntu/canadarasp/aws-utils:/home/ubuntu/.local/bin
 MY_INSTANCE_ID=`get-my-instance-id.sh`
 MODEL=`aws-read-tag.sh $MY_INSTANCE_ID model`
@@ -12,6 +11,7 @@ export MODEL=${MODEL:-"gdps"}
 echo Running RASP for model $MODEL, SHUTDOWN=$SHUTDOWN
 source ./model-parameters.sh $MODEL
 source ./guess-time.sh $MODEL
+./setup-drives.sh
 echo Moving downloaded data to local disk starting at `date`
 source /home/ubuntu/canadarasp/aws-utils/create-download-box.sh /download-box
 cd /download-box
