@@ -76,7 +76,7 @@ function updateDays () {
     var Day = document.getElementById("Day");
     var dayName   = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     var dayofmonth = new Date();
-    dayofmonth.setFullYear(targetYear)
+    dayofmonth.setFullYear(targetYear);
     dayofmonth.setDate(1);
     dayofmonth.setMonth(targetMonth-1);
     var i = 0;
@@ -162,36 +162,104 @@ function set_params_for_model () {
     }
 }
 
-function set_datetime_options () {
+function callWithTimeZone(callback) {
+    var pos = map.getCenter();
+    var timestamp = Math.round(Date.now()/1000);
+    var request = "http://alphatest.canadarasp.com/timezone?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp+"&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks";
+    var xhttp = new XMLHttpRequest();
+    xhttp.timeout = 1000; // 1 second before timeout
+    xhttp.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200) {
+	    var result = JSON.parse(this.responseText);
+	    if(result.status == "ZERO_RESULTS") {
+		var offset = 60*Math.round(pos.lng() * 24 / 360);
+		//console.log("Didn't get an answer from google about time zone offset, so using natural offset of " + offset);
+		callback(offset)
+	    } else {
+		//console.log(this.responseText);
+		//console.log("Got an answer, rawOffset in minutes is + " + result.rawOffset/60 + " dstOffset is " + result.dstOffset/60 );
+		callback(result.rawOffset/60 + result.dstOffset/60);
+	    }
+	}
+    };
+    xhttp.ontimeout = function (e) { //console.log("Didn't get timezone information, leaving it unchanged");
+				     callback(undefined); };
+    xhttp.open("GET", request, true);
+    xhttp.send(); 
+}
+function set_datetime_options (offset_in) {
     var hourstep = 1;
     var hourpast = -24;
     var hourfuture = 99;
-    var now = new Date().getTime();  // Time now in milliseconds
     var msperhour = 60 * 60 * 1000; // milliseconds in an hour
+    var nowDate = new Date();
+    var now = msperhour*Math.round(nowDate.getTime()/msperhour);  // Time now in milliseconds rounded to an hour
+    var msperminute = 60 * 1000;
     var j = 0;
     var selected = false;
     var datetime = document.getElementById("datetime");
-    datetime.options = true;
+    var oldindex = datetime.selectedIndex;
+    var offset = getTimeZoneOffset();
+    if(offset_in != undefined) {
+	offset = offset_in;
+    }
+    var offsethours = Math.round(offset/60);
+    var offsetmins = offset % 60;
     if(model() === "hrdps") {
-	hourfuture = 48; } else { hourfuture = 99; }
-    for (var i = hourpast ; i < hourfuture ; i++ ) {
-	var newDate = new Date(now + msperhour*i);
-	var day = padwithzero(newDate.getDate())
-	var month = padwithzero(newDate.getMonth()+1);
-	var year = newDate.getFullYear();
-	var hour = newDate.getHours();
-	//console.log("hour is " + hour)
-	if((model() == "hrdps" && (hour > 4 && hour < 22)) || ( model() != "hrdps" && ((newDate.getUTCHours() % 3) == 0))) {
-	    datetime.options[j] = new Option(year+"-"+month+"-"+day+" "+padwithzero(hour)+"00");
-	    if(i==0) { datetime.options[j].selected = true; selected = true;};
-	    if(!selected && i>0) { datetime.options[j].selected = true; selected = true; };
-	    j++;
+	hourfuture = 48;
+    } else {
+	hourfuture = 99;
+    }
+    //console.log("date time being processed for UTC offset of " + offset);
+
+    if(oldindex == -1) { // We need to do an initial population of the options.
+	for (var i = hourpast ; i < hourfuture ; i++ ) {
+	    var newDate = new Date(now + msperhour*i);
+	    var hourutc = newDate.getUTCHours();
+	    var dayutc = padwithzero(newDate.getUTCDate());
+	    var monthutc = padwithzero(newDate.getUTCMonth() + 1);
+	    var yearutc = newDate.getUTCFullYear();
+	    var localDate = new Date(now + msperhour*i + msperminute*offset);
+	    var hourlocal = localDate.getUTCHours();
+	    var daylocal = padwithzero(localDate.getUTCDate());
+	    var monthlocal = padwithzero(localDate.getUTCMonth() + 1);
+	    var yearlocal = localDate.getUTCFullYear();
+	    if(model() != "gdps" || ((hourutc % 3) == 0)) { // GDPS is every 3 hours
+		var localtime = yearlocal+"-"+monthlocal+"-"+daylocal+" "+padwithzero(hourlocal)+":"+padwithzero(offsetmins)+ " UTC"+(offsethours<0?"":"+")+offsethours;
+		var utctime = yearutc+"-"+monthutc+"-"+dayutc+" "+padwithzero(hourutc)+"00";
+		datetime.options[j] = new Option(localtime,utctime);
+		datetime.options[j].date = newDate;
+		//console.log("Created option " + j + " with localtime " + localtime + " UTC time " + utctime + " ms " + datetime.options[j].date);
+		if(!selected) {
+		    if(i==0) { datetime.options[j].selected = true; selected = true;};
+		    if(i>0) { datetime.options[j].selected = true; selected = true; };
+		}
+		j = j + 1;
+	    }
+	}
+    } else {
+	//console.log("updating " + datetime.options.length + " time strings")
+	for(j = 0 ; j < datetime.options.length; j++ ) {
+	    var ms = datetime.options[j].date.getTime();
+	    var localDate = new Date(ms + msperminute*offset);
+	    var hourlocal = localDate.getUTCHours();
+	    var daylocal = padwithzero(localDate.getUTCDate());
+	    var monthlocal = padwithzero(localDate.getUTCMonth() + 1);
+	    var yearlocal = localDate.getUTCFullYear();
+	    //console.log("Processing option " + j + " with old local time " + datetime.options[j].text + " and UTC time " + datetime.options[j].value);
+	    datetime.options[j].text = yearlocal+"-"+monthlocal+"-"+daylocal+" "+padwithzero(hourlocal)+":"+padwithzero(offsetmins)+ " UTC"+(offsethours<0?"":"+") + offsethours;
+	    //console.log("new local time is " + datetime.options[j].text);
 	}
     }
 }
 
+function set_datetime_and_load_images (offset) {
+    set_datetime_options(offset);
+    doChange();
+}
+
 function initIt() {
-    document.getElementById("model").onchange = (function () { set_datetime_options(); setupParamset(); set_params_for_model(); doChange(); });
+    document.getElementById("model").onchange = (function () { document.getElementById("datetime").selectedIndex = -1; callWithTimeZone(set_datetime_and_load_images); setupParamset(); set_params_for_model();  });
     document.body.style.overflow = "auto";
     oldParam = document.getElementById("Param").options.value;
     var T = new Date();      // Instantiate a Date object
@@ -292,9 +360,10 @@ function initIt() {
 						 function() {
 						     if(boundsupdate) {clearTimeout(boundsupdate)};
 						     boundsupdate = window.setTimeout(function ()
-										      { recordpageurl();
-											loadImages(); },
-								       300);
+										      { //console.log("Bounds changed!")
+											recordpageurl();
+											callWithTimeZone(set_datetime_and_load_images);
+										      },300);
 						 });
     if ( opacity_control == "N" ) {
 	createOpacityControl(map, opacity);
@@ -368,9 +437,16 @@ function doChange()
     loadImages();
 }
 
+function getTimeZoneOffset() {
+    var d = new Date();
+    var n = d.getTimezoneOffset();
+    return -1*n; // offset in minutes
+}
+
+// 2018-09-29_12 <-- init date
 function getBasedir()
 {
-    return("tiles/" + model() + "/")
+    return("map-pngs/" + model() + "/latest/")
 }
 
 function recordpageurl() {
@@ -467,7 +543,7 @@ function getTilesIn(bounds) {
     var result = [];
     var lngstart = sw.lng();
     var lngmid = ne.lng();
-    console.log("ne is " + ne + " sw is " + sw);
+    //console.log("ne is " + ne + " sw is " + sw);
     if(ne.lng() < sw.lng()) { // wrap around the globe
 	lngmid = 180;
     } else {
@@ -490,7 +566,7 @@ function getTilesIn(bounds) {
 	    }
 	}
     }
-    console.log(result);
+    //console.log(result);
     return result;
 }
 
@@ -541,8 +617,8 @@ function addCanvasOverlay(tile, image, map, zoom) {
 function tileName(tile,splittime,param) {
   var lng2 = tile.lng + step;
   var lat2 = tile.lat + step;
-  baseName = getBasedir() + tile.lng + ":" + lng2 + ":"
-      + tile.lat + ":" + lat2 + "/" + splittime[0]+ "/" + document.getElementById("Param").value
+  baseName = getBasedir() +"/" +splittime[0] + "/"+tile.lng + ":" + lng2 + ":"
+      + tile.lat + ":" + lat2 + "/" + document.getElementById("Param").value
       + "_" + splittime[0] + "_" + splittime[1];
   return baseName;
 }
@@ -589,7 +665,7 @@ function loadImages()
     tiles.forEach(function(tile) {
 	var fullURL = tileName(tile,splittime,param)+ ".body.png";
 	var image = getImage(fullURL);
- //	console.log("Trying to get image: " + fullURL);
+ 	//console.log("Trying to get image: " + fullURL);
 	if(image) {
 	    addOverlay(tile,image.src, map);
 	}
