@@ -1,8 +1,8 @@
 ﻿Upgrade and development notes
 TODO
  0) Integrate new HRDPS code with windgrams again (in progress)
-0.25) something wrong with the BLDEPTH calculation...
-0.3) Track vertical velocity during bldepth instead of using sillly thermal model and wstar...
+ 0.25) something wrong with the BLDEPTH calculation... ?
+ 0.3) Track vertical velocity during bldepth instead of using sillly thermal model and wstar... can do an energy model (potential / kinetic) but what takes care of the fact that thermal velocity should depend on how big the thermal is?  or does it?  Having a larger collection area doesn't make it a stronger thermal, just makes it last longer and maybe smooths it out.  in the end the top packet of air is bouyant and accelerates because of that, that's all.  It doesn't get pushed by the bottom air.  I need to think a bit about this, I'm pretty sure there is a way to get a good guess at the kinetic energy.  Then we can generate an estimate of turbulence if they hit a layer and bounce off.
  0.5) HRDPS guess-time isn't working? guessed wrong time at 7PM.  Think I fixed it... verify
  1) Integrate GDPS code with windgrams (in progress)
  2) Use local time in javascript, store data in backend in UTC time.  Probably fast enough to do all HRDPS maps now anyway...
@@ -24,9 +24,55 @@ TODO
  26) Clip winds in the lisp generation code.  OK, so it's clipped using wgrib2 now, but now the drawing needs some information.  Encode as 255 or something.  OK, encoded as 0.  But, the clipping is ugly...
  35) Consider turning off terrain clipping again and going back to bilinear on gdalwarp.
  36) Stop using Lambda for on/off, use crontab on the t3.micro (have a version commented out in crontab in web server dev)
-  38) More compact PNGs.  Use palette based files.  Something weird with transparency and them... could use a color for transparency and a kludge on the display side.
-39) Can I remove the gdalwarp and double wind thing for the GDPS?  It's a lat/lon grid, I don't need to rotate the U/V winds either, etc.  That would speed things up somewhat.  I should also re-enable the real-lat-lon thing for the GDPS.
-40) Integrate satellite imagery into the visualization so that we can compare forecast versus reality... for clouds and precip... which are the least well forecasted things :(  But would be fun!
+ 38) More compact PNGs.  Use palette based files.  Something weird with transparency and them... could use a color for transparency and a kludge on the display side.
+ 39) Can I remove the gdalwarp and double wind thing for the GDPS?  It's a lat/lon grid, I don't need to rotate the U/V winds either, etc.  That would speed things up somewhat.  I should also re-enable the real-lat-lon thing for the GDPS.
+ 40) Integrate satellite imagery into the visualization so that we can compare forecast versus reality... for clouds and precip... which are the least well forecasted things :(  But would be fun!
+ 41) use mod_rewrite to rewrite the proxy and store the api key on the webserver for the timezone requests
+ 
+
+29 Sep 2018
+
+OK, what to do today?  Have a large chunk of a day to work.  Should I
+handle the boring timezone stuff?  I can always leave the front end
+non-dynamic for now, so just fix storage on the back end.  I can also
+leave windgrams in pacific time for now.
+
+Step 1: store data in directories with UTC time.  OR, should I store
+it in initialization time + hours?  This gets rid of the JSON thing,
+but I need to provide a pointer for where the latest data is.  latest
+is just a simlink right now that is updated at data upload time. I am
+still generating headers on the server side.  For sometime in the
+future I can get rid of that, but it's lightweight.
+
+OK, got the map pngs worked out.  Now I want dynamic time-zone
+information for the map interface.  Let's grab that from google maps.
+
+https://maps.googleapis.com/maps/api/timezone/json?location=38.908133,-77.047119&timestamp=1458000000&key=YOUR_API_KEY
+{
+   "dstOffset" : 3600,
+   "rawOffset" : -18000,
+   "status" : "OK",
+   "timeZoneId" : "America/New_York",
+   "timeZoneName" : "Eastern Daylight Time"
+}
+
+OK, that works, but I have to proxy it through the webserver because
+no cross-ref requests.  That's somewhat annoying, also I cannot use
+referrer to restrict the API key.  Well, I could use mod_rewrite to
+rewrite the proxy and store the api key on the webserver.  Add it to
+my todo list.  Rewrote the map viewer to handle time zones as you
+wander around the map... it uses local map time.  It's ugly!  Need to
+let it settle a bit and then maybe I'll figure out a way to clean it
+up.  Turns out that API above doesn't handle the whole world, so I
+have to guess the timezone the user wants if they are over the ocean.
+Anyway, it's just a display.
+
+So, next step is to change the windgrams over to being stored in UTC
+time.  Then fix them to handle multiple days for GDPS and to be
+generated in windgram local time.
+
+I really need to spend some time cleaning up and documenting the front
+and backend code.
 
 24 Sep 2018
 
