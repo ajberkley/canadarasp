@@ -4,12 +4,51 @@
 
 show_rain=0
 
+function hour_to_idx (hour,round_up)
+begin
+ res = ind(taus.eq.hour);
+ if(ismissing(res)) then
+  ;print("Couldn't find hour " + hour);
+  do j=0,numtimes-1
+   ;print("j="+j+",taus(j)="+taus(j))
+   if(taus(j).gt.hour)
+    break;
+   end if
+  end do
+  if(round_up) then
+   j = j + 1;
+  else
+   j = j - 1;
+  end if
+  if(j .gt. numtimes-1) then
+   j = numtimes-1;
+  end if
+  if(j .lt. 0) then
+   j = 0
+  end if
+  ;;print("Returning index for hour " + taus(j))
+  return(j);
+ else
+  return res;
+ end if
+end
+
 function ij_from_lat_lon_generic (a, site_lat, site_lon)
 begin
- print("NOT VERIFIED X AND Y TO I J")
+ print("NOT FULLY VERIFIED FOR GDPS")
+ ;print("Looking for LAT: " + site_lat + " in " + a[0]->lat_0);
  locX=ind_nearest_coord(site_lat,a[0]->lat_0,0)
- locY=ind_nearest_coord(site_lon,a[0]->lon_0,0)
- return((/locY, locX/))
+ if(site_lon.lt.0) then
+  my_lon = 360+site_lon
+  ;print("Looking for LON: " + my_lon + " in " + a[0]->lon_0);
+  locY=ind_nearest_coord(my_lon,a[0]->lon_0,0)
+  ;print("Checking... this should return 0 " + ind_nearest_coord(a[0]->lon_0(0),a[0]->lon_0,0) + " this should return 1 " + ind_nearest_coord(a[0]->lon_0(1),a[0]->lon_0,0))
+ else
+  locY=ind_nearest_coord(site_lon,a[0]->lon_0,0)
+  ;print("Looking for LON: " + my_lon + " in " + a[0]->lon_0);
+  ;print("Checking... this should return 0 " + ind_nearest_coord(a[0]->lon_0(0),a[0]->lon_0,0) + " this should return 1 " + ind_nearest_coord(a[0]->lon_0(1),a[0]->lon_0,0))
+ end if
+ return((/locX, locY/))
 end
 ;; (0)	TMP_P0_L100_GLL0
 ;; (1)	TMP_P0_L103_GLL0
@@ -37,12 +76,10 @@ begin
    timesinfiles = a[:]->TMP_P0_L100_GLL0!0
    ;; WHAT TIMES ARE AVAILABLE?
    numtimes=dimsizes(timesinfiles)
-   print("numtimes " + numtimes)
-   taus:=ispan(0,numtimes-1,1)   ;coordinate variable for Time dimension
-
+   taus:=ispan(0,3*(numtimes-1),3)   ;coordinate variable for Time dimension
    ter := a[0]->HGT_P0_L1_GLL0
    initialization_date = str_get_field(ter@initial_time,1," ");
-   print("initialization_date is " + initialization_date)
+   ;   print("Initialization_date is " + initialization_date)
    run_str = str_get_field(ter@initial_time,2," ");
    ;; run_str is something like (06:00).  So we just want the first two
    run_str_array = stringtochar(run_str);
@@ -54,9 +91,10 @@ end
 
 procedure load_variables_one_point (a, locY, locX)
 begin
+   print("Indices into data are " + locX + ", " + locY)
    radian_rot = 0;
    ListSetType(a,"cat")
-   h := a[0]->HGT_P0_L1_GLL0(locY,locX);
+   h := a[0]->HGT_P0_L1_GLL0(locY,locX)
    ListSetType(a,"join")
    zloc := a[:]->HGT_P0_L100_GLL0(:,::-1,locY,locX) ;; height at various ISBL versus time
    zloc@units = "m"

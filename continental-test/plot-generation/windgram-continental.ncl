@@ -1,6 +1,7 @@
 ; WINDGRAM generator
 ;  Based on original code by TJ Olney
-;  Modified by Peter Spear and Andrew Berkley
+;  Modified by Peter Spear and Andrew Berkley to support HRDPS input
+;  Modified extensively by Andrew Berkley to support GDPS and HRDPS
 
 ; USAGE:
 ;    ncl windgram-continental.ncl 'input_files="/mnt/tiles/-122:-120:49:51/hrdps_*.grib"'   ;; input information
@@ -19,10 +20,6 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 load "windgram-utilities.ncl"
 load "windgram-continental-colormap.ncl"
 
-; zTop is the number of levels, HRDPS is usually 13 (3500m)
-; as is, it calculates lcl three different ways and you must change it in the gsn_csm_addpolymarkers = command if you want to try another
-; it has not been completely "error trapped" but it catches some.
-
 defaultFillValue = 999900026055400882176.
 
 if(.not.isvar("model")) then
@@ -30,10 +27,10 @@ if(.not.isvar("model")) then
 end if
 
 ;; Global variables... I hate NCL
-initialization_date = "";
-run_time = "";
-pmb = True;
-numtimes=0;
+initialization_date = ""
+run_time = ""
+pmb = True
+numtimes=0
 zloc=0
 h=0
 tkloc=0
@@ -63,15 +60,11 @@ else
 end if
 
 begin
-
-  operator="ajb & ps (ec2)"                       ; your name here :-)
+  operator="ajb & ps (ec2)"
   ;color choices must be in the palette being used or the closest one will be used.
   foreground_color= "white"
   background_color= (/.5, .5, .9 /) ;deep purple-blue
   label_color = foreground_color
-  line_color = 13
-  templine_color = 22
-
   if(.not.isvar("model")) then
      model = "hrdps";
   end if
@@ -132,7 +125,6 @@ begin
     show_pbl = 0    ; boundary layer top bar default to not show it.  Means nothing to most Foot launched pilots.
   end if
 
-
   if(.not.isvar("hide_lapse_colors"))then
     hide_lapse_colors=0     ; any other value will  make all colors  transparent  for lapse so it doesn't show but still provides scaffold for other stuff.
   end if
@@ -141,7 +133,7 @@ begin
     show_temp  = 1          ; temperature contours
   end if
   if(.not.isvar("show_up_vel"))then
-    show_up_vel= 1          ; show vertical velocity W* at top of time column  set to 0 if no access to drJack Fortran modules.
+    show_up_vel= 1          ; show vertical velocity W* at top of time column
   end if
   if(.not.isvar("show_z_contour"))then
     show_z_contour= 0       ; draw a contour line for the altitude  attaching pressure level in the morning to corresponding altitude in evening
@@ -169,106 +161,98 @@ begin
   ;; FORECAST INITIALIZATION TIME DETECTION
   initialization_date = True;
   get_initial_info(a) ;; sets up numtimes, initialization_date, run_time, pmb
-
   yyyy_mm_dd = systemfunc("date -u -d " + quote + initialization_date + quote + " +%Y-%m-%d")
   print ("Plotting data for model initialized on date " + yyyy_mm_dd + " at " + run_time + ":00 UTC")
-  ;; Now some complex conversions to local time.
-  offset = stringtoint(systemfunc("date -d "+quote + yyyy_mm_dd + quote+ " +%z"))/100 ;; For this date (in UTC? local?), what is the offset in hours from UTC 
-  pstpdt= systemfunc("date -d "+quote + yyyy_mm_dd + quote+ " +%Z") ;; what is our local time
   fcstday=systemfunc("date -u -d " + quote + yyyy_mm_dd + quote + " +%a-%b-%d")
   fcstYMD=systemfunc("date -u -d " + quote + yyyy_mm_dd + quote + " +%Y-%m-%d")
-  date_str = "date "+quote+"+%a %d %b %Y %H:%M %Z" + quote+" -d " + quote + yyyy_mm_dd + " +" + tostring(stringtoint(run_time)+1) + "hours UTC" + quote
-  local_start_time = systemfunc(date_str)
-  print("First hour of the model " + local_start_time)
-
 
   ;; WHAT LEVELS ARE AVAILABLE?
   numlevels=dimsizes(pmb) ; How many levels we have predicted wind speeds at.
-  print("num z levels is " + numlevels)
-  ;; The HRDPS data has nominal output levels at
-  ;; znom_meters = (/100, 230, 350, 480, 660, 880, 1100, 1300, 1600, 2100, 2600, 3100, 3700, 4300, 5000, 5700, 6500, 7400, 8300, 9400, 10000, 10600, 11300, 12000, 12800, 13800, 16300, 20600/)
-
-  ; FIGURE OUT WHAT DAYS AND HOURS WILL BE USED IN THE PLOT
-  hourFrom = 7 ; hours of the day used for the "day plots"
-  hourTo = 21
-  startHour = stringtoint(systemfunc("date +%H -d "+quote+local_start_time +quote))
-
-  do plot_day = -1, 2
-  if(plot_day.gt.-1)then ; only plot part of the data
-    if(startHour.le.hourFrom) then  ; model starts early in the day. we can get both days OK
-      if (plot_day .eq. 1) then  ; plot day 0
-        hourFrom = hourFrom+24
-        hourTo = hourTo+24
-      end if
-    else if(startHour.lt.hourTo) then  ; model starts in the middle of the day. Skip day 0 and only plot the day 1
-      if (plot_day .eq. 0) then
-       print("plot_day = 0 but only half the first day is available. Skipping day0 windgrams. Exiting")
-       continue
-      end if
-      hourFrom = hourFrom+24
-      hourTo = hourTo+24
-    else ; model starts late in the day.
-      if (plot_day .eq. 0) then  ; plot day 0
-        hourFrom = hourFrom+24
-        hourTo = hourTo+24
-      else
-        hourFrom = hourFrom+48
-        hourTo = hourTo+48
-      end if
-    end if
-    end if
-    tFrom = hourFrom-startHour
-    tTo = hourTo-startHour
-  else
-    tFrom = 0
-    tTo=numtimes-1
-  end if
-  date_str = "date " + quote + "+%a, %b %d, %Y" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+tFrom+1) + "hours UTC" + quote
-  local_day = systemfunc(date_str)
-  print ("local day is " + local_day)
-  file_date_str = "date " + quote + "+%Y-%m-%d" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+tFrom+1) + "hours UTC" + quote
-  file_date = systemfunc(file_date_str)
-
-  lstDay := new(numtimes,string,"")        ;put local time into this for labels
-  lstNight := new(numtimes,string,"")        ;put local time into this for labels
-  do i=0,numtimes-1
-    tmp = (startHour+i)%24
-    if(plot_day .gt. -1)then ; only plot part of the data
-      lstDay(i)=tostring(tmp)
-    else ; plot all hours
-      if (tmp .lt. 8 .or. tmp .gt. 19) then
-        lstNight(i) = tostring(tmp)
-      else
-        lstDay(i)= tostring(tmp)
-      end if
-    end if;
-  end do
-  print("plotting from hour " + hourFrom + " to hour " + hourTo + ", from index " + tFrom + " to index " + tTo)
-  endTime = stringtolong(systemfunc("date +%s%3N"))
-  delta = (endTime - startTime)/1000.0
-  startTime = endTime
-  print("Initialization took " + delta + "s")
+  ;; print("num z levels is " + numlevels)
 
   numsites = str_fields_count(labels_lats_lons,";");
   print(numsites + " sites to process")
+  secondssinceepoch = stringtolong(systemfunc("date +%s"))
+
   do site_idx=0,numsites-1               ; for one loxY locX at a time.
     site_info = str_get_field(labels_lats_lons,1+site_idx,";")
     site_name = str_get_field(site_info,1,",")
     site_lat = stringtofloat(str_get_field(site_info,2,","))
     site_lon = stringtofloat(str_get_field(site_info,3,","))
-    outputfile = str_get_field(output_files,site_idx+1,";")
-   if(plot_day.eq.-1) then
-     outputfile = output_dir + "/twoDay/" + file_date + "/" + outputfile
+    locij:=ij_from_lat_lon_generic(a, site_lat, site_lon)
+    locY=locij(0)
+    locX=locij(1)
+    print("locY is " + locY + ", locX is " + locX)
+    load_variables_one_point(a,locY,locX)
+    outputfiletemplate = str_get_field(output_files,site_idx+1,";")
+  ; FIGURE OUT WHAT DAYS AND HOURS WILL BE USED IN THE PLOT
+   utcoffset = stringtolong(systemfunc("curl -s 'http://alphatest.canadarasp.com/timezone?location=" + site_lat + "," + site_lon + "&timestamp=" + secondssinceepoch + "&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks' | grep 'rawOffset\|dstOffset' | awk '{ a++; if(a==1) {printf " + quote + "%d +" + quote + ", $3 } else { print $3 }}' | tr [,] " + quote + " " + quote + "| bc"))
+   utcoffset = utcoffset / 3600
+   print("UTC offset is " + utcoffset)
+   ;; utcoffset = round(utcoffset,1)
+   if(utcoffset.gt.0) then
+    TZ_str = "TZ="+quote+"Etc/GMT-" + abs(utcoffset) + quote
    else
-     outputfile = output_dir + "/oneDay/" + file_date + "/" + outputfile
+    TZ_str = "TZ="+quote+"Etc/GMT+" + abs(utcoffset) + quote 
    end if
-
-    print("Processing " + site_name + " at " + site_lat + "," + site_lon + " and writing output to " + outputfile);
-  locij:=ij_from_lat_lon_generic(a, site_lat, site_lon)
-  locY=locij(0)
-  locX=locij(1)
-  print("locY is " + locY + ", locX is " + locX)
-  load_variables_one_point(a,locY,locX)
+   date_str = TZ_str + " date "+quote+"+%a %d %b %Y %H:%M %Z" + quote+" -d " + quote + yyyy_mm_dd + " +" + tostring(stringtoint(run_time)+1) + "hours UTC" + quote
+   local_start_time = systemfunc(date_str)
+   print ("Using model initialized on date " + yyyy_mm_dd + " at " + run_time + ":00 UTC")
+   print("Local start time of the model is " + local_start_time)
+   startHour = stringtoint(systemfunc(TZ_str + " date +%H -d "+quote+local_start_time +quote))
+   print("First hour of the model in local time " + startHour)
+   ;; plot_day = -1 implies do all days, otherwise is a day
+   
+   do plot_day = -1, 4
+    if(plot_day.gt.-1)then ; only plot part of the data
+      hourFrom = 7 + 24 * plot_day
+      hourTo = 21 + 24 * plot_day
+      if(startHour.gt.hourFrom) then  ; model starts in the middle of the day. Skip this day
+       print("Partial day available at day " + plot_day + " because startHour is " + startHour + " and hourFrom is " + hourFrom);
+       hourFrom = startHour;
+      end if
+      tFrom = hour_to_idx(hourFrom-startHour,False)
+      tTo = hour_to_idx(hourTo-startHour,True)
+      hourFrom = taus(tFrom);
+      hourTo = taus(tTo);
+    else
+      hourFrom = taus(0)
+      hourTo = taus(numtimes-1)
+      tFrom = 0
+      tTo=numtimes-1
+    end if
+    print("For day " + plot_day + " we will plot from model hour " + hourFrom + " to hour " + hourTo)
+    if((tTo-tFrom) .lt. 5)
+     print("Nothing interesting to do continuing...")
+     continue;
+    end if
+    date_str = TZ_str + " date " + quote + "+%a, %b %d, %Y" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom+1) + "hours UTC" + quote
+    local_day = systemfunc(date_str)
+    print ("local day is " + local_day)
+    file_date_str = TZ_str + " date " + quote + "+%Y-%m-%d" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom+1) + "hours UTC" + quote
+    file_date = systemfunc(file_date_str)
+    if(plot_day.eq.-1) then
+      outputfile = output_dir + "/twoDay/" + file_date + "/" + outputfiletemplate
+    else
+      outputfile = output_dir + "/oneDay/" + file_date + "/" + outputfiletemplate
+    end if
+ 
+    lstDay := new(numtimes,string,"")        ;put local time into this for labels
+    lstNight := new(numtimes,string,"")        ;put local time into this for labels
+    do i=0,numtimes-1
+      date_str = TZ_str + " date " + quote + "+%H" + quote + " -d " + quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+taus(i)) + "hours UTC" + quote
+      local_hour = systemfunc(date_str)
+      lhr = stringtointeger(local_hour)
+      if (lhr .lt. 8 .or. lhr .gt. 19) then
+        lstNight(i) = local_hour
+      else
+        lstDay(i)= local_hour
+      end if
+    end do
+    print("Plotting from hour " + hourFrom + " to hour " + hourTo + ", from index " + tFrom + " to index " + tTo)
+    ; print("Daylight hours are " + lstDay)
+    ; print("Night time hours are " + lstNight)
+    print("Processing " + site_name + " at " + site_lat + "," + site_lon + " with UTC offset " + utcoffset + " hours and writing output to " + outputfile);
      ; find minimum & max z index
     do zBot=0,numlevels-1
       if (zloc(0,zBot) .gt. (h*1.05+20)) then
@@ -292,11 +276,11 @@ begin
     lapse!1 = "levels"
     ;; Calculate boundary layer depth
     blDepth:=new((/numtimes/) ,float)
-
+    print("numtimes is " + numtimes + " tFrom:tTo is " + tFrom + ":" + tTo)
     do j=tFrom,tTo
       do i=zBot,numlevels-1
         blDepth(j) = 0.0
-                              ; dry adiabatic lapse rate is 9.8C/km
+        ; dry adiabatic lapse rate is 9.8C/km
         if ((tSfc(j) - agl(j,i)*0.0098) .le. tkloc(j,i)) then ; if lifted packet is colder than surounding air and will stop rising
           if (i.gt.0) then
             blDepth(j) = (tSfc(j)-tkloc(j,i-1)+lapse(j,i-1)*agl(j,i-1))/(0.0098+lapse(j,i-1)) ; interpolate actual altitude (agl)
@@ -393,7 +377,6 @@ begin
         end if
       end do
     end do
-    ;print (hcrit)
 
 ; test to see the clouds appear correctly
 ;lclloc(0:10)=(/260, 385, 554, 771, 992, 1219, 1452 ,1935 ,2447, 2988, 3563/)
@@ -434,45 +417,38 @@ begin
       "wkBackgroundColor" : background_color              ; set at top
     end setvalues
 
-    ;;---------------------------------------------------------------------------------------------------------------;
     ;--------------------------start windgram  ----------------------------------------------------------------------
-
+    init_date_str = "date "+quote+"+%a %H:%M %Z" + quote+" -d " + quote + yyyy_mm_dd + " +" + tostring(stringtoint(run_time)+1) + "hours UTC" + quote
+    date_initialized = systemfunc(init_date_str)
+    lclloc_trimmed := lclloc;
     if(plot_day .gt. -1)then ; only plot part of the data
       tstride=1
       toffset=0
-      init_date_str = "date "+quote+"+%a %H:%M %Z" + quote+" -d " + quote + yyyy_mm_dd + " +" + tostring(stringtoint(run_time)+1) + "hours UTC" + quote
-      date_initialized = systemfunc(init_date_str)
       MainTitle = str_upper(model) + " Windgram for "+ site_name + " for " + local_day + " (initialized " + date_initialized + ")"
       lstDayColor = "white"
       barbLen = 0.03
     else
-      tstride=2
-      toffset=1
+      tstride=1 ;; 2
+      toffset=0 ;; 1
 
-      MainTitle = str_upper(model) + " Windgram for "+ site_name + ". First hour is " + local_start_time
+      MainTitle = str_upper(model) + " Windgram for "+ site_name + ". First hour is " + local_start_time + " (initialized " + date_initialized + ")"
       lstDayColor = "gold"
       barbLen = 0.023
       ; smooth the LCL and HCRIT results
-      lclloc(1:numtimes-2) = (lclloc(0:numtimes-3) + 2*lclloc(1:numtimes-2) + lclloc(2:numtimes-1))/4.0
+     
+      lclloc_trimmed(1:numtimes-2) = (lclloc(0:numtimes-3) + 2*lclloc(1:numtimes-2) + lclloc(2:numtimes-1))/4.0
       hcrit(1:numtimes-2) = (hcrit(0:numtimes-3) + 2*hcrit(1:numtimes-2) + hcrit(2:numtimes-1))/4.0
     end if
 
-
     ; eliminate excessive clutter at the bottom of the plot and make lcl clouds hollow if they are above the boundary layer
-    ;lclloc2:=new(numtimes ,float)
 
     do j=tFrom,tTo
-      ;if (lclloc(j) .lt. zloc(j,zBot)) then
-      ;  lclloc(j) = lclloc@_FillValue
-      ;else
-      if (lclloc(j) .gt. blDepth(j)+h) then
-        ;lclloc2(j) = lclloc(j)
-        lclloc(j) = lclloc@_FillValue
+      if (lclloc_trimmed(j) .gt. blDepth(j)+h) then
+        lclloc_trimmed(j) = lclloc_trimmed@_FillValue
       end if
-      ;end if
       if (.not.ismissing(hcrit(j)) .and. (hcrit(j) .lt. zloc(j,zBot))) then
         hcrit(j) = hcrit@_FillValue
-      end if;
+      end if
     end do
 
     locLevels = zTop-zBot+1
@@ -588,7 +564,11 @@ begin
 
 
     resolution="~F22~833m~F21~"
-    res2D@tiXAxisString        = "Time ("+pstpdt+"). Windbarbs(km/h). Lat,lon = "+site_lat+", "+site_lon+"~Z90Q~~C~"+xaxis_msg+" Ground level " +round(h,0)+"m asl" ;plottime   ;site_idx wlat is for this region wlats is all regions...
+    if(utcoffset.gt.0) then 
+     res2D@tiXAxisString        = "Time (UTC+"+utcoffset+"). Windbarbs(km/h). Lat,lon = "+site_lat+", "+site_lon+"~Z90Q~~C~"+xaxis_msg+" Ground level " +round(h,0)+"m asl" ;plottime   ;site_idx wlat is for this region wlats is all regions...
+    else
+     res2D@tiXAxisString        = "Time (UTC"+utcoffset+"). Windbarbs(km/h). Lat,lon = "+site_lat+", "+site_lon+"~Z90Q~~C~"+xaxis_msg+" Ground level " +round(h,0)+"m asl" ;plottime   ;site_idx wlat is for this region wlats is all regions...
+    end if
     res2D@tiYAxisString        = " "
     res2D@tiYAxisFontHeightF   = 0.015
     res2D@tiXAxisFontHeightF   = 0.015
@@ -604,6 +584,8 @@ begin
     res2D@tmXBLabelsOn         = True ; times
     res2D@tmXBLabels           := lstDay(tFrom:tTo:tstride)   ;          times   pst pdt??
     res2D@tmXBLabelFontColor   = lstDayColor
+      print("res2D XB values are " + res2D@tmXBValues)
+      print("res2D XB labels are " + res2D@tmXBLabels)
     res2D@tmYLLabelFont            = 21                ;helvetica http://www.ncl.ucar.edu/Document/Graphics/font_tables.shtml
     res2D@tmYRLabelFont            = 21
     res2D@tmXBLabelFont            = 21
@@ -687,8 +669,8 @@ begin
 
 
         ;show_this_rain=0
-	print("tFrom " + tFrom + " tTo " + tTo);
-	printVarSummary(rainloc)
+	;print("tFrom " + tFrom + " tTo " + tTo);
+	;printVarSummary(rainloc)
     if(show_rain.ne.0) then
       if (max(rainloc(tFrom:tTo)) .gt. 0.02) then
         rain_res = strip_res
@@ -971,9 +953,6 @@ begin
     mkres5@gsMarkerIndex      = pbl_mark     ;pbl_mark
     mkres5@gsMarkerColor      = "yellow"
 
-
-
-
     ;;----------------------------Vector plot resources for windgram ----------------------------------------;
     ;;----most tick mark labels come from here --------------------------------------------------------------;
     uv_res = res2D
@@ -1058,7 +1037,7 @@ begin
 
       if(show_lcl.ne.0)
         ;print ("doing lcl")
-        marker = gsn_add_polymarker(wks,lapse_plot,taus(tFrom+toffset:tTo:tstride),lclloc(tFrom+toffset:tTo:tstride),mkres) ; add little cloud markers
+        marker = gsn_add_polymarker(wks,lapse_plot,taus(tFrom+toffset:tTo:tstride),lclloc_trimmed(tFrom+toffset:tTo:tstride),mkres) ; add little cloud markers
         ;marker2 = gsn_add_polymarker(wks,lapse_plot,taus(tFrom+toffset:tTo:tstride),lclloc2(tFrom+toffset:tTo:tstride),mkres1) ; add little hollow cloud markers
       end if
 
@@ -1133,8 +1112,12 @@ begin
       tc_res@tmYRLabelsOn     = False
       tc_res@tiMainString       = ""
       tc_res@tiXAxisString        = ""
+      tc_res@tmXBMode             = "Explicit"
+      tc_res@tmXBValues           := taus(tFrom:tTo:tstride)
       tc_res@tmXBLabelsOn = True
       tc_res@tmXBLabels           := lstNight(tFrom:tTo:tstride)   ;          times   pst pdt??
+      print("tc_res XB values are " + tc_res@tmXBValues)
+      print("tc_res XB labels are " + tc_res@tmXBLabels)
       tc_res@tmXBLabelFontColor = 22 ; "dark grey";          times   pst pdt??
       tc_res@cnFillOn = True     ; bullshit hack used to eliminate some wierd contour lines on the lower left
       tc_res@cnMonoFillColor = True ; adding a transparent fill fixes it.

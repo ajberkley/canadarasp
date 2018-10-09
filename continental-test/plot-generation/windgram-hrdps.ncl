@@ -12,6 +12,12 @@
 ;;   LONG=a[0]->lon_0
 ;;  end if;
 
+function hour_to_idx (hour)
+begin
+ return hour
+ ;; return(ind(taus.eq.hour))
+end
+
 function ij_from_lat_lon_generic (a, site_lat, site_lon)
 begin
    XLAT=a[0]->gridlat_0

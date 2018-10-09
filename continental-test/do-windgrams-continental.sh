@@ -8,25 +8,23 @@ UTCMONTH=$2 #=`echo $DATE_STR | cut -c5-6`
 UTCDAY=$3 #=`echo $DATE_STR | cut -c7-8`
 HOUR=$4 #=`echo $DATE_STR | cut -c9-10`
 OUT_DIR=/mnt/windgrams
-YEAR=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC + 7 hours" +%Y`
-MONTH=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC + 7 hours" +%m`
-DAY=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC + 7 hours" +%d`
-YEAR2=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +  31 hours" +%Y`
-MONTH2=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +  31 hours" +%m`
-DAY2=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +  31 hours" +%d`
-YEAR2=`date -d "$YEAR-$MONTH-$DAY + 1 day" +%Y`
+mkdir -p $OUT_DIR
+mkdir -p $OUT_DIR/twoDay
+mkdir -p $OUT_DIR/oneDay
+for i in `seq 0 1 5`;
+do
+
+YEAR=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%Y`
+MONTH=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%m`
+DAY=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%d`
+mkdir -p $OUT_DIR/twoDay/$YEAR-$MONTH-$DAY
+mkdir -p $OUT_DIR/oneDay/$YEAR-$MONTH-$DAY
+done
 echo UTC starting time $UTCYEAR-$UTCMONTH-$UTCDAY $HOUR
-echo DAY 0 is $YEAR-$MONTH-$DAY, DAY1 is $YEAR2-$MONTH2-$DAY2
 
 WEBSERVERIP=`./webserver-ip.sh`
 
 cd plot-generation
-mkdir -p $OUT_DIR
-mkdir -p $OUT_DIR/twoDay
-mkdir -p $OUT_DIR/oneDay
-mkdir -p $OUT_DIR/twoDay/$YEAR-$MONTH-$DAY
-mkdir -p $OUT_DIR/oneDay/$YEAR-$MONTH-$DAY
-mkdir -p $OUT_DIR/oneDay/$YEAR2-$MONTH2-$DAY2
 #rm -f $OUT_DIR/*
 TWODAYMONTH=`date +%m`
 TWODAYYEAR=`date +%Y`
@@ -44,6 +42,9 @@ if [ -z $NOCALCULATE ]; then
   parallel --gnu -j 15 < run-my-windgrams.sh # -j 15
   echo Done with wingram-continental
 fi
+# Now should just use tar to help?
+echo NOT UPLOADING WINDGRAMS NEED FIX TO DIRECTORY CREATING
+exit 1
 if [ -z $NOUPLOAD ]; then 
 	ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "mkdir -p html/windgrams/twoDay/$TWODAYDATESTRING html/windgrams/oneDay/$DATESTRINGDAY0 html/windgrams/oneDay/$DATESTRINGDAY"
 	scp -i ~/.ssh/montreal.pem -r $OUT_DIR/twoDay/* ubuntu@$WEBSERVERIP:html/windgrams/twoDay/
