@@ -19,8 +19,8 @@ cp -R * /mnt/input/$MODEL
 sync
 cd /home/ubuntu/canadarasp/continental-test
 source /home/ubuntu/canadarasp/aws-utils/unmount-download-box.sh
-#source /home/ubuntu/canadarasp/aws-utils/delete-download-box.sh
-echo NOT DELETING THE DOWNLOAD BOX
+source /home/ubuntu/canadarasp/aws-utils/delete-download-box.sh
+#echo NOT DELETING THE DOWNLOAD BOX
 echo Done moving downloaded data to local disk at `date`
 echo "Generating new variables like HCRIT"
 ./do-generate-new-variables.sh # takes 3 minute
@@ -38,5 +38,5 @@ echo "Finished at `date`"
 if [ $SHUTDOWN == "true" ] ; then
   echo "Shutting down 30 seconds"
   sleep 30
-#  sudo shutdown -h now
+  sudo shutdown -h now
 fi
