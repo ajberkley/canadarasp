@@ -27,7 +27,7 @@
 	       (for outputfiles = "")
 	       (iter (for site in list-of-sites)
 		     (setf labels_lats_lons (concatenate 'string labels_lats_lons ";" (getf site :label-lat-lon)))
-		     (setf outputfiles (concatenate 'string outputfiles (format nil "~Awindgram~A.png" (if (first-time-p) "" ";") (getf site :index)))))
+		     (setf outputfiles (concatenate 'string outputfiles (format nil "~A~Awindgram~A.png" (if (first-time-p) "" ";") *model* (getf site :index)))))
 	       (when (not (string= labels_lats_lons ""))
 		 (format out "$NCARG_ROOT/bin/ncl -n windgram-continental.ncl 'input_files=\"/mnt/windgram-tiles/~A/~A/~A_*.grib2\"' 'output_dir=\"/mnt/windgrams/\"' 'output_files=\"~A\"' 'labels_lats_lons=\"~A\"' 'model=\"~A\"'~%"
 			 *model* tile-id *model* outputfiles labels_lats_lons *model*))))))

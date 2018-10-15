@@ -4,7 +4,7 @@ WEBSERVERIP=`./webserver-ip.sh`
 BASEDIR=`echo $PNGDIR | sed s/[/]mnt/html/g`
 
 echo "Uploading files to $WEBSERVERIP to directory $BASEDIR"
-
+ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP mkdir -p $BASEDIR
 DIRSTOCREATE+=`find $PNGDIR -type d | sed s/[/]mnt/html/g`
 echo "Making directories on webserver"
 echo $DIRSTOCREATE | xargs -n 200 ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP mkdir -p

@@ -12,29 +12,19 @@ mkdir -p $OUT_DIR
 mkdir -p $OUT_DIR/twoDay
 mkdir -p $OUT_DIR/oneDay
 for i in `seq 0 1 5`;
-do
-
-YEAR=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%Y`
-MONTH=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%m`
-DAY=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%d`
-mkdir -p $OUT_DIR/twoDay/$YEAR-$MONTH-$DAY
-mkdir -p $OUT_DIR/oneDay/$YEAR-$MONTH-$DAY
+ do
+ YEAR=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%Y`
+ MONTH=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%m`
+ DAY=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%d`
+ mkdir -p $OUT_DIR/twoDay/$YEAR-$MONTH-$DAY
+ mkdir -p $OUT_DIR/oneDay/$YEAR-$MONTH-$DAY
 done
 echo UTC starting time $UTCYEAR-$UTCMONTH-$UTCDAY $HOUR
 
 WEBSERVERIP=`./webserver-ip.sh`
 
 cd plot-generation
-#rm -f $OUT_DIR/*
-TWODAYMONTH=`date +%m`
-TWODAYYEAR=`date +%Y`
-TWODAYDAY=`date +%d`
-TWODAYDATESTRING=$TWODAYYEAR-$TWODAYMONTH-$TWODAYDAY
-YEARDAY0=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC + 7 hours" +%Y`
-MONTHDAY0=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC + 7 hours" +%m`
-DAYDAY0=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC + 7 hours" +%d`
-DATESTRINGDAY0=$YEARDAY0-$MONTHDAY0-$DAYDAY0
-DATESTRINGDAY1=$YEARDAY0-$MONTHDAY0-$DAYDAY0
+
 if [ -z $NOCALCULATE ]; then
   echo Calling windgram-continental
   ./locations-group-by-id-and-run-windgrams.lisp
@@ -43,12 +33,8 @@ if [ -z $NOCALCULATE ]; then
   echo Done with wingram-continental
 fi
 # Now should just use tar to help?
-echo NOT UPLOADING WINDGRAMS NEED FIX TO DIRECTORY CREATING
-exit 1
 if [ -z $NOUPLOAD ]; then 
-	ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "mkdir -p html/windgrams/twoDay/$TWODAYDATESTRING html/windgrams/oneDay/$DATESTRINGDAY0 html/windgrams/oneDay/$DATESTRINGDAY"
-	scp -i ~/.ssh/montreal.pem -r $OUT_DIR/twoDay/* ubuntu@$WEBSERVERIP:html/windgrams/twoDay/
-	scp -i ~/.ssh/montreal.pem -r $OUT_DIR/oneDay/* ubuntu@$WEBSERVERIP:html/windgrams/oneDay/
+  (cd /mnt/windgrams ; tar cf - -- * ) | ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd html/windgrams; tar xf -)"
 fi
 ##############################################################################################
 # create a javascript version of the location.txt file

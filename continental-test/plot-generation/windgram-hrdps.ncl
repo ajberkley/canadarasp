@@ -1,16 +1,8 @@
-;; Setup variables for windgrams from GDPS source
+;; Setup variables for windgrams from HRDPS source
 ;; Variables are:
 ;;  locX, locY the index into the data arrays for the point at site_lon, site_lat
 
-  ;; LEARN ABOUT OUR GRID
-;;  if(isvar("a[0]->gridlat_0")) then
-;;   XLAT=a[0]->gridlat_0
-;;   XLONG=a[0]->gridlon_0
-;;   rot=a[0]->gridrot_0
-;;  else
-;;   LAT=a[0]->lat_0
-;;   LONG=a[0]->lon_0
-;;  end if;
+smooth = 1;
 
 function hour_to_idx (hour)
 begin

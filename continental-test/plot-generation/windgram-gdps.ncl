@@ -2,8 +2,8 @@
 ;; Variables are:
 ;;  locX, locY the index into the data arrays for the point at site_lon, site_lat
 
-show_rain=0
-
+show_rain=0 ;; NOT SURE WHY THIS DOES NOT WORK, LOOK AT THIS LATER!
+smooth=0
 function hour_to_idx (hour,round_up)
 begin
  res = ind(taus.eq.hour);

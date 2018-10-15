@@ -30,6 +30,7 @@ end if
 initialization_date = ""
 run_time = ""
 pmb = True
+smooth=0
 numtimes=0
 zloc=0
 h=0
@@ -60,7 +61,6 @@ else
 end if
 
 begin
-  operator="ajb & ps (ec2)"
   ;color choices must be in the palette being used or the closest one will be used.
   foreground_color= "white"
   background_color= (/.5, .5, .9 /) ;deep purple-blue
@@ -418,26 +418,26 @@ begin
     end setvalues
 
     ;--------------------------start windgram  ----------------------------------------------------------------------
-    init_date_str = "date "+quote+"+%a %H:%M %Z" + quote+" -d " + quote + yyyy_mm_dd + " +" + tostring(stringtoint(run_time)+1) + "hours UTC" + quote
-    date_initialized = systemfunc(init_date_str)
+    InitializationString = "init date:" + yyyy_mm_dd + "~C~init time:" + run_time + ":00UTC"
     lclloc_trimmed := lclloc;
     if(plot_day .gt. -1)then ; only plot part of the data
       tstride=1
       toffset=0
-      MainTitle = str_upper(model) + " Windgram for "+ site_name + " for " + local_day + " (initialized " + date_initialized + ")"
+      MainTitle = str_upper(model) + " Windgram for "+ site_name + " for " + local_day
       lstDayColor = "white"
       barbLen = 0.03
     else
       tstride=1 ;; 2
       toffset=0 ;; 1
 
-      MainTitle = str_upper(model) + " Windgram for "+ site_name + ". First hour is " + local_start_time + " (initialized " + date_initialized + ")"
+      MainTitle = str_upper(model) + " Windgram for "+ site_name + ", First hour is " + local_start_time
       lstDayColor = "gold"
       barbLen = 0.023
       ; smooth the LCL and HCRIT results
-     
-      lclloc_trimmed(1:numtimes-2) = (lclloc(0:numtimes-3) + 2*lclloc(1:numtimes-2) + lclloc(2:numtimes-1))/4.0
-      hcrit(1:numtimes-2) = (hcrit(0:numtimes-3) + 2*hcrit(1:numtimes-2) + hcrit(2:numtimes-1))/4.0
+      if(smooth .eq. 1) then  
+       lclloc_trimmed(1:numtimes-2) = (lclloc(0:numtimes-3) + 2*lclloc(1:numtimes-2) + lclloc(2:numtimes-1))/4.0
+       hcrit(1:numtimes-2) = (hcrit(0:numtimes-3) + 2*hcrit(1:numtimes-2) + hcrit(2:numtimes-1))/4.0
+      end if
     end if
 
     ; eliminate excessive clutter at the bottom of the plot and make lcl clouds hollow if they are above the boundary layer
@@ -584,8 +584,8 @@ begin
     res2D@tmXBLabelsOn         = True ; times
     res2D@tmXBLabels           := lstDay(tFrom:tTo:tstride)   ;          times   pst pdt??
     res2D@tmXBLabelFontColor   = lstDayColor
-      print("res2D XB values are " + res2D@tmXBValues)
-      print("res2D XB labels are " + res2D@tmXBLabels)
+;      print("res2D XB values are " + res2D@tmXBValues)
+;      print("res2D XB labels are " + res2D@tmXBLabels)
     res2D@tmYLLabelFont            = 21                ;helvetica http://www.ncl.ucar.edu/Document/Graphics/font_tables.shtml
     res2D@tmYRLabelFont            = 21
     res2D@tmXBLabelFont            = 21
@@ -1001,8 +1001,8 @@ begin
     ; ABC Oct 9, 2012 - Added date to timestamp and fixed extra space.
     timestamp=systemfunc("date +%Y-%m-%d' '%H:%M' '%Z")
 
-    ;timestamp=get_script_name()+"~C~"+timestamp+"~C~"+operator
-    timestamp="~F~~Z80Q~"+get_script_name()+"~C~"+timestamp+"~C~"+operator
+    ;timestamp=get_script_name()+"~C~"+timestamp
+    timestamp="~F~~Z80Q~"+timestamp+"~C~"+InitializationString+"~C~"
     ;timestampyNDC = 5*lbtxtres@txFontHeightF  ;was 4*
     timestampyNDC = 0.075
     timestampxNDC = .005 ;lbtxtres@txFontHeightF
@@ -1116,8 +1116,8 @@ begin
       tc_res@tmXBValues           := taus(tFrom:tTo:tstride)
       tc_res@tmXBLabelsOn = True
       tc_res@tmXBLabels           := lstNight(tFrom:tTo:tstride)   ;          times   pst pdt??
-      print("tc_res XB values are " + tc_res@tmXBValues)
-      print("tc_res XB labels are " + tc_res@tmXBLabels)
+;      print("tc_res XB values are " + tc_res@tmXBValues)
+;      print("tc_res XB labels are " + tc_res@tmXBLabels)
       tc_res@tmXBLabelFontColor = 22 ; "dark grey";          times   pst pdt??
       tc_res@cnFillOn = True     ; bullshit hack used to eliminate some wierd contour lines on the lower left
       tc_res@cnMonoFillColor = True ; adding a transparent fill fixes it.
