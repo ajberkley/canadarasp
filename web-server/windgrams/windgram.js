@@ -6,38 +6,33 @@ function getQueryStrings() {
   var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
   var queryString = location.search.substring(1);
   var keyValues = queryString.split('&');
-
   for(var i in keyValues) {
     var key = keyValues[i].split('=');
     if (key.length > 1) {
       assoc[decode(key[0])] = decode(key[1]);
     }
   }
-
   return assoc;
 }
 
 function UpdateQueryString(updatedatequery) {
-  var region=document.getElementById("region").selectedIndex;
-  var loc=document.getElementById("location").selectedIndex;
+    var region=document.getElementById("region").selectedIndex;
+    var loc=document.getElementById("location").selectedIndex;
     var plotType=document.getElementById("plotType").selectedIndex;
     var Year=document.getElementById("Year").value;
     var Month=document.getElementById("Month").value;
     var Day=document.getElementById("Day").value;
-  //var junk=0;
-  //document.location.search="region="+region+"&location="+loc+"&plotType="+plotType;
+    var Model=document.getElementById("Model").value;
     if (history.pushState) {
 	if (updatedatequery) {
-	    var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?region='+region+'&location='+loc+'&plotType='+plotType+'&Year='+Year+'&Month='+Month+'&Day='+Day;
-
+	    var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?region='+region+'&location='+loc+'&plotType='+plotType+'&Year='+Year+'&Month='+Month+'&Day='+Day+'&Model='+Model;
 	    window.history.pushState({path:newurl},'',newurl);
 	} else {
 	    var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?region='+region+'&location='+loc+'&plotType='+plotType;
-	    var newurlwithdate = window.location.protocol + "//" + window.location.host + window.location.pathname + '?region='+region+'&location='+loc+'&plotType='+plotType+'&Year='+Year+'&Month='+Month+'&Day='+Day;
+	    var newurlwithdate = window.location.protocol + "//" + window.location.host + window.location.pathname + '?region='+region+'&location='+loc+'&plotType='+plotType+'&Year='+Year+'&Month='+Month+'&Day='+Day+'&Model='+Model;
 	    var a = document.createElement('a');
 	    a.setAttribute('href',newurlwithdate);
 	    a.innerHTML = "Link to this windgram";
-  //	    console.log('Creating ' + a);
 	    var mycurrentsettings = document.getElementById("currentsettings");
 	    if(mycurrentsettings.firstChild) {
 		mycurrentsettings.replaceChild(a,mycurrentsettings.childNodes[0]);
@@ -47,35 +42,32 @@ function UpdateQueryString(updatedatequery) {
   }
 }
 
-
-
-
 function padwithzero(string) {
     string = string+"";
     if (string.length < 2) {
-  return("0" + string + "");
+	return("0" + string + "");
     } else {
-  return(string);
+	return(string);
     }
 }
 
 function showWindgram(updatedatequery){
     var wIdx=document.getElementById("location").value
- //    console.log("showWindgram("+updatedatequery+")");
-  if (!Loaded[wIdx]) {
-    var yIdx = document.getElementById("Year").selectedIndex;
-    var year = document.getElementById("Year").options[yIdx].value;
-    var mIdx = document.getElementById("Month").selectedIndex;
-    var month = padwithzero(document.getElementById("Month").options[mIdx].value);
-    var dIdx = document.getElementById("Day").selectedIndex;
-    if (dIdx == -1) {return;}
-    var day = padwithzero(document.getElementById("Day").options[dIdx].value);
-    var dateStr = "/" + year + "-" + month + "-" + day;
-    var duration=document.getElementById("plotType").value;
-    Pics[wIdx].src = duration+dateStr+"/windgram"+wIdx+".png";
-    Loaded[wIdx] = true;
-  }
-  document.getElementById('wframe').src = Pics[wIdx].src;
+    if (!Loaded[wIdx]) {
+	var yIdx = document.getElementById("Year").selectedIndex;
+	var year = document.getElementById("Year").options[yIdx].value;
+	var mIdx = document.getElementById("Month").selectedIndex;
+	var month = padwithzero(document.getElementById("Month").options[mIdx].value);
+	var dIdx = document.getElementById("Day").selectedIndex;
+	var model = document.getElementById("Model").value;
+	if (dIdx == -1) {return;}
+	var day = padwithzero(document.getElementById("Day").options[dIdx].value);
+	var dateStr = "/" + year + "-" + month + "-" + day;
+	var duration=document.getElementById("plotType").value;
+	Pics[wIdx].src = duration+dateStr+"/"+model+"windgram"+wIdx+".png";
+	Loaded[wIdx] = true;
+    }
+    document.getElementById('wframe').src = Pics[wIdx].src;
     UpdateQueryString(updatedatequery);
 }
 
@@ -183,6 +175,10 @@ function init() {
     query = qs["Month"];
     if (query){
 	document.getElementById("Month").value = query;
+    }
+    query = qs["Model"];
+    if (query){
+	document.getElementById("Model").value = query;
     }
     query = qs["Day"];
     if (query){

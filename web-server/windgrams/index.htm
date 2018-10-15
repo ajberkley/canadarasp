@@ -36,21 +36,28 @@
   <div id="selDiv">
     <div id="title"> Windgrams for Canada</div>
     	<div id="selectorDiv">
-    	      <select title="Year" id="Year" size="8" onchange='javascript:updateDate(false);showWindgram(false)';>
+    	      <select title="Year" id="Year" size="8" onchange='javascript:updateDate(false);showWindgram(false)'>
     		<option>2013</option>
     	      </select>
-    	      <select title="Month" id="Month" size="8" onchange='javascript:updateDate(false);showWindgram(false)';>
+    	      <select title="Month" id="Month" size="8" onchange='javascript:updateDate(false);showWindgram(false)'>
     		<option>Jan</option>
     	      </select>
-    	      <select title="Select Day" id="Day" size="8" onchange='javascript:clearLoadedCache();showWindgram(false);';>
+    	      <select title="Select Day" id="Day" size="8" onchange='javascript:clearLoadedCache();showWindgram(false);'>
     		<option>23</option>
     	      </select>
     	    </div>
-    Duration<br>
-    <select id="plotType" size="2" onchange='javascript:clearLoadedCache();showWindgram(false);';>
-      <option value="twoDay" selected >Two days</option>
+    <table>
+    <tr><td>Duration</td><td>Model</td></tr>
+    <tr><td>
+    <select id="plotType" size="2" onchange='javascript:clearLoadedCache();showWindgram(false);'>
+      <option value="twoDay" selected>Two days</option>
       <option value="oneDay" >One day</option>
-    </select><br>
+    </select> </td> <td>
+    <select id="Model" size="2" onchange='javascript:clearLoadedCache();showWindgram(false);'>
+      <option value="hrdps" selected>HRDPS</option>
+      <option value="gdps">GDPS</option>
+    </select> </td></tr>
+    </table>
     Region<br>
     <select id="region" size="8" onchange='javascript:updateRegion()';>
       <option value="Lower Mainland" selected >Lower Mainland</option>
