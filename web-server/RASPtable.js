@@ -44,7 +44,7 @@ function displayWindgrams() {
 		    });
 		    windgrammarkers.push(marker);
 		    var mylocationidxlocal = mylocationidx++; 
-		    google.maps.event.addListener(marker,'click', function() { window.open('windgrams-continental-new/?region='+myregionidx+'&location='+mylocationidxlocal)});
+		    google.maps.event.addListener(marker,'click', function() { window.open('windgrams/?region='+myregionidx+'&location='+mylocationidxlocal+'&Model='+model())});
 		}
             });
 	});

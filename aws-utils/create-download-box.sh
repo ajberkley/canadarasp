@@ -27,7 +27,7 @@ export BLK_DEV="/dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_"$VOL_ID_NO_DASH
 echo Going to mount $BLK_DEV
 # seems we need to wait a bit...
 sleep 5
-sudo mkfs.xfs $BLK_DEV >& /dev/null
+sudo mkfs.ext4 $BLK_DEV >& /dev/null
 sudo mkdir -p $MNT
 sudo mount $BLK_DEV $MNT
 sudo chown ubuntu.ubuntu $MNT
