@@ -13,14 +13,16 @@ source ./model-parameters.sh $MODEL
 source ./guess-time.sh $MODEL
 ./setup-drives.sh
 echo Moving downloaded data to local disk starting at `date`
-source /home/ubuntu/canadarasp/aws-utils/create-download-box.sh /download-box
+source /home/ubuntu/canadarasp/aws-utils/mount-download-box.sh /download-box
+df
 cd /download-box
 cp -R * /mnt/input/$MODEL
 sync
 cd /home/ubuntu/canadarasp/continental-test
+df
 source /home/ubuntu/canadarasp/aws-utils/unmount-download-box.sh
-source /home/ubuntu/canadarasp/aws-utils/delete-download-box.sh
-#echo NOT DELETING THE DOWNLOAD BOX
+#source /home/ubuntu/canadarasp/aws-utils/delete-download-box.sh
+echo NOT DELETING THE DOWNLOAD BOX
 echo Done moving downloaded data to local disk at `date`
 echo "Generating new variables like HCRIT"
 ./do-generate-new-variables.sh # takes 3 minute
