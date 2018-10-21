@@ -69,38 +69,6 @@ function padwithzero(string) {
     }
 }
 
-function updateDays () {
-    var targetYear = document.getElementById("Year").options[document.getElementById("Year").selectedIndex].value;
-    var targetMonth = document.getElementById("Month").options[document.getElementById("Month").selectedIndex].value;
-    var thisDay = new Date().getDate();
-    var Day = document.getElementById("Day");
-    var dayName   = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    var dayofmonth = new Date();
-    dayofmonth.setFullYear(targetYear);
-    dayofmonth.setDate(1);
-    dayofmonth.setMonth(targetMonth-1);
-    var i = 0;
-    while(dayofmonth.getMonth()==targetMonth-1) {
-	Day.options[i++] = new Option(dayofmonth.getDate() + ' ' + dayName[dayofmonth.getDay()] , dayofmonth.getDate());
-	dayofmonth.setDate(dayofmonth.getDate()+1);
-	if(i==thisDay) {
-	    Day.options[i-1].selected = true;
-	}
-    }
-}
-
-function updateTimes () {
-    var time = document.getElementById("Time");
-    var localtimes = ["0800","0900","1000","1100","1200","1300","1400","1500","1600","1700","1800","1900","2000","2100"];
-    for (var i=0 ; i< localtimes.length ; i++) {
-	time.options[i] = new Option(localtimes[i],localtimes[i]);
-	if(localtimes[i]=="1230" || localtimes[i]=="1200") {
-	    time.options[i].selected = true;
-	}
-	time.options[localtimes.length]=null;
-    }
-}
-
 function setSize() {
     var titleBox = document.getElementById("topTitle");
     var zoomBox = document.getElementById("zoomBox");;
@@ -187,6 +155,7 @@ function callWithTimeZone(callback) {
     xhttp.open("GET", request, true);
     xhttp.send(); 
 }
+
 function set_datetime_options (offset_in) {
     var hourstep = 1;
     var hourpast = -24;
@@ -213,6 +182,10 @@ function set_datetime_options (offset_in) {
     //console.log("date time being processed for UTC offset of " + offset);
 
     if(oldindex == -1) { // We need to do an initial population of the options.
+	//console.log("Resetting datetime options")
+	while (datetime.options.length) {
+	    datetime.options.remove(0);
+	}
 	for (var i = hourpast ; i < hourfuture ; i++ ) {
 	    var newDate = new Date(now + msperhour*i);
 	    var hourutc = newDate.getUTCHours();
@@ -227,7 +200,9 @@ function set_datetime_options (offset_in) {
 	    if(model() != "gdps" || ((hourutc % 3) == 0)) { // GDPS is every 3 hours
 		var localtime = yearlocal+"-"+monthlocal+"-"+daylocal+" "+padwithzero(hourlocal)+":"+padwithzero(offsetmins)+ " UTC"+(offsethours<0?"":"+")+offsethours;
 		var utctime = yearutc+"-"+monthutc+"-"+dayutc+" "+padwithzero(hourutc)+"00";
-		datetime.options[j] = new Option(localtime,utctime);
+		var option = new Option(localtime,utctime);
+		option.date = newDate;
+		datetime.options.add(option,j);
 		datetime.options[j].date = newDate;
 		//console.log("Created option " + j + " with localtime " + localtime + " UTC time " + utctime + " ms " + datetime.options[j].date);
 		if(!selected) {
