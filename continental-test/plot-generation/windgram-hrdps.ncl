@@ -4,6 +4,8 @@
 
 smooth = 1;
 numdays=1; ;; 0 and 1
+tstridemultiday=2
+toffsetmultiday=1
 function hour_to_idx (hour, roundup)
 begin
  return hour

@@ -29,6 +29,8 @@ end if
 ;; Global variables... I hate NCL
 initialization_date = ""
 run_time = ""
+tstridemultiday=2
+toffsetmultiday=1
 pmb = True
 numdays=0
 smooth=0
@@ -428,8 +430,8 @@ begin
       lstDayColor = "white"
       barbLen = 0.03
     else
-      tstride=1 ;; 2
-      toffset=0 ;; 1
+      tstride=tstridemultiday ;; 2
+      toffset=toffsetmultiday ;; 1
 
       MainTitle = str_upper(model) + " Windgram for "+ site_name + ", First hour is " + local_start_time
       lstDayColor = "gold"
