@@ -61,17 +61,17 @@
   email <a href="mailto:ajberkley@gmail.com">me</a>.<p>
 
   <h2>Planned Changes</h2>
-<ol>
+  <ol>
+    <li>Add a jetstream map</li>
+    <li>Add surface wind gust map</li>
 <li>
 Add a map of cumulus cloud base (lifting condensation level).
 <li>
 Move away from google maps to something like Leaflet.
 <li>
-Add some more weather models: GDPS or GFS for global coverage for people who travel to Central and South America, the NAM3 to cover with high resolution the rest of the United States of America and the RDPS to provide predictions for several days out.
-
+Add some more weather models: GFS for another global model and NAM3 to cover with high resolution the rest of the United States of America.
 <li>
 Add more complete on-demand windgram generation (there is a limited implementation available off the main map page).  Add a better interface to this (long press, or context menu).
-
 <li>
 Maybe change to a prettier javascript front-end viewer like windy or ventusky.
 If you are a web developer with a talent for making nice interfaces, I could sure use some help.
@@ -82,6 +82,7 @@ Also look more closely at better ways to present estimated top of lift with sens
 More compact output files for the map page and a smoother interface.
 </ol>
 <h2>Changelog</h2>
+<b>21 October 2018 ajb</b> Added global GDPS model to alpha.canadarasp.com.  The dynamic windgrams are currently broken, but will be fixed before I roll this out for everyone.<p>
 <b>9 September 2018 ajb</b> Shutdown old.canadarasp.com and the old generation infrastructure.  Added dynamic windgram generation to <a href="http://www.canadarasp.com/windgrams-continental/select-windgram.htm">windgram selector page</a>, changed map interface for dynamic windgrams from an enable checkbox to a long press on the map surface.  Please send me any feedback you have... it's a long winter coming up.<p>
 <b>6 September 2018 ajb</b> Fixed surface dewpoint (I am plotting dew point depression in the new maps), resurrected the average thermal strength plot.  Did final comparision versus the previous production runs.  Moved the main website to my new Amazon webserver and have rolled out what was the alpha code to production.  <del>The old maps and windgrams will continue to run on <a href="http://old.canadarasp.com">old.canadarasp.com</a> for a few more days until I'm sure everything is working well, and then they will be shut down.</del><p>
 <b>3 September 2018 ajb</b> Better wind arrow drawing, scales as you zoom a bit. Working on clipping wind to terrain.  Got the rain map back and switched surface pressure map to the correct source (surface pressure MSL).  DNS service is now Amazon.  www.canadarasp.com is the old production server, and alphatest.canadarasp.com is the new testing domain.  I will switch the alpha to production in a few days after I make sure the latest changes are stable.</p>

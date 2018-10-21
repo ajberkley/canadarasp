@@ -6,7 +6,7 @@ echo Downloading $MODEL data to $DOWNLOADDIRECTORY
 export RASPBASEDIR=`pwd`
 source ./guess-time.sh $MODEL
 source ./model-parameters.sh $MODEL
-mkdir -p $DOWNLOADDIRECTORY
+# mkdir -p $DOWNLOADDIRECTORY
 
 rm -f /tmp/wget.jobs
 
