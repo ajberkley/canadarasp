@@ -1,11 +1,7 @@
 ﻿Upgrade and development notes
 TODO
- 0) Integrate new HRDPS code with windgrams again (in progress)
  0.25) something wrong with the BLDEPTH calculation... ?
  0.3) Track vertical velocity during bldepth instead of using sillly thermal model and wstar... can do an energy model (potential / kinetic) but what takes care of the fact that thermal velocity should depend on how big the thermal is?  or does it?  Having a larger collection area doesn't make it a stronger thermal, just makes it last longer and maybe smooths it out.  in the end the top packet of air is bouyant and accelerates because of that, that's all.  It doesn't get pushed by the bottom air.  I need to think a bit about this, I'm pretty sure there is a way to get a good guess at the kinetic energy.  Then we can generate an estimate of turbulence if they hit a layer and bounce off.
- 0.5) HRDPS guess-time isn't working? guessed wrong time at 7PM.  Think I fixed it... verify
- 1) Integrate GDPS code with windgrams (in progress)
- 2) Use local time in javascript, store data in backend in UTC time.  Probably fast enough to do all HRDPS maps now anyway...
  3) Lumby area sites being wrong, Mackenzie in the valley, Golden location
  4) Try 4 degree x 4 degree gridding to see if it is faster for wgrib break-up.
  7) Add documentation to CanadaRASP webpage... in progress
@@ -23,12 +19,21 @@ TODO
  24) Figure out a way around the disk space problem when generating all tiles (it takes roughly the same time to generate just the limited set for windgrams).  This is on the way to a dynamic windgram generator.  Generating them compressed takes a lot of time.  Ugh.  Can go to bigger tiles though, maybe that will be quicker.
  26) Clip winds in the lisp generation code.  OK, so it's clipped using wgrib2 now, but now the drawing needs some information.  Encode as 255 or something.  OK, encoded as 0.  But, the clipping is ugly...
  35) Consider turning off terrain clipping again and going back to bilinear on gdalwarp.
- 36) Stop using Lambda for on/off, use crontab on the t3.micro (have a version commented out in crontab in web server dev)
  38) More compact PNGs.  Use palette based files.  Something weird with transparency and them... could use a color for transparency and a kludge on the display side.
  39) Can I remove the gdalwarp and double wind thing for the GDPS?  It's a lat/lon grid, I don't need to rotate the U/V winds either, etc.  That would speed things up somewhat.  I should also re-enable the real-lat-lon thing for the GDPS.
  40) Integrate satellite imagery into the visualization so that we can compare forecast versus reality... for clouds and precip... which are the least well forecasted things :(  But would be fun!
  41) use mod_rewrite to rewrite the proxy and store the api key on the webserver for the timezone requests
- 
+ 42) Get AMQP running for the downloads... will save 10 mins.
+ 43) Setup a local timezone service instead of using googles (will probably come close to the limit the way I use it).
+ 44) Setup a web service to provide all the information needed for a windgram at a single lat,lon point so someone can develop a client side windgram.
+ 45) Cached web lookup for timezone...?  Or since it is once per tile it doesn't matter.  Well once I have an external call, adding caching is easy.
+ 46) Make sure dynamic windgrams still work for alpha... add feature to choose type of dynamic windgram?
+
+20 / 21 Oct 2018
+ Trying to get alpha into a state where I can test it.  Fixing windgrams, etc.
+
+8 Oct 2018
+Today I'd like to fix the windgrams to be generated and stored in local time.  Will test using the GDPS.
 
 29 Sep 2018
 
