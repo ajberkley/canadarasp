@@ -1,5 +1,6 @@
 ﻿Upgrade and development notes
 TODO
+ 0) Hours on x-axis for multiday GDPS windgrams broken
  0.25) something wrong with the BLDEPTH calculation... ?
  0.3) Track vertical velocity during bldepth instead of using sillly thermal model and wstar... can do an energy model (potential / kinetic) but what takes care of the fact that thermal velocity should depend on how big the thermal is?  or does it?  Having a larger collection area doesn't make it a stronger thermal, just makes it last longer and maybe smooths it out.  in the end the top packet of air is bouyant and accelerates because of that, that's all.  It doesn't get pushed by the bottom air.  I need to think a bit about this, I'm pretty sure there is a way to get a good guess at the kinetic energy.  Then we can generate an estimate of turbulence if they hit a layer and bounce off.
  3) Lumby area sites being wrong, Mackenzie in the valley, Golden location
