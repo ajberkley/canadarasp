@@ -11,4 +11,4 @@ source guess-time.sh $MODEL
 cd /home/ubuntu/canadarasp/aws-utils
 source unmount-download-box.sh
 source start-compute-server.sh
-#( sleep 7200 ; source stop-compute-server.sh )
+( sleep 7200 ; source stop-compute-server.sh )

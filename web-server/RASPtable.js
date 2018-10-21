@@ -165,7 +165,7 @@ function set_params_for_model () {
 function callWithTimeZone(callback) {
     var pos = map.getCenter();
     var timestamp = Math.round(Date.now()/1000);
-    var request = "http://alphatest.canadarasp.com/timezone?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp+"&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks";
+    var request = "http:/timezone?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp+"&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks";
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 1000; // 1 second before timeout
     xhttp.onreadystatechange = function() {
