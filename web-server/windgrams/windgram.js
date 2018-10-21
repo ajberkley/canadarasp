@@ -64,7 +64,7 @@ function showWindgram(updatedatequery){
 	var day = padwithzero(document.getElementById("Day").options[dIdx].value);
 	var dateStr = "/" + year + "-" + month + "-" + day;
 	var duration=document.getElementById("plotType").value;
-	Pics[wIdx].src = duration+dateStr+"/"+model+"windgram"+wIdx+".png";
+	Pics[wIdx].src = "/windgrams-data/"+duration+dateStr+"/"+model+"windgram"+wIdx+".png";
 	Loaded[wIdx] = true;
     }
     console.log(Pics[wIdx].src);

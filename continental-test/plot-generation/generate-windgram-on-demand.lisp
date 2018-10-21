@@ -76,7 +76,7 @@
 	(find-latest-date (format nil "/mnt/windgram-tiles/~A" tile-id))
       (format t "Initialized at ~A run hour ~A~%" date run)
       (let* ((output-filename (format nil "windgram-~A-~A-~A-~A.png" date run lon lat))
-	     (real-output-file (format nil "/mnt/windgrams/twoDay/~A/~A"  date output-filename)))
+	     (real-output-file (format nil "/mnt/windgrams-data/twoDay/~A/~A"  date output-filename)))
 	(ensure-directories-exist real-output-file)
 	(if (cl-fad:file-exists-p real-output-file)
 	    (progn (format t "File exists!~%")
@@ -85,7 +85,7 @@
 	      (print/run-program (format nil "~A/bin/ncl" *ncarg-root*)
 				 (list "-n" "windgram-continental.ncl"
 				       (format nil "input_files=\"/mnt/windgram-tiles/~A/hrdps_continental_~A-run~A_*.grib2\"" tile-id date run)
-				       "output_dir=\"/mnt/windgrams/\""
+				       "output_dir=\"/mnt/windgrams-data/\""
 				       (format nil "output_files=\"~A\"" output-filename)
                                        "plot_days=2"
 				       (format nil "labels_lats_lons=\";~,4f ~,4f,~A,~A\"" (parse-real-number lat) (parse-real-number lon) lat lon)))

@@ -7,7 +7,7 @@ UTCYEAR=$1 #`echo $DATE_STR | cut -c1-4`
 UTCMONTH=$2 #=`echo $DATE_STR | cut -c5-6`
 UTCDAY=$3 #=`echo $DATE_STR | cut -c7-8`
 HOUR=$4 #=`echo $DATE_STR | cut -c9-10`
-OUT_DIR=/mnt/windgrams
+OUT_DIR=/mnt/windgrams-data
 mkdir -p $OUT_DIR
 mkdir -p $OUT_DIR/twoDay
 mkdir -p $OUT_DIR/oneDay
