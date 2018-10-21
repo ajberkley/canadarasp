@@ -30,6 +30,7 @@ end if
 initialization_date = ""
 run_time = ""
 pmb = True
+numdays=0
 smooth=0
 numtimes=0
 zloc=0
@@ -186,7 +187,7 @@ begin
     load_variables_one_point(a,locY,locX)
     outputfiletemplate = str_get_field(output_files,site_idx+1,";")
   ; FIGURE OUT WHAT DAYS AND HOURS WILL BE USED IN THE PLOT
-   utcoffset = stringtolong(systemfunc("curl -s 'http://alphatest.canadarasp.com/timezone?location=" + site_lat + "," + site_lon + "&timestamp=" + secondssinceepoch + "&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks' | grep 'rawOffset\|dstOffset' | awk '{ a++; if(a==1) {printf " + quote + "%d +" + quote + ", $3 } else { print $3 }}' | tr [,] " + quote + " " + quote + "| bc"))
+   utcoffset = stringtolong(systemfunc("curl -s 'http://alpha.canadarasp.com/timezone?location=" + site_lat + "," + site_lon + "&timestamp=" + secondssinceepoch + "&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks' | grep 'rawOffset\|dstOffset' | awk '{ a++; if(a==1) {printf " + quote + "%d +" + quote + ", $3 } else { print $3 }}' | tr [,] " + quote + " " + quote + "| bc"))
    utcoffset = utcoffset / 3600
    print("UTC offset is " + utcoffset)
    ;; utcoffset = round(utcoffset,1)
@@ -203,7 +204,7 @@ begin
    print("First hour of the model in local time " + startHour)
    ;; plot_day = -1 implies do all days, otherwise is a day
    
-   do plot_day = -1, 4
+   do plot_day = -1, numdays
     if(plot_day.gt.-1)then ; only plot part of the data
       hourFrom = 7 + 24 * plot_day
       hourTo = 21 + 24 * plot_day

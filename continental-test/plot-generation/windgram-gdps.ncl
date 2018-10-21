@@ -4,6 +4,7 @@
 
 show_rain=0 ;; NOT SURE WHY THIS DOES NOT WORK, LOOK AT THIS LATER!
 smooth=0
+numdays=4
 function hour_to_idx (hour,round_up)
 begin
  res = ind(taus.eq.hour);

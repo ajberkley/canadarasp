@@ -3,8 +3,8 @@
 ;;  locX, locY the index into the data arrays for the point at site_lon, site_lat
 
 smooth = 1;
-
-function hour_to_idx (hour)
+numdays=1; ;; 0 and 1
+function hour_to_idx (hour, roundup)
 begin
  return hour
  ;; return(ind(taus.eq.hour))
