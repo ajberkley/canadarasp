@@ -67,6 +67,7 @@ function showWindgram(updatedatequery){
 	Pics[wIdx].src = duration+dateStr+"/"+model+"windgram"+wIdx+".png";
 	Loaded[wIdx] = true;
     }
+    console.log(Pics[wIdx].src);
     document.getElementById('wframe').src = Pics[wIdx].src;
     UpdateQueryString(updatedatequery);
 }
