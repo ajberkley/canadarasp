@@ -8,9 +8,16 @@ echo Going to get a $DBOXNAME and mount it at $MNT
 export VOL_ID=`aws ec2 describe-volumes --filters Name=tag:Name,Values=$DBOXNAME Name=status,Values=available | head -1 | awk '{ print $7 }'`
 export MY_INSTANCE_ID=`curl -s http://169.254.169.254/latest/meta-data/instance-id`
 export MY_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
+echo MY_INSTANCE_ID is $MY_INSTANCE_ID
+echo MY_ZONE is $MY_ZONE
+echo MY_VOL_ID is $MY_VOL_ID
 if [ -z $VOL_ID ]; then
   echo No $DBOXNAME available, creating one
   export VOL_ID=`aws ec2 create-volume --no-encrypted --availability-zone $MY_ZONE --size 30 --volume-type standard --tag-specifications 'ResourceType=volume,Tags=[{Key=Name,Value='$DBOXNAME'}]' | head -1 | awk '{ print $6 }'`
+  if [ -z $VOL_ID ]; then
+    echo Failed creating one.  Aborting
+    exit 1
+  fi
   echo Created $VOL_ID in $MY_ZONE
 else
   echo Volume $VOL_ID already available, using it
