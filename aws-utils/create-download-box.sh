@@ -10,7 +10,7 @@ export MY_INSTANCE_ID=`curl -s http://169.254.169.254/latest/meta-data/instance-
 export MY_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
 echo MY_INSTANCE_ID is $MY_INSTANCE_ID
 echo MY_ZONE is $MY_ZONE
-echo MY_VOL_ID is $MY_VOL_ID
+echo VOL_ID is $VOL_ID
 if [ -z $VOL_ID ]; then
   echo No $DBOXNAME available, creating one
   export VOL_ID=`aws ec2 create-volume --no-encrypted --availability-zone $MY_ZONE --size 30 --volume-type standard --tag-specifications 'ResourceType=volume,Tags=[{Key=Name,Value='$DBOXNAME'}]' | head -1 | awk '{ print $6 }'`
