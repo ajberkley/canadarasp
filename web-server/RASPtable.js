@@ -14,13 +14,10 @@
 var opacity_control = "N"; // keep track of whether we initialized the opacity control or not
 
 var oldParam;
-var oldDay;
 
 var map;           // stores the google.map
 var opacity = 50;  // default opacity
 var OPACITY_MAX_PIXELS = 57; // Width of opacity control image
-
-var step = 2;
 
 var regions = [ "Lower Mainland", "Sea to Sky", "Vancouver Island", "Kamloops Area","North Okanagan","South Okanagan","Kootenays","Smithers Area","Jasper Area","Alberta","Washington","Ski","Cariboo", "Montreal"];
 var windgrammarkers = Array();
@@ -122,11 +119,11 @@ function model () {
     return((document.getElementById("model").selectedOptions)[0].value)
 }
 
-function set_params_for_model () {
+function step () {
     if(model() === "hrdps") {
-	step = 2;
+	return 2;
     } else if(model() === "gdps") {
-	step = 10;
+	return 10;
     }
 }
 
@@ -234,7 +231,7 @@ function set_datetime_and_load_images (offset) {
 }
 
 function initIt() {
-    document.getElementById("model").onchange = (function () { document.getElementById("datetime").selectedIndex = -1; callWithTimeZone(set_datetime_and_load_images); setupParamset(); set_params_for_model();  });
+    document.getElementById("model").onchange = (function () { document.getElementById("datetime").selectedIndex = -1; callWithTimeZone(set_datetime_and_load_images); setupParamset(); });
     document.body.style.overflow = "auto";
     oldParam = document.getElementById("Param").options.value;
     var T = new Date();      // Instantiate a Date object
@@ -242,15 +239,12 @@ function initIt() {
     var lon = -122.18;
     var zoom = 10;
 
-    setupParamset();  // set the short param list
-    set_datetime_options();
-
+    setupParamset();
     document.getElementById("Param").onchange = doChange;
     document.getElementById("datetime").onchange = doChange;
     windgram_checkbox = document.getElementById('windgram_checkbox');
     
     document.getElementById("Param").options[4].selected  = true;
-    
     whichBrowser();
     /*****************************************
      * Process URL tail and set menu options *
@@ -321,6 +315,29 @@ function initIt() {
     };
     window.addEventListener("resize",setSize,false)
     map = new google.maps.Map(document.getElementById("zoomBox"), myOptions);
+    setSize();
+    if ( opacity_control == "N" ) {
+	createOpacityControl(map, opacity);
+	opacity_control = "Y";
+    }
+
+    if(windgram_checkbox.checked) {
+	displayWindgrams();
+    } else {
+	clearWindgrams();
+    }
+    //doChange();
+
+    var boundsupdate;
+    google.maps.event.addListener(map, "bounds_changed",
+				  function() {
+				      if(boundsupdate) {clearTimeout(boundsupdate)};
+				      boundsupdate = window.setTimeout(function ()
+								       { //console.log("Bounds changed!")
+									   recordpageurl();
+									   callWithTimeZone(set_datetime_and_load_images);
+								       },300);
+				  });
     var moveupdate;
     google.maps.event.addListener(map, 'mousemove',
 				  function (e) {
@@ -329,28 +346,7 @@ function initIt() {
 				      }
 				      moveupdate = setTimeout(function () {updateLL(e)},100)
 				  });
-    setSize();
-    var boundsupdate;
-    var listener = google.maps.event.addListener(map, "bounds_changed",
-						 function() {
-						     if(boundsupdate) {clearTimeout(boundsupdate)};
-						     boundsupdate = window.setTimeout(function ()
-										      { //console.log("Bounds changed!")
-											recordpageurl();
-											callWithTimeZone(set_datetime_and_load_images);
-										      },300);
-						 });
-    if ( opacity_control == "N" ) {
-	createOpacityControl(map, opacity);
-	opacity_control = "Y";
-    }
-    doChange();
-
-    if(windgram_checkbox.checked) {
-	displayWindgrams();
-    } else {
-	clearWindgrams();
-    }
+    
     windgram_checkbox.addEventListener('change', (event) => {
 	if (event.target.checked) {
 	    displayWindgrams();
@@ -524,16 +520,16 @@ function getTilesIn(bounds) {
     } else {
 	lngmid = ne.lng();
     }
- 	
-    for (lat = step*Math.floor(sw.lat()/step) ; lat < step*Math.ceil(ne.lat()/step) ; lat += step) {
+    var mystep = step();
+    for (lat = mystep*Math.floor(sw.lat()/mystep) ; lat < mystep*Math.ceil(ne.lat()/mystep) ; lat += mystep) {
 	if(lat_in_bounds(lat)) {
-	    for (lng = step*Math.floor(lngstart/step) ; lng < step*Math.ceil(lngmid/step) ; lng += step) {
+	    for (lng = mystep*Math.floor(lngstart/mystep) ; lng < mystep*Math.ceil(lngmid/mystep) ; lng += mystep) {
 		if(lng_in_bounds(lng)) {
 		    result.push({ lat: lat, lng: lng });
 		}
 	    }
 	    if(ne.lng() < sw.lng()) {
-		for(lng = -180 ; lng < ne.lng() ; lng += step) {
+		for(lng = -180 ; lng < ne.lng() ; lng += mystep) {
 		    if(lng_in_bounds(lng)) {
 			result.push({ lat: lat, lng: lng });
 		    }
@@ -571,25 +567,25 @@ function realtilelng(lng) {
  return realtileinfo[model()].lons[lng];
 }
 
-function addOverlay(tile, image, map, zoom) {
+function addOverlay(tile, image, map, zoom, step) {
     var bounds = new google.maps.LatLngBounds(
         new google.maps.LatLng(  realtilelat(tile.lat), realtilelng(tile.lng) ),
         new google.maps.LatLng(  realtilelat(tile.lat+step) , realtilelng(tile.lng + step) )
     );
-    //console.log("Adding overlay at tile " + tile + " which is really " + bounds);
+    // console.log("step is " + step + "Adding overlay at tile " + tile + " which is really " + bounds);
     overlays.push({tile: tile, zoom: zoom, overlay: new RASPoverlay(bounds, image, map)});
 }
 
-function addCanvasOverlay(tile, image, map, zoom) {
+function addCanvasOverlay(tile, image, map, zoom, step) {
     var bounds = new google.maps.LatLngBounds(
         new google.maps.LatLng(  realtilelat(tile.lat), realtilelng(tile.lng) ),
         new google.maps.LatLng(  realtilelat(tile.lat+step) , realtilelng(tile.lng + step) )
     );
-    //console.log("Adding canvas overlay to tile " +tile);
+    // console.log("Adding canvas overlay to tile " +tile);
     overlays.push({tile: tile, zoom: zoom, overlay: new CanvasOverlay(bounds, image, map)});
 }
 
-function tileName(tile,splittime,param) {
+function tileName(tile,splittime,param,step) {
   var lng2 = tile.lng + step;
   var lat2 = tile.lat + step;
   baseName = getBasedir() +"/" +splittime[0] + "/"+tile.lng + ":" + lng2 + ":"
@@ -632,17 +628,20 @@ function loadImages()
     var splittime = getSplitTime();
     var param = getParam();
     var tiles = getTilesIn(map.getBounds());
-    //console.log("map bounds are " + mapBounds);
-    //console.log("tiles are " + tiles);
+    var mystep = step();
+    var zoom = zoomLevel();
+    // console.log("map bounds are " + mapBounds);
+    // console.log("tiles are " + tiles);
+    // console.log("step is " + mystep);
     clearOverlaysnotIn(tiles);
     recordpageurl();
     drawWindVectors(tiles);
     tiles.forEach(function(tile) {
-	var fullURL = tileName(tile,splittime,param)+ ".body.png";
+	var fullURL = tileName(tile,splittime,param,mystep)+ ".body.png";
 	var image = getImage(fullURL);
- 	//console.log("Trying to get image: " + fullURL);
+ 	// console.log("Trying to get image: " + fullURL);
 	if(image) {
-	    addOverlay(tile,image.src, map);
+	    addOverlay(tile,image.src, map, zoom, mystep);
 	}
     })
     // the head and foot are the same for all tiles (if I generate them right)
@@ -996,7 +995,8 @@ function drawWindCanvas(inputcanvas,outputcanvas, zoom) {
     } else if (model() == "gdps") {
       if(zoom == "high" || zoom == "medium") {
         scale = 10; step = 1; linewidth = 1;
-      } else { scale = 30; step = 3; linewidth = 3;};
+      } else if(zoom=="low") { scale = 30; step = 3; linewidth = 3;}
+	else {scale = 50; step = 5; linewidth = 5; }
     }
     //console.log("input canvas is " + width + "x" + height);
     var inputcontext = inputcanvas.getContext('2d');
@@ -1018,30 +1018,31 @@ function drawWindCanvas(inputcanvas,outputcanvas, zoom) {
 
 function zoomLevel () {
   var zoom = map.getZoom();
-  if(zoom > 8) { return "high"; } else if( zoom > 6) { return "medium"; } else { return "low";}
+    if(zoom > 8) { return "high"; } else if( zoom >= 6) { return "medium"; } else if (zoom > 3) {return "low";} else { return "verylow";}
 }
 
 function drawWindVectors(tiles,outputcanvas) {
-  var splittime = getSplitTime();
-  if(displayWind()) {
-    var param = getParam();
-    var zoom = zoomLevel();
-    tiles.forEach(function(tile) {
-      var basictile = tileName(tile,splittime,param);
-      var image = new Image();
-      var outputcanvas = document.createElement("canvas");
-      addCanvasOverlay(tile,outputcanvas,map,zoom);
-      image.onload = function() {
-        var inputcanvas = document.createElement("canvas");
-          //console.log("Got an image " + this.width + "x" + this.height);
-          inputcanvas.width = this.width;
-          inputcanvas.height = this.height;
-          inputcanvas.getContext('2d').drawImage(this,0,0);
-          drawWindCanvas(inputcanvas,  outputcanvas, zoom);
-      };
-      image.src = basictile + ".vector.png";
-    //console.log("Trying to load " + image.src);
-    });
-  }
+    if(displayWind()) {
+	var param = getParam();
+	var zoom = zoomLevel();
+	var mystep = step();
+	var splittime = getSplitTime();
+	tiles.forEach(function(tile) {
+	    var basictile = tileName(tile,splittime,param,mystep);
+	    var image = new Image();
+	    var outputcanvas = document.createElement("canvas");
+	    addCanvasOverlay(tile,outputcanvas,map,zoom,mystep);
+	    image.onload = function() {
+		var inputcanvas = document.createElement("canvas");
+		//console.log("Got an image " + this.width + "x" + this.height);
+		inputcanvas.width = this.width;
+		inputcanvas.height = this.height;
+		inputcanvas.getContext('2d').drawImage(this,0,0);
+		drawWindCanvas(inputcanvas,  outputcanvas, zoom);
+	    };
+	    image.src = basictile + ".vector.png";
+	    //console.log("Trying to load " + image.src);
+	});
+    }
 }
 
