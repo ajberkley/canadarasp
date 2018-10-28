@@ -33,6 +33,13 @@ TODO
  45) Cached web lookup for timezone...?  Or since it is once per tile it doesn't matter.  Well once I have an external call, adding caching is easy.
  46) Make sure dynamic windgrams still work for alpha... add feature to choose type of dynamic windgram?
 
+27 Oct 2018
+ Fighting things because the cron environment for triggering my
+ downloads was wrong.  Second, I had switched to EXT4 on the alpha
+ webserver, but not enough inodes, so switched back to XFS (had a bad
+ experience with a corrupted XFS partition on the machine, which is
+ what made me switch)
+
 20 / 21 Oct 2018
  Trying to get alpha into a state where I can test it.  Fixing windgrams, etc.
 
