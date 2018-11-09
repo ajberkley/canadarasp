@@ -71,6 +71,8 @@
 (defmacro print/run-program (program args)
   (let ((g (gensym)))
     (once-only (program args)
+      (print program)
+      (print args)
       `(with-output-from-program (,g ,program ,args)
 	 (format t "~A ~{~A~^ ~}~%" ,program ,args)
 	 (format t "~A~%" ,g)

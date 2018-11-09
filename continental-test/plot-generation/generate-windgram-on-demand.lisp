@@ -1,7 +1,7 @@
 #!/usr/bin/sbcl --script
 
 (load "~/quicklisp/setup.lisp")
-
+(load "../model-parameters.lisp")
 (require :hunchentoot)
 (require :cl-ppcre)
 (require :cl-fad)
@@ -16,16 +16,6 @@
 (use-package :cl-fad)
 (use-package :local-time)
 (load "utils.lisp")
-
-(defun tile-id (lon lat)
-  (let* ((lon (read-from-string lon))
-	 (lat (read-from-string lat))
-	 (latq (* 2 (floor (/ lat 2.0))))
-	 (lon-floor (floor lon))
-	 (lonq (if (oddp lon-floor) lon-floor (- lon-floor 1))))
-    (assert (< lonq lon (+ 2 lonq)))
-    (assert (< latq lat (+ 2 latq)))
-    (format nil "~A:~A:~A:~A" latq (+ 2 latq) lonq (+ 2 lonq))))
 
 (defparameter *counter* 0)
 
@@ -71,12 +61,12 @@
   (sb-posix:setenv "NCARG_ROOT" *ncarg-root* 1)
   ;; Need to choose the latest files... hrmph.  Scan through files, choose the latest date and the latest hour
   ;; then generate the input_files glob for that
-  (let* ((tile-id (print (tile-id lat lon))))
+  (let* ((tile-id (tile-id lat lon)))
     (destructuring-bind (date run)
 	(find-latest-date (format nil "/mnt/windgram-tiles/hrdps/~A" tile-id))
       (format t "Initialized at ~A run hour ~A~%" date run)
       (let* ((output-filename (format nil "windgram-~A-~A-~A-~A.png" date run lon lat))
-	     (real-output-file (format nil "/mnt/windgrams-data/twoDay/~A/~A"  date output-filename)))
+	     (real-output-file (format nil "/mnt/windgrams-data/twoDay/~A/~A" date output-filename)))
 	(ensure-directories-exist real-output-file)
 	(if (cl-fad:file-exists-p real-output-file)
 	    (progn (format t "File exists!~%")
@@ -86,8 +76,9 @@
 				 (list "-n" "windgram-continental.ncl"
 				       (format nil "input_files=\"/mnt/windgram-tiles/hrdps/~A/hrdps_~A-run~A_*.grib2\"" tile-id date run)
 				       "output_dir=\"/mnt/windgrams-data/\""
+				       "model=\"hrdps\""
 				       (format nil "output_files=\"~A\"" output-filename)
-                                       "plot_days=2"
+                                       "numdays=-1"
 				       (format nil "labels_lats_lons=\";~,4f ~,4f,~A,~A\"" (parse-real-number lat) (parse-real-number lon) lat lon)))
 	      (read-binary-file real-output-file)))))))
 

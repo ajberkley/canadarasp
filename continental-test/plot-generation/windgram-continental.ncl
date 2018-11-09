@@ -205,7 +205,6 @@ begin
    startHour = stringtoint(systemfunc(TZ_str + " date +%H -d "+quote+local_start_time +quote))
    print("First hour of the model in local time " + startHour)
    ;; plot_day = -1 implies do all days, otherwise is a day
-   
    do plot_day = -1, numdays
     if(plot_day.gt.-1)then ; only plot part of the data
       hourFrom = 7 + 24 * plot_day
@@ -229,10 +228,11 @@ begin
      print("Nothing interesting to do continuing...")
      continue;
     end if
-    date_str = TZ_str + " date " + quote + "+%a, %b %d, %Y" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom+1) + "hours UTC" + quote
+    ;; The +2 is a kludge to round us from the 06 runs back to today if we are in PT  UGH.
+    date_str = TZ_str + " date " + quote + "+%a, %b %d, %Y" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom+2) + "hours UTC" + quote
     local_day = systemfunc(date_str)
     print ("local day is " + local_day)
-    file_date_str = TZ_str + " date " + quote + "+%Y-%m-%d" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom+1) + "hours UTC" + quote
+    file_date_str = TZ_str + " date " + quote + "+%Y-%m-%d" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom+2) + "hours UTC" + quote
     file_date = systemfunc(file_date_str)
     if(plot_day.eq.-1) then
       outputfile = output_dir + "/twoDay/" + file_date + "/" + outputfiletemplate
