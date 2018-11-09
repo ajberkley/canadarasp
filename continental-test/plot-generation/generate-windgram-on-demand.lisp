@@ -61,7 +61,7 @@
   (let ((files (cl-fad:list-directory directory)))
     (iter (for file in files)
           (destructuring-bind (date run)
-	      (coerce (nth-value 1 (cl-ppcre:scan-to-strings "hrdps_continental_(.*)-run([0-9]*)_P" (format nil "~A"file))) 'list)
+	      (coerce (nth-value 1 (cl-ppcre:scan-to-strings "hrdps_(.*)-run([0-9]*)_P" (format nil "~A"file))) 'list)
 	    (finding (list date run) maximizing (local-time:timestamp-to-universal (local-time:parse-timestring (format nil "~AT~A:00:00Z" date run))))))))
           
 
@@ -73,7 +73,7 @@
   ;; then generate the input_files glob for that
   (let* ((tile-id (print (tile-id lat lon))))
     (destructuring-bind (date run)
-	(find-latest-date (format nil "/mnt/windgram-tiles/~A" tile-id))
+	(find-latest-date (format nil "/mnt/windgram-tiles/hrdps/~A" tile-id))
       (format t "Initialized at ~A run hour ~A~%" date run)
       (let* ((output-filename (format nil "windgram-~A-~A-~A-~A.png" date run lon lat))
 	     (real-output-file (format nil "/mnt/windgrams-data/twoDay/~A/~A"  date output-filename)))
@@ -84,7 +84,7 @@
 	    (progn 
 	      (print/run-program (format nil "~A/bin/ncl" *ncarg-root*)
 				 (list "-n" "windgram-continental.ncl"
-				       (format nil "input_files=\"/mnt/windgram-tiles/~A/hrdps_continental_~A-run~A_*.grib2\"" tile-id date run)
+				       (format nil "input_files=\"/mnt/windgram-tiles/hrdps/~A/hrdps_~A-run~A_*.grib2\"" tile-id date run)
 				       "output_dir=\"/mnt/windgrams-data/\""
 				       (format nil "output_files=\"~A\"" output-filename)
                                        "plot_days=2"
