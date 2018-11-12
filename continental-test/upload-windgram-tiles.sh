@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Removing unused files"
-(cd /mnt/tiles ; find . -name "*CMC*" -exec rm {} \;)
+(cd /mnt/windgram-tiles ; find . -name "*CMC*" -exec rm {} \;)
 WEBSERVERIP=`./webserver-ip.sh`
 DIRSTOCREATE="mkdir -p html/windgram-tiles "
 DIRSTOCREATE+=`find /mnt/windgram-tiles -type d | sed s/[/]mnt/'html\\/windgram-tiles'/g`
@@ -14,5 +14,5 @@ ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd html/windgram-tiles; find . 
 echo "Making directories on webserver"
 ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP $DIRSTOCREATE
 echo "Uploading files"
-cd /mnt/tiles
+cd /mnt/windgram-tiles
 tar cf - -- * | ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd html/windgram-tiles; tar xf -)"

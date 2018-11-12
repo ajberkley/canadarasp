@@ -66,7 +66,6 @@ END
     scp -i ~/.ssh/montreal.pem locations.js new-locations.js ubuntu@$WEBSERVERIP:html/windgrams
     scp -i ~/.ssh/montreal.pem locations.js new-locations.js ubuntu@$WEBSERVERIP:html/
 fi
-exit 1
 echo "Uploading windgram tiles"
 cd ..
 ./upload-windgram-tiles.sh
