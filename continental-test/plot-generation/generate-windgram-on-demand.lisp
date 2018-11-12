@@ -53,7 +53,6 @@
           (destructuring-bind (date run)
 	      (coerce (nth-value 1 (cl-ppcre:scan-to-strings "hrdps_(.*)-run([0-9]*)_P" (format nil "~A"file))) 'list)
 	    (finding (list date run) maximizing (local-time:timestamp-to-universal (local-time:parse-timestring (format nil "~AT~A:00:00Z" date run))))))))
-          
 
 (defun generate-windgram (lon lat)
   ;; filenames are like: hrdps_continental_2018-09-02-run06_P017.grib2
@@ -66,7 +65,7 @@
 	(find-latest-date (format nil "/mnt/windgram-tiles/hrdps/~A" tile-id))
       (format t "Initialized at ~A run hour ~A~%" date run)
       (let* ((output-filename (format nil "windgram-~A-~A-~A-~A.png" date run lon lat))
-	     (real-output-file (format nil "/mnt/windgrams-data/twoDay/~A/~A" date output-filename)))
+	     (real-output-file (format nil "/mnt/windgrams-data/twoDay/~A" output-filename)))
 	(ensure-directories-exist real-output-file)
 	(if (cl-fad:file-exists-p real-output-file)
 	    (progn (format t "File exists!~%")

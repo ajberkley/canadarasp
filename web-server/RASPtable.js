@@ -366,6 +366,19 @@ function initIt() {
 	map.pressButtonTimer = setTimeout(function() {
             var lat = event.latLng.lat();
             var lng = event.latLng.lng();
+      // because we are about to switch windows we want to tosend a mouseup event
+      map.pressButtonTimer = setTimeout(function(){
+        var lat = event.latLng.lat();
+        var lng = event.latLng.lng();
+        var evt = new MouseEvent("mouseup", {
+           view: window,
+           bubbles: true,
+           cancelable: true,
+           clientX: 20,
+           /* whatever properties you want to give it */
+        });
+        document.dispatchEvent(evt);
+
 	    onDemandWindgram(lat,lng);
 	},1000);
     });
