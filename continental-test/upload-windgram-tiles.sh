@@ -14,5 +14,5 @@ ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd html/windgram-tiles; find . 
 echo "Making directories on webserver"
 ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP $DIRSTOCREATE
 echo "Uploading files"
-cd /mnt/tiles
+cd /mnt/windgram-tiles
 tar cf - -- * | ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd html/windgram-tiles; tar xf -)"
