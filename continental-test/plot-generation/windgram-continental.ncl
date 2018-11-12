@@ -206,12 +206,15 @@ begin
    print("First hour of the model in local time " + startHour)
    ;; plot_day = -1 implies do all days, otherwise is a day
    do plot_day = -1, numdays
-    if(plot_day.gt.-1)then ; only plot part of the data
+    if(plot_day.gt.-1) then ; only plot part of the data
       hourFrom = 7 + 24 * plot_day
       hourTo = 21 + 24 * plot_day
       if(startHour.gt.hourFrom) then  ; model starts in the middle of the day. Skip this day
        print("Partial day available at day " + plot_day + " because startHour is " + startHour + " and hourFrom is " + hourFrom);
        hourFrom = startHour;
+       if(hourFrom.gt.hourTo) then ;; happens when the model starts late in the day
+        hourTo = hourFrom;
+       end if
       end if
       tFrom = hour_to_idx(hourFrom-startHour,False)
       tTo = hour_to_idx(hourTo-startHour,True)
@@ -228,16 +231,22 @@ begin
      print("Nothing interesting to do continuing...")
      continue;
     end if
-    ;; The +2 is a kludge to round us from the 06 runs back to today if we are in PT  UGH.
-    date_str = TZ_str + " date " + quote + "+%a, %b %d, %Y" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom+2) + "hours UTC" + quote
-    local_day = systemfunc(date_str)
-    print ("local day is " + local_day)
-    file_date_str = TZ_str + " date " + quote + "+%Y-%m-%d" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom+2) + "hours UTC" + quote
-    file_date = systemfunc(file_date_str)
-    if(plot_day.eq.-1) then
-      outputfile = output_dir + "/twoDay/" + file_date + "/" + outputfiletemplate
+   if(plot_day.eq.-1) then
+     ;; The +2 is a kludge to round us from the 06 runs back to today if we are in PT  UGH.
+     ;; find which day has the first daylight hour.
+     date_str = TZ_str + " date " + quote + "+%a, %b %d, %Y" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom) + "hours UTC" + quote
+     local_day = systemfunc(date_str)
+     print ("local day is " + local_day)
+     file_date_str = TZ_str + " date " + quote + "+%Y-%m-%d" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom) + "hours UTC" + quote
+     file_date = systemfunc(file_date_str)
+     outputfile = output_dir + "/twoDay/" + outputfiletemplate
     else
-      outputfile = output_dir + "/oneDay/" + file_date + "/" + outputfiletemplate
+     date_str = TZ_str + " date " + quote + "+%a, %b %d, %Y" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom) + "hours UTC" + quote
+     local_day = systemfunc(date_str)
+     print ("local day is " + local_day)
+     file_date_str = TZ_str + " date " + quote + "+%Y-%m-%d" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom) + "hours UTC" + quote
+     file_date = systemfunc(file_date_str)
+     outputfile = output_dir + "/oneDay/" + file_date + "/" + outputfiletemplate
     end if
  
     lstDay := new(numtimes,string,"")        ;put local time into this for labels

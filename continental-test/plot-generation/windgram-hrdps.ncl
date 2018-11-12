@@ -3,7 +3,7 @@
 ;;  locX, locY the index into the data arrays for the point at site_lon, site_lat
 
 smooth = 1;
-numdays=1; ;; 0 and 1
+numdays=2; ;; 0, 1, and 2
 tstridemultiday=2
 toffsetmultiday=1
 function hour_to_idx (hour, roundup)
