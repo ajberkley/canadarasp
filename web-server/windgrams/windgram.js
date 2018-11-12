@@ -51,23 +51,41 @@ function padwithzero(string) {
     }
 }
 
+function setDateSelectorVisibility(visible) {
+    // If visible is true, the date selector is shown, otherwise it is not shown
+    var dateselector = document.getElementById("selectorDiv");
+    if(visible) {
+      dateselector.style.display = "inline";
+      dateselector.style.visibility = "visible";
+    } else {
+      dateselector.style.display = "none";
+      dateselector.style.visibility = "hidden";
+    }
+}
+
 function showWindgram(updatedatequery){
     var wIdx=document.getElementById("location").value
     if (!Loaded[wIdx]) {
-	var yIdx = document.getElementById("Year").selectedIndex;
-	var year = document.getElementById("Year").options[yIdx].value;
-	var mIdx = document.getElementById("Month").selectedIndex;
-	var month = padwithzero(document.getElementById("Month").options[mIdx].value);
-	var dIdx = document.getElementById("Day").selectedIndex;
 	var model = document.getElementById("Model").value;
-	if (dIdx == -1) {return;}
-	var day = padwithzero(document.getElementById("Day").options[dIdx].value);
-	var dateStr = "/" + year + "-" + month + "-" + day;
 	var duration=document.getElementById("plotType").value;
-	Pics[wIdx].src = "/windgrams-data/"+duration+dateStr+"/"+model+"windgram"+wIdx+".png";
+        if(duration=="twoDay") {
+	  Pics[wIdx].src = "/windgrams-data/"+duration+"/"+model+"windgram"+wIdx+".png";
+          setDateSelectorVisibility(false);
+        } else { 
+          setDateSelectorVisibility(true);
+          var yIdx = document.getElementById("Year").selectedIndex;
+	  var year = document.getElementById("Year").options[yIdx].value;
+	  var mIdx = document.getElementById("Month").selectedIndex;
+	  var month = padwithzero(document.getElementById("Month").options[mIdx].value);
+	  var dIdx = document.getElementById("Day").selectedIndex;
+	  if (dIdx == -1) {return;}
+	  var day = padwithzero(document.getElementById("Day").options[dIdx].value);
+	  var dateStr = "/" + year + "-" + month + "-" + day;
+          Pics[wIdx].src = "/windgrams-data/"+duration+dateStr+"/"+model+"windgram"+wIdx+".png";
+        }
 	Loaded[wIdx] = true;
     }
-    console.log(Pics[wIdx].src);
+    //console.log(Pics[wIdx].src);
     document.getElementById('wframe').src = Pics[wIdx].src;
     UpdateQueryString(updatedatequery);
 }
