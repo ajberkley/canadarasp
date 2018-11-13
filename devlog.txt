@@ -1,5 +1,6 @@
 ﻿Upgrade and development notes
 TODO
+ -1) Fix the missing windgrams???!!!
  0) Hours on x-axis for multiday GDPS windgrams broken
  1) Fix rain for GDPS
  2) Add numbers to the display (generate scale json file and use canvas to decode PNGs).  See compact PNGs.
