@@ -82,7 +82,7 @@
 <table border="1px solid black">
   <tr height=10vh max-height=100px width=100vw>
     <td>
-      <small>Map local time</small><br>
+      <small><div id="timezone">Map local time</div></small>
       <select title="Date/Time" id="datetime" size="5">
 	<option></option>
       </select>
@@ -116,10 +116,11 @@
       <small>Data from: Environment and Climate Change Canada <a href="http://www.weatheroffice.gc.ca/grib/grib2_HRDPS_HR_e.html">HRDPS</a> model</small><br/>
       </small>
       <small><a href="windgrams/"> <b>Windgrams only page</b></a><br/></small>
-      <small><font color=red>Select model below (GDPS for global coverage, HRDPS for Canada)</font></small><br/> <select title="Model" id="model" size="1" >
-        <option>gdps</option>
+      <small><font color=red>Select model</font>
+        <select title="Model" id="model" size="1" >
         <option>hrdps</option>
-      </select><br/>
+        <option>gdps</option>
+      </select> <font color=red>(GDPS = global, HRDPS = Canada)</font></small><br/>
       <!-- <small>Press and hold on the map to generate dynamic windgram</small> -->
       
       
