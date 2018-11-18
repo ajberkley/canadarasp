@@ -7,6 +7,11 @@ SHUTDOWN=${1:-false}
 PATH=$PATH:/home/ubuntu/canadarasp/aws-utils:/home/ubuntu/.local/bin
 MY_INSTANCE_ID=`get-my-instance-id.sh`
 MODEL=`aws-read-tag.sh $MY_INSTANCE_ID model`
+if [ $MODEL == "none" ]; then 
+ echo No model specified, debugging mode enabled
+ exit 1;
+fi
+exit 1
 export MODEL=${MODEL:-"gdps"}
 echo Running RASP for model $MODEL, SHUTDOWN=$SHUTDOWN
 source ./model-parameters.sh $MODEL

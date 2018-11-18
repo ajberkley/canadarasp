@@ -16,7 +16,7 @@ for i in `seq 0 1 5`;
  YEAR=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%Y`
  MONTH=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%m`
  DAY=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%d`
- mkdir -p $OUT_DIR/twoDay/$YEAR-$MONTH-$DAY
+ #mkdir -p $OUT_DIR/twoDay/$YEAR-$MONTH-$DAY
  mkdir -p $OUT_DIR/oneDay/$YEAR-$MONTH-$DAY
 done
 echo UTC starting time $UTCYEAR-$UTCMONTH-$UTCDAY $HOUR
