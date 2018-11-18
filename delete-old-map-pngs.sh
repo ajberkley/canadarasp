@@ -13,7 +13,9 @@ function deleteold {
   echo There are now $NUMDIRS directories remaining
  done
 }
-(cd /mnt/map-pngs
+(cd /mnt/map-pngs ;
+ if [ `pwd` == "/mnt/map-pngs" ]; then
   for DIR in * ; do
    (cd $DIR ; deleteold )
-  done)
+  done
+ fi)
