@@ -3,7 +3,7 @@ source ./model-parameters.sh $MODEL
 WEBSERVERIP=`./webserver-ip.sh`
 BASEDIR=`echo $PNGDIR | sed s/[/]mnt/html/g`
 echo "Deleting old files"
-ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd canadarasp ; ./delete-old-map-pngs.sh"
+ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd canadarasp ; ./delete-old-map-pngs.sh)"
 echo "Uploading files to $WEBSERVERIP to directory $BASEDIR"
 ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP mkdir -p $BASEDIR
 DIRSTOCREATE+=`find $PNGDIR -type d | sed s/[/]mnt/html/g`
