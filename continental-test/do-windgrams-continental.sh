@@ -34,7 +34,8 @@ if [ -z $NOCALCULATE ]; then
 fi
 # Now should just use tar to help?
 if [ -z $NOUPLOAD ]; then 
-  (cd /mnt/windgrams-data ; tar cf - -- * ) | ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd html/windgrams-data; tar xf -)"
+  echo uploading windgrams
+  (cd /mnt/windgrams-data ; tar cf - -- * | ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd html/windgrams-data; tar xf -)")
 fi
 ##############################################################################################
 # create a javascript version of the location.txt file
