@@ -16,4 +16,4 @@ tar cf - * | ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd $BASEDIR; tar x
 echo "Done uploading files, updating latest link"
 ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd $BASEDIR; rm -f latest ; ln -s `ls -1rt | tail -1` latest )"
 echo "Deleting old map-pngs again"
-ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd canadarasp ; ./delete-old-map-pngs.sh"
+ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd canadarasp ; ./delete-old-map-pngs.sh)"
