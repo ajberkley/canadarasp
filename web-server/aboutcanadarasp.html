@@ -17,7 +17,7 @@
   <h1>What we do</h1> This site provides two types of visualizations from the output of the continental
   run of the High Resolution Deterministic Prediction System
   (<a href="https://weather.gc.ca/grib/grib2_HRDPS_HR_e.html">HRDPS</a>),
-  a weather model run by Environment and Climate Change Canada.  The most popular visualization is a <b><a href="/windgrams">windgram</a></b> which shows a slice through the atmosphere at a single location.  Then there are <b><a href="/">maps</a></b> which show a single piece of information about the atmosphere overlaid on a map.  Limited documentation can be found <a href="parameterdescription.html">here</a>.<p>
+  a weather model run by Environment and Climate Change Canada as well as the Global Determinstic Prediction System (<a href ="https://weather.gc.ca/model_forecast/global_e.html">GDPS</a>).  The most popular visualization is a <b><a href="/windgrams">windgram</a></b> which shows a slice through the atmosphere at a single location.  Then there are <b><a href="/">maps</a></b> which show a single piece of information about the atmosphere overlaid on a map.  Limited documentation can be found <a href="parameterdescription.html">here</a>.<p>
 
   <h1>History</h1>
 
@@ -73,7 +73,7 @@ Move away from google maps to something like Leaflet.
 <li>
 Add some more weather models: GFS for another global model and NAM3 to cover with high resolution the rest of the United States of America.
 <li>
-Add more complete on-demand windgram generation (there is a limited implementation available off the main map page).  Add a better interface to this (long press, or context menu).
+Add more complete on-demand windgram generation (there is a limited implementation available off the main map page).  Add a better interface to this (context menu to select days, model, etc).
 <li>
 Maybe change to a prettier javascript front-end viewer like windy or ventusky.
 If you are a web developer with a talent for making nice interfaces, I could sure use some help.
@@ -81,10 +81,12 @@ If you are a web developer with a talent for making nice interfaces, I could sur
 <li>
 Also look more closely at better ways to present estimated top of lift with sensitivity information.
 <li>
-More compact output files for the map page and a smoother interface.
+  More compact output files for the map page and a smoother interface.
+  <li> Fix some minor bugs in the windgram generator (numbers in the wrong spot on the time axis and the color legend bar is a bit messed up sometimes).
 </ol>
-<h2>Changelog</h2>
-<b>Oct - Nov 2019 ajb</b>  Added global GDPS model to alpha.canadarasp.com.  Modified map and windgrams to use local time not fixed pacific time.  Slight changes to interface.<p>
+  <h2>Changelog</h2>
+  <b>18 November 2018 ajb</b> Moved the alpha runs to production -- you now have global coverage available on www.canadarasp.com.  I haven't plugged in any windgrams globally as I don't find them that useful unfortunately.  You can look at them by selecting GDPS from the windgram page.  I'd be happy to add some of our global flying spots that aren't already covered by a RASP site.  You can access the old infrastructure at old.canadarasp.com for the next couple weeks in case something goes wrong. <p>
+<b>Oct - Nov 2018 ajb</b>  Added global GDPS model to alpha.canadarasp.com.  Modified map and windgrams to use local time not fixed pacific time.  Slight changes to interface.<p>
 <b>9 September 2018 ajb</b> Shutdown old.canadarasp.com and the old generation infrastructure.  Added dynamic windgram generation to <a href="http://www.canadarasp.com/windgrams-continental/select-windgram.htm">windgram selector page</a>, changed map interface for dynamic windgrams from an enable checkbox to a long press on the map surface.  Please send me any feedback you have... it's a long winter coming up.<p>
 <b>6 September 2018 ajb</b> Fixed surface dewpoint (I am plotting dew point depression in the new maps), resurrected the average thermal strength plot.  Did final comparision versus the previous production runs.  Moved the main website to my new Amazon webserver and have rolled out what was the alpha code to production.  <del>The old maps and windgrams will continue to run on <a href="http://old.canadarasp.com">old.canadarasp.com</a> for a few more days until I'm sure everything is working well, and then they will be shut down.</del><p>
 <b>3 September 2018 ajb</b> Better wind arrow drawing, scales as you zoom a bit. Working on clipping wind to terrain.  Got the rain map back and switched surface pressure map to the correct source (surface pressure MSL).  DNS service is now Amazon.  www.canadarasp.com is the old production server, and alpha.canadarasp.com is the new testing domain.  I will switch the alpha to production in a few days after I make sure the latest changes are stable.</p>
