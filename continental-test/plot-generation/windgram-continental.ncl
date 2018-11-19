@@ -216,10 +216,13 @@ begin
         hourTo = hourFrom;
        end if
       end if
+      print("hourFrom is " + hourFrom + " hourTo is " + hourTo + " startHour is " + startHour);
       tFrom = hour_to_idx(hourFrom-startHour,False)
       tTo = hour_to_idx(hourTo-startHour,True)
-      hourFrom = taus(tFrom);
-      hourTo = taus(tTo);
+      blarg = (/tFrom,numtimes-1/);
+      hourFrom = taus(min(blarg));
+      blarg = (/tTo,numtimes-1/);
+      hourTo = taus(min(blarg));
     else
       hourFrom = taus(0)
       hourTo = taus(numtimes-1)
@@ -227,7 +230,7 @@ begin
       tTo=numtimes-1
     end if
     print("For day " + plot_day + " we will plot from model hour " + hourFrom + " to hour " + hourTo)
-    if((tTo-tFrom) .lt. 5)
+    if((hourTo-hourFrom) .lt. 5)
      print("Nothing interesting to do continuing...")
      continue;
     end if

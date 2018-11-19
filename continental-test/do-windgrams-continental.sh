@@ -13,11 +13,10 @@ mkdir -p $OUT_DIR/twoDay
 mkdir -p $OUT_DIR/oneDay
 for i in `seq 0 1 5`;
  do
- YEAR=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%Y`
- MONTH=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%m`
- DAY=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%d`
- #mkdir -p $OUT_DIR/twoDay/$YEAR-$MONTH-$DAY
- mkdir -p $OUT_DIR/oneDay/$YEAR-$MONTH-$DAY
+ YEARA=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%Y`
+ MONTHA=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%m`
+ DAYA=`date -d "$UTCYEAR-$UTCMONTH-$UTCDAY $HOUR UTC +$i day" +%d`
+ mkdir -p $OUT_DIR/oneDay/$YEARA-$MONTHA-$DAYA
 done
 echo UTC starting time $UTCYEAR-$UTCMONTH-$UTCDAY $HOUR
 
@@ -34,7 +33,8 @@ if [ -z $NOCALCULATE ]; then
 fi
 # Now should just use tar to help?
 if [ -z $NOUPLOAD ]; then 
-  (cd /mnt/windgrams-data ; tar cf - -- * ) | ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd html/windgrams-data; tar xf -)"
+  echo uploading windgrams
+  (cd /mnt/windgrams-data ; tar cf - -- * | ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd html/windgrams-data; tar xf -)")
 fi
 ##############################################################################################
 # create a javascript version of the location.txt file
