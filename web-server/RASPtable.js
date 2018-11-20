@@ -130,7 +130,7 @@ function step () {
 function callWithTimeZone(callback) {
     var pos = map.getCenter();
     var timestamp = Math.round(Date.now()/1000);
-    var request = "https:/timezone?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp+"&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks";
+    var request = "/timezone?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp+"&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks";
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 1000; // 1 second before timeout
     xhttp.onreadystatechange = function() {
@@ -147,8 +147,9 @@ function callWithTimeZone(callback) {
 	    }
 	}
     };
-    xhttp.ontimeout = function (e) { //console.log("Didn't get timezone information, leaving it unchanged");
+    xhttp.ontimeout = function (e) { console.log("Didn't get timezone information, leaving it unchanged");
 				     callback(undefined); };
+    xhttp.onerror = function (e) { console.log("Error getting timezone"); console.log(e); callback(undefined); };
     xhttp.open("GET", request, true);
     xhttp.send(); 
 }
