@@ -1,6 +1,10 @@
 ﻿Upgrade and development notes
 TODO
  0) Hours on x-axis for multiday GDPS windgrams broken
+ 0.5) First hour on windgram title bar is off by one (kludge)
+ 0.75) One day windgrams also have the wrong hours...
+ 0.99) On single days, don't do the colored time things...
+ 1.1) record/commit on dev system
  1) Fix rain for GDPS
  2) Add numbers to the display (generate scale json file and use canvas to decode PNGs).  See compact PNGs.
  5) Add jetstream visualizer
