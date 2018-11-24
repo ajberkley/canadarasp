@@ -130,7 +130,7 @@ function step () {
 function callWithTimeZone(callback) {
     var pos = map.getCenter();
     var timestamp = Math.round(Date.now()/1000);
-    var request = "http:/timezone?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp+"&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks";
+    var request = "/timezone?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp+"&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks";
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 1000; // 1 second before timeout
     xhttp.onreadystatechange = function() {
@@ -147,8 +147,9 @@ function callWithTimeZone(callback) {
 	    }
 	}
     };
-    xhttp.ontimeout = function (e) { //console.log("Didn't get timezone information, leaving it unchanged");
+    xhttp.ontimeout = function (e) { console.log("Didn't get timezone information, leaving it unchanged");
 				     callback(undefined); };
+    xhttp.onerror = function (e) { console.log("Error getting timezone"); console.log(e); callback(undefined); };
     xhttp.open("GET", request, true);
     xhttp.send(); 
 }
@@ -178,6 +179,9 @@ function set_datetime_options (offset_in) {
     }
     //console.log("date time being processed for UTC offset of " + offset);
 
+            var offsethourstring = "Timezone: UTC"+(offsethours<0?"":"+")+offsethours;
+            document.getElementById("timezone").innerHTML = offsethourstring;
+            document.getElementById("timezone").style.display = "block";
     if(oldindex == -1) { // We need to do an initial population of the options.
 	//console.log("Resetting datetime options")
 	while (datetime.options.length) {
@@ -195,7 +199,7 @@ function set_datetime_options (offset_in) {
 	    var monthlocal = padwithzero(localDate.getUTCMonth() + 1);
 	    var yearlocal = localDate.getUTCFullYear();
 	    if(model() != "gdps" || ((hourutc % 3) == 0)) { // GDPS is every 3 hours
-		var localtime = yearlocal+"-"+monthlocal+"-"+daylocal+" "+padwithzero(hourlocal)+":"+padwithzero(offsetmins)+ " UTC"+(offsethours<0?"":"+")+offsethours;
+		var localtime = yearlocal+"-"+monthlocal+"-"+daylocal+" "+padwithzero(hourlocal)+":"+padwithzero(offsetmins); //+ " UTC"+(offsethours<0?"":"+")+offsethours;
 		var utctime = yearutc+"-"+monthutc+"-"+dayutc+" "+padwithzero(hourutc)+"00";
 		var option = new Option(localtime,utctime);
 		option.date = newDate;
@@ -219,7 +223,7 @@ function set_datetime_options (offset_in) {
 	    var monthlocal = padwithzero(localDate.getUTCMonth() + 1);
 	    var yearlocal = localDate.getUTCFullYear();
 	    //console.log("Processing option " + j + " with old local time " + datetime.options[j].text + " and UTC time " + datetime.options[j].value);
-	    datetime.options[j].text = yearlocal+"-"+monthlocal+"-"+daylocal+" "+padwithzero(hourlocal)+":"+padwithzero(offsetmins)+ " UTC"+(offsethours<0?"":"+") + offsethours;
+	    datetime.options[j].text = yearlocal+"-"+monthlocal+"-"+daylocal+" "+padwithzero(hourlocal)+":"+padwithzero(offsetmins);
 	    //console.log("new local time is " + datetime.options[j].text);
 	}
     }

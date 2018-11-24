@@ -9,7 +9,7 @@
   <meta http-equiv="Expires" content="0" />
 <!--
   Canada RASP tiled map viewer
-    ajb September 2018 added GDPS
+    ajb September/November 2018 added GDPS
     ajb August 2018 HRDPS-continental coverage
     ajb May-June 2018 switched to tile based viewer
     ajb Mar 2013 heavily modified from
@@ -20,9 +20,7 @@
     to both this viewer and RASP-UK parametrisation.
 -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkSvQdD6DtFPPSHmITPmacGqirGtNSqoc"> </script> 
-  <!-- <script src="https://maps.googleapis.com/maps/api/js?v=3"> </script>  -->
   <script type="text/javascript" src="real-tile-locs.js"> </script>
-  
   <script type="text/javascript" src="paramList.js?v=3"></script>
   <script type="text/javascript" src="RASPtable.js?v=6"></script>
   <script type="text/javascript" src="ExtDraggableObject.js"></script>
@@ -82,7 +80,7 @@
 <table border="1px solid black">
   <tr height=10vh max-height=100px width=100vw>
     <td>
-      <small>Map local time</small><br>
+      <small><div id="timezone">Map local time</div></small>
       <select title="Date/Time" id="datetime" size="5">
 	<option></option>
       </select>
@@ -116,9 +114,10 @@
       <small>Data from: Environment and Climate Change Canada <a href="http://www.weatheroffice.gc.ca/grib/grib2_HRDPS_HR_e.html">HRDPS</a> model</small><br/>
       </small>
       <small><a href="windgrams/"> <b>Windgrams only page</b></a><br/></small>
-      <small><font color=red>Select model below (GDPS for global coverage, HRDPS for Canada)</font></small><br/> <select title="Model" id="model" size="1" >
-        <option>gdps</option>
-        <option>hrdps</option>
+      <small>Model:</small>
+        <select title="Model" id="model" size="1" >
+        <option value = "hrdps" selected>HRDPS: Canada only</option>
+        <option value = "gdps">GDPS: Global</option>
       </select><br/>
       <!-- <small>Press and hold on the map to generate dynamic windgram</small> -->
       
