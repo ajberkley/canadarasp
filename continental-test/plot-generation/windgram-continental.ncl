@@ -230,8 +230,12 @@ begin
       tTo=numtimes-1
     end if
     print("For day " + plot_day + " we will plot from model hour " + hourFrom + " to hour " + hourTo)
-    if((hourTo-hourFrom) .lt. 5)
+    if((hourTo-hourFrom) .lt. 5) then
      print("Nothing interesting to do continuing...")
+     continue;
+    end if
+    if((hourFrom .gt. 9) .and. (plot_day .gt. -1)) then
+     print("Starts too late in the day, do not use")
      continue;
     end if
    if(plot_day.eq.-1) then
