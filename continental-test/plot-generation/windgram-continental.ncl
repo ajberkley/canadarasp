@@ -234,7 +234,7 @@ begin
      print("Nothing interesting to do continuing...")
      continue;
     end if
-    if((hourFrom .gt. 9) .and. (plot_day .gt. -1)) then
+    if(((hourFrom % 24) .gt. 9) .and. (plot_day .gt. -1)) then
      print("Starts too late in the day, do not use")
      continue;
     end if
