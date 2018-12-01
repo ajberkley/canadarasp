@@ -234,11 +234,11 @@ begin
      print("Nothing interesting to do continuing...")
      continue;
     end if
-    if(((hourFrom % 24) .gt. 9) .and. (plot_day .gt. -1)) then
-     print("Starts too late in the day, do not use")
+    if((startHour .gt. 9) .and. (plot_day .eq. 0)) then
+     print("First day starts too late in the day, do not use")
      continue;
     end if
-   if(plot_day.eq.-1) then
+    if(plot_day.eq.-1) then
      ;; The +2 is a kludge to round us from the 06 runs back to today if we are in PT  UGH.
      ;; find which day has the first daylight hour.
      date_str = TZ_str + " date " + quote + "+%a, %b %d, %Y" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom) + "hours UTC" + quote
