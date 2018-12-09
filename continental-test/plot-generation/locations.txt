@@ -149,3 +149,4 @@ Sea to Sky, Cloudburst, 49.919741, -123.25938, 4500, 0
 South Okanagan, Heldey Rustic LZ,          49.297822, -120.028505,         4500, 0
 Alberta, Grande Cache Ab,           53.888443, -119.120118,         4500, 0
 Montreal, Yamaska, 45.455900, -72.878046, 3800, 0
+Vancouver Island, Mt Brenton,    48.8952675,-123.8232374,        3800, 0
