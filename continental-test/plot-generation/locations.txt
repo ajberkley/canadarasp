@@ -151,3 +151,4 @@ Alberta, Grande Cache Ab,           53.888443, -119.120118,         4500, 0
 Montreal, Yamaska, 45.455900, -72.878046, 3800, 0
 Vancouver Island, Mt Brenton,    48.8952675,-123.8232374,        3800, 0
 South Okanagan, Macintyre Bluff,       49.252102,-119.535756,       4500, 0
+Alberta, Prairie Mountain,            50.8886, -114.8081,      4500, 0
