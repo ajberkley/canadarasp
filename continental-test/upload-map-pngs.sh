@@ -2,6 +2,8 @@
 source ./model-parameters.sh $MODEL
 WEBSERVERIP=`./webserver-ip.sh`
 BASEDIR=`echo $PNGDIR | sed s/[/]mnt/html/g`
+echo "Archiving old maps for BC"
+ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd canadarasp ; ./archive-old-map-pngs.sh)"
 echo "Deleting old files"
 ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd canadarasp ; ./delete-old-map-pngs.sh)"
 echo "Uploading files to $WEBSERVERIP to directory $BASEDIR"
