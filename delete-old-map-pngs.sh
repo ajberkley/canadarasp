@@ -2,8 +2,8 @@
 function deleteold {
  echo Scanning for old MAP PNGS from `pwd`
  NUMDIRS=`ls -1rt | wc | awk '{print $1}'`
- echo There are $NUMDIRS directories here, we only want 2
- while [ $NUMDIRS -gt 2 ]; do
+ echo There are $NUMDIRS directories here, we only want 3
+ while [ $NUMDIRS -gt 3 ]; do
   DIRNAME=`ls -1rt | head -1`
   echo Deleting MAP PNGS from $DIRNAME
   COMMAND="rm -rf $DIRNAME"
