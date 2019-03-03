@@ -740,5 +740,5 @@ Doesn't work, tried a bunch of stuff.  UGH.  So, let's split the files before wa
 			   (ignore-errors (handle param full-name filelabel type color-scale units scale)))) params-and-names)))))
   
 (if (string= (cadr *posix-argv*) "--only-generate-header-footer")
-    (map nil (lambda (hour) (do-it-if-necessary hour :only-generate-header-footer t)) (iter (for hour from *timestart* to *timestop* by 8) (collect hour)))
+    (map nil (lambda (hour) (do-it-if-necessary hour :only-generate-header-footer t)) (remove-duplicates (append (list *timestop*) (iter (for hour from *timestart* to *timestop* by 8) (collect hour)))))
     (map nil (lambda (hour) (do-it-if-necessary (parse-integer hour))) (cdr *posix-argv*)))
