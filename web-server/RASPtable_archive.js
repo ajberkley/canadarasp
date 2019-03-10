@@ -239,18 +239,41 @@ function daysInMonth(iMonth, iYear) {
 }
 
 function set_number_of_days() {
-    year=document.getElementById("yearpicker").value;
-    month=document.getElementById("monthpicker").value;
-    day = document.getElementById("daypicker");
+    var year=document.getElementById("yearpicker").value;
+    var month=document.getElementById("monthpicker").value;
+    var day=document.getElementById("daypicker");
+    var oldIndex=day.options.selectedIndex;
+    var num_days=daysInMonth(month-1, year);
+    // console.log('oldIndex was ' + oldIndex + ' and num_days is ' + num_days)
     while(day.options.length > 0) {
 	day.options.remove(0);
     }
-    for (j = 1 ; j <= daysInMonth(month-1, year) ; j++) {
+    for (j = 1 ; j <= num_days ; j++) {
 	d = document.createElement("OPTION");
 	d.label = j;
 	d.text = padwithzero(j);
 	day.options.add(d);
+	// console.log('Added ' + d)
     }
+    // console.log('day.options.length is ' + day.options.length)
+    // day.options[Math.min(oldIndex, num_days-1)].selected = 'selected';
+    day.options.selectedIndex = Math.min(oldIndex, num_days-1)
+    // console.log('tried to set to ' + Math.min(oldIndex, num_days) + ' day.options.selectedIndex is ' + day.options.selectedIndex)
+}
+
+function set_archive_hours(offset_in) {
+    if(offset_in != undefined) {
+	offset = offset_in;
+    } else {
+	offset = getTimeZoneOffset();  // backup if we can't talk to Google
+    }
+    var offsethours = Math.round(offset/60);
+    var offsetmins = offset % 60;
+
+    var offsethourstring = "YYYY/MM/DD UTC"+(offsethours<0?"":"+")+offsethours;
+    document.getElementById("archive_offset_display").innerHTML = offsethourstring;
+    document.getElementById("archive_offset_display").style.display = "block";
+
 }
 
 function set_datetime_and_load_images (offset) {
@@ -259,6 +282,7 @@ function set_datetime_and_load_images (offset) {
 	document.getElementById("archivetimepicker").style.visibility = "visible"
 	document.getElementById("normaltimepicker").style.height = "0px"
 	document.getElementById("normaltimepicker").style.visibility = "hidden"
+	set_archive_hours(offset)
     } else {
 	document.getElementById("archivetimepicker").style.height = "0px"
 	document.getElementById("normaltimepicker").style.height = ""
@@ -279,14 +303,14 @@ function findIndexOfOptionValue(el, option) {
 
 function update_archive_date() {
     set_number_of_days();
-    doChange();
+    callWithTimeZone((function(offset) { set_archive_hours(offset); doChange(); }))
 }
 
 function initIt() {
     document.getElementById("model").onchange = (function () { document.getElementById("datetime").selectedIndex = -1; callWithTimeZone(set_datetime_and_load_images); setupParamset(); });
     document.getElementById("monthpicker").onchange = update_archive_date;
     document.getElementById("yearpicker").onchange = update_archive_date;
-    document.getElementById("daypicker").onchange = doChange;
+    document.getElementById("daypicker").onchange = update_archive_date;
     document.getElementById("hourpicker").onchange = doChange;
     document.body.style.overflow = "auto";
     oldParam = document.getElementById("Param").options.value;
@@ -697,6 +721,8 @@ function tileName(tile,splittime,param,step) {
 function getSelectedValue(el) {
     var element = document.getElementById(el)
     var index = element.selectedIndex
+    // var real_index = Math.min(index, element.options.length-1)
+    // console.log('index was ' + index + ' but options had length ' + element.options.length + ' so we used ' + real_index);
     return element.options[index].value
 }
 
