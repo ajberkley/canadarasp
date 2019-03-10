@@ -1,5 +1,7 @@
 #!/bin/bash
-find /mnt/map-pngs/hrdps -name "-122:-120:48:50" -print > /tmp/file_list
+find /mnt/map-pngs/hrdps -name "-124:-122:48:50" -print > /tmp/file_list
+find /mnt/map-pngs/hrdps -name "-124:-122:50:52" -print >> /tmp/file_list
+find /mnt/map-pngs/hrdps -name "-122:-120:48:50" -print >> /tmp/file_list
 find /mnt/map-pngs/hrdps -name "-122:-120:50:52" -print >> /tmp/file_list
 find /mnt/map-pngs/hrdps -name "-120:-118:48:50" -print >> /tmp/file_list
 find /mnt/map-pngs/hrdps -name "-120:-118:50:52" -print >> /tmp/file_list
