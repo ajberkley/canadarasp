@@ -234,16 +234,73 @@ function set_datetime_options (offset_in) {
     }
 }
 
+function daysInMonth(iMonth, iYear) {
+    return 32 - new Date(iYear, iMonth, 32).getDate();
+}
+
+function set_number_of_days() {
+    year=document.getElementById("yearpicker").value;
+    month=document.getElementById("monthpicker").value;
+    day = document.getElementById("daypicker");
+    while(day.options.length > 0) {
+	day.options.remove(0);
+    }
+    for (j = 1 ; j <= daysInMonth(month-1, year) ; j++) {
+	d = document.createElement("OPTION");
+	d.label = j;
+	d.text = padwithzero(j);
+	day.options.add(d);
+    }
+}
+
 function set_datetime_and_load_images (offset) {
-    set_datetime_options(offset);
+    if(model()=="hrdps archive"){
+	document.getElementById("archivetimepicker").style.height = ""
+	document.getElementById("archivetimepicker").style.visibility = "visible"
+	document.getElementById("normaltimepicker").style.height = "0px"
+	document.getElementById("normaltimepicker").style.visibility = "hidden"
+    } else {
+	document.getElementById("archivetimepicker").style.height = "0px"
+	document.getElementById("normaltimepicker").style.height = ""
+	document.getElementById("normaltimepicker").style.visibility = "visible"
+	document.getElementById("archivetimepicker").style.visibility = "hidden"
+	set_datetime_options(offset);
+    }
+    doChange();
+}
+
+function findIndexOfOptionValue(el, option) {
+    for (i = 0 ; i < el.options.length ; i++) {
+	if(option == el.options[i].value) {
+	    return i;
+	}
+    }
+}
+
+function update_archive_date() {
+    set_number_of_days();
     doChange();
 }
 
 function initIt() {
     document.getElementById("model").onchange = (function () { document.getElementById("datetime").selectedIndex = -1; callWithTimeZone(set_datetime_and_load_images); setupParamset(); });
+    document.getElementById("monthpicker").onchange = update_archive_date;
+    document.getElementById("yearpicker").onchange = update_archive_date;
+    document.getElementById("daypicker").onchange = doChange;
+    document.getElementById("hourpicker").onchange = doChange;
     document.body.style.overflow = "auto";
     oldParam = document.getElementById("Param").options.value;
     var T = new Date();      // Instantiate a Date object
+    year=document.getElementById("yearpicker")
+    month=document.getElementById("monthpicker")
+    day=document.getElementById("daypicker")
+    hour=document.getElementById("hourpicker")
+    year.selectedIndex = findIndexOfOptionValue(year,T.getFullYear())
+    month.selectedIndex = findIndexOfOptionValue(month,T.getMonth()+1)
+    day.selectedIndex = findIndexOfOptionValue(day, T.getDate())
+    hour.selectedIndex = 10
+
+    
     var lat = 49.05
     var lon = -122.18;
     var zoom = 10;
@@ -637,11 +694,32 @@ function tileName(tile,splittime,param,step) {
   return baseName;
 }
 
+function getSelectedValue(el) {
+    var element = document.getElementById(el)
+    var index = element.selectedIndex
+    return element.options[index].value
+}
+
 function getSplitTime() {
-  var datetimeidx = document.getElementById("datetime").selectedIndex;
-  var tValue  = document.getElementById("datetime").options[datetimeidx].value;
-  var splittime = tValue.split(" ");
-  return splittime;
+    // returns ["yyyy-mm-dd" "0800"] in UTC
+    if(model()=="hrdps archive") {
+	var offset = getTimeZoneOffset();
+	var year = getSelectedValue("yearpicker")
+	var month = getSelectedValue("monthpicker")
+	var day = getSelectedValue("daypicker")
+	var hour = getSelectedValue("hourpicker")
+	var D = new Date()
+	D.setFullYear(year, month, day)
+	D.setHours(hour/100 - offset/60)
+	var splittime = [D.getFullYear() + "-" + padwithzero(D.getMonth()) + "-" + padwithzero(D.getDate()), padwithzero(D.getHours()) + "00"];
+	// console.log(splittime)
+	return splittime
+    } else {
+	var datetimeidx = document.getElementById("datetime").selectedIndex;
+	var tValue  = document.getElementById("datetime").options[datetimeidx].value;
+	var splittime = tValue.split(" ");
+	return splittime;
+    }
 }
 
 function getParam() {
@@ -689,7 +767,7 @@ function loadImages()
     })
     // the head and foot are the same for all tiles (if I generate them right)
     headerfooterurlbase = getBasedir() + param + "_" + splittime[0];
-    console.log('Looking for header foot in ' + headerfooterurlbase)
+    // console.log('Looking for header foot in ' + headerfooterurlbase)
     document.getElementById("theTitle").src = headerfooterurlbase + ".head.png" ;
 //    console.log("Header should be in " + headerfooterurlbase + ".head.png")
     document.getElementById("theTitle").style.maxHeight = "48px";

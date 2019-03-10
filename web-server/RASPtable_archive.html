@@ -66,6 +66,10 @@
     font-weight: bold;
     }
 
+    #archivetimepicker {
+    visibility: hidden;
+    }
+    
     #imgBox{
     position:relative;
     }
@@ -81,10 +85,92 @@
 <table border="1px solid black">
   <tr height=10vh max-height=100px width=100vw>
     <td>
+      <div id="normaltimepicker">
       <small><div id="timezone">Map local time</div></small>
       <select title="Date/Time" id="datetime" size="5">
 	<option></option>
       </select>
+      </div>
+      <div id="archivetimepicker">
+	<small>YYYY/MM/DD (PT)</small><br>
+	<select title="Year" id="yearpicker" size="1">
+	  <option value="2019">2019</option>
+	</select>
+	<select title="Month" id="monthpicker" size="1">
+	  <option value="01">01</option>
+	  <option value="02">02</option>
+	  <option value="03">03</option>
+	  <option value="04">04</option>
+	  <option value="05">05</option>
+	  <option value="06">06</option>
+	  <option value="07">07</option>
+	  <option value="08">08</option>
+	  <option value="09">09</option>
+	  <option value="10">10</option>
+	  <option value="11">11</option>
+	  <option value="12">12</option>
+	</select>
+	<select title="Day" id="daypicker" size="1">
+	  <option value="01">01</option>
+	  <option value="02">02</option>
+	  <option value="03">03</option>
+	  <option value="04">04</option>
+	  <option value="05">05</option>
+	  <option value="06">06</option>
+	  <option value="07">07</option>
+	  <option value="08">08</option>
+	  <option value="09">09</option>
+	  <option value="10">10</option>
+	  <option value="11">11</option>
+	  <option value="12">12</option>
+	  <option value="13">13</option>
+	  <option value="14">14</option>
+	  <option value="15">15</option>
+	  <option value="16">16</option>
+	  <option value="17">17</option>
+	  <option value="18">18</option>
+	  <option value="19">19</option>
+	  <option value="20">20</option>
+	  <option value="21">21</option>
+	  <option value="22">22</option>
+	  <option value="23">23</option>
+	  <option value="24">24</option>
+	  <option value="25">25</option>
+	  <option value="26">26</option>
+	  <option value="27">27</option>
+	  <option value="28">28</option>
+	  <option value="29">29</option>
+	  <option value="30">30</option>
+	  <option value="31">31</option>
+	</select>
+	<br>
+	<select title="hour" id="hourpicker" size="1">
+	  <option value="0000">00:00</option>
+	  <option value="0100">01:00</option>
+	  <option value="0200">02:00</option>
+	  <option value="0300">03:00</option>
+	  <option value="0400">04:00</option>
+	  <option value="0500">05:00</option>
+	  <option value="0600">06:00</option>
+	  <option value="0700">07:00</option>
+	  <option value="0800">08:00</option>
+	  <option value="0900" selected>09:00</option>
+	  <option value="1000">10:00</option>
+	  <option value="1100">11:00</option>
+	  <option value="1200">12:00</option>
+	  <option value="1300">13:00</option>
+	  <option value="1400">14:00</option>
+	  <option value="1500">15:00</option>
+	  <option value="1600">16:00</option>
+	  <option value="1700">17:00</option>
+	  <option value="1800">18:00</option>
+	  <option value="1900">19:00</option>
+	  <option value="2000">20:00</option>
+	  <option value="2100">21:00</option>
+	  <option value="2200">22:00</option>
+	  <option value="2300">23:00</option>
+	</select>
+      </div>
     </td>
     <td>
       <select title="Select Parameter" id="Param" size="6" >
@@ -116,16 +202,13 @@
       </small>
       <small><a href="windgrams/"> <b>Windgrams only page</b></a><br/></small>
       <small>Model:</small>
-        <select title="Model" id="model" size="1" >
+      <select title="Model" id="model" size="1" >
         <option value = "hrdps" selected>HRDPS: Canada only</option>
         <option value = "gdps">GDPS: Global</option>
-        <option value = "hrdps archive">HRDPS: BC archive</option>
+	<option value = "hrdps archive">HRDPS: BC archive</option>
       </select><br/>
       <!-- <small>Press and hold on the map to generate dynamic windgram</small> -->
-      
-      
       <br/>
-      
       <center>
     </td>
     <td width=30%>
