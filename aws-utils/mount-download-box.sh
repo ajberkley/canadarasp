@@ -1,7 +1,7 @@
 #!/bin/bash
-# Create and mount a standard volume on EC2 on $1
+# Create and mount a standard volume on EC2 on $1 unless $1 is not provided
 # First check to make sure a download-box does not exist already
-MNT=${1:-/mnt}
+MNT=${1:-NOMNT}
 export -n VOL_ID=
 export DBOXNAME="download-box-$MODEL"
 echo Going to get a $DBOXNAME and mount it at $MNT
@@ -25,5 +25,7 @@ echo Going to mount $BLK_DEV
 # seems we need to wait a bit...
 sleep 5
 sudo mkdir -p $MNT
-sudo mount $BLK_DEV $MNT
-sudo chown ubuntu.ubuntu $MNT
+if [ "$MNT" -ne "NOMNT" ]; then 
+    sudo mount $BLK_DEV $MNT
+    sudo chown ubuntu.ubuntu $MNT
+fi

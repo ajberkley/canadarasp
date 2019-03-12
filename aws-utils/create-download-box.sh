@@ -24,17 +24,7 @@ else
 fi
 aws ec2 wait volume-available --volume-ids $VOL_ID
 echo $VOL_ID available
-BLK=`lsblk | grep 30G  | awk '{print $1}'`
-export BLK_DEV="/dev/$BLK"
-aws ec2 attach-volume --device $BLK_DEV --instance $MY_INSTANCE_ID --volume-id $VOL_ID
-echo Attaching $VOL_ID to $MY_INSTANCE_ID
-aws ec2 wait volume-in-use --volume-ids $VOL_ID
-# how do I find this one out?
-echo Attached $VOL_ID to $MY_INSTANCE_ID
-export VOL_ID_NO_DASH=`echo $VOL_ID | sed s/-//g`
-# export BLK_DEV="/dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_"$VOL_ID_NO_DASH
-echo Going to mount $BLK_DEV
-# seems we need to wait a bit...
+source ./mount-download-box.sh /$DBOXNAME
 sleep 5
 sudo mkfs.ext4 $BLK_DEV
 sudo mkdir -p $MNT
