@@ -3,6 +3,7 @@
 # Call this as do-rasp-run-continental.sh [ false | true ]
 # If you have already downloaded some data this will not re-download it.
 # You can export NODOWNLOAD=1 to not re-download data, make sure to mount /mnt first
+git pull
 PATH=$PATH:/home/ubuntu/canadarasp/aws-utils:/home/ubuntu/.local/bin
 MY_INSTANCE_ID=`get-my-instance-id.sh`
 SHUTDOWN=`aws-read-tag.sh $MY_INSTANCE_ID shutdown`
@@ -23,6 +24,7 @@ source ./model-parameters.sh $MODEL
 source ./guess-time.sh $MODEL
 ./setup-drives.sh
 echo Moving downloaded data to local disk starting at `date`
+source /home/ubuntu/canadarasp/aws-utils/attach-download-box.sh
 source /home/ubuntu/canadarasp/aws-utils/mount-download-box.sh /download-box
 df
 cd /download-box
