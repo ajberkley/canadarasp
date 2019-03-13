@@ -154,3 +154,6 @@ locations[146]=["Sea to Sky","Cloudburst"];
 locations[147]=["South Okanagan","Heldey Rustic LZ"];
 locations[148]=["Alberta","Grande Cache Ab"];
 locations[149]=["Montreal","Yamaska"];
+locations[150]=["Vancouver Island","Mt Brenton"];
+locations[151]=["South Okanagan","Macintyre Bluff"];
+locations[152]=["Alberta","Prairie Mountain"];
