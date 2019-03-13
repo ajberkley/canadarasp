@@ -25,7 +25,7 @@ echo Going to mount $BLK_DEV
 # seems we need to wait a bit...
 sleep 5
 sudo mkdir -p $MNT
-if [ "$MNT" -ne "NOMNT" ]; then 
+if [ "$MNT" = "NOMNT" ]; then 
     sudo mount $BLK_DEV $MNT
     sudo chown ubuntu.ubuntu $MNT
 fi
