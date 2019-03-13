@@ -1,7 +1,5 @@
 #!/bin/bash
-# Create and mount a standard volume on EC2 on $1 unless $1 is not provided
-# First check to make sure a download-box does not exist already
-MNT=${1:-NOMNT}
+# Attach our download box
 export -n VOL_ID=
 export DBOXNAME="download-box-$MODEL"
 echo Going to get a $DBOXNAME
