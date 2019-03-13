@@ -1,4 +1,5 @@
 /* Canada RASP tiled map viewer
+    ajb March 2019, added archive HRDPS maps for BC
     ajb September 2018, added GDPS
     ajb August 2018, continental coverage!
     ajb May-June 2018
@@ -12,7 +13,7 @@
 */
 
 var opacity_control = "N"; // keep track of whether we initialized the opacity control or not
-
+var archive_mode = false;  // Whether we are browsing archives or not
 var oldParam;
 
 var map;           // stores the google.map
@@ -87,11 +88,15 @@ function setSize() {
     scaleBox.style.position = "relative" ;
 }
 
+function model_is_hrdps() {
+    return(model() == "hrdps" || model() == "hrdps archive")
+}
+
 function setupParamset () {
     var paramel = document.getElementById("Param");
     var idx;
     var newParams;
-    if(model() == "hrdps") { newParams=HRDPSparamListFull; } else { newParams=GDPSparamListFull; };
+    if(model_is_hrdps()) { newParams=HRDPSparamListFull; } else { newParams=GDPSparamListFull; };
     paramel.options = true;   
     for (var i = 0; i < newParams.length; i++) {
 	paramel.options[i] = new Option(newParams[i][2], newParams[i][1]);
@@ -120,7 +125,7 @@ function model () {
 }
 
 function step () {
-    if(model() === "hrdps") {
+    if(model_is_hrdps()) {
 	return 2;
     } else if(model() === "gdps") {
 	return 10;
@@ -172,7 +177,7 @@ function set_datetime_options (offset_in) {
     }
     var offsethours = Math.round(offset/60);
     var offsetmins = offset % 60;
-    if(model() === "hrdps") {
+    if(model_is_hrdps()) {
 	hourfuture = 48;
     } else {
 	hourfuture = 99;
@@ -229,16 +234,97 @@ function set_datetime_options (offset_in) {
     }
 }
 
+function daysInMonth(iMonth, iYear) {
+    return 32 - new Date(iYear, iMonth, 32).getDate();
+}
+
+function set_number_of_days() {
+    var year=document.getElementById("yearpicker").value;
+    var month=document.getElementById("monthpicker").value;
+    var day=document.getElementById("daypicker");
+    var oldIndex=day.options.selectedIndex;
+    var num_days=daysInMonth(month-1, year);
+    // console.log('oldIndex was ' + oldIndex + ' and num_days is ' + num_days)
+    while(day.options.length > 0) {
+	day.options.remove(0);
+    }
+    for (j = 1 ; j <= num_days ; j++) {
+	d = document.createElement("OPTION");
+	d.label = j;
+	d.text = padwithzero(j);
+	day.options.add(d);
+	// console.log('Added ' + d)
+    }
+    // console.log('day.options.length is ' + day.options.length)
+    // day.options[Math.min(oldIndex, num_days-1)].selected = 'selected';
+    day.options.selectedIndex = Math.min(oldIndex, num_days-1)
+    // console.log('tried to set to ' + Math.min(oldIndex, num_days) + ' day.options.selectedIndex is ' + day.options.selectedIndex)
+}
+
+function set_archive_hours(offset_in) {
+    if(offset_in != undefined) {
+	offset = offset_in;
+    } else {
+	offset = getTimeZoneOffset();  // backup if we can't talk to Google
+    }
+    var offsethours = Math.round(offset/60);
+    var offsetmins = offset % 60;
+
+    var offsethourstring = "YYYY/MM/DD UTC"+(offsethours<0?"":"+")+offsethours;
+    document.getElementById("archive_offset_display").innerHTML = offsethourstring;
+    document.getElementById("archive_offset_display").style.display = "block";
+
+}
+
 function set_datetime_and_load_images (offset) {
-    set_datetime_options(offset);
+    if(model()=="hrdps archive"){
+	document.getElementById("archivetimepicker").style.height = ""
+	document.getElementById("archivetimepicker").style.visibility = "visible"
+	document.getElementById("normaltimepicker").style.height = "0px"
+	document.getElementById("normaltimepicker").style.visibility = "hidden"
+	set_archive_hours(offset)
+    } else {
+	document.getElementById("archivetimepicker").style.height = "0px"
+	document.getElementById("normaltimepicker").style.height = ""
+	document.getElementById("normaltimepicker").style.visibility = "visible"
+	document.getElementById("archivetimepicker").style.visibility = "hidden"
+	set_datetime_options(offset);
+    }
     doChange();
+}
+
+function findIndexOfOptionValue(el, option) {
+    for (i = 0 ; i < el.options.length ; i++) {
+	if(option == el.options[i].value) {
+	    return i;
+	}
+    }
+}
+
+function update_archive_date() {
+    set_number_of_days();
+    callWithTimeZone((function(offset) { set_archive_hours(offset); doChange(); }))
 }
 
 function initIt() {
     document.getElementById("model").onchange = (function () { document.getElementById("datetime").selectedIndex = -1; callWithTimeZone(set_datetime_and_load_images); setupParamset(); });
+    document.getElementById("monthpicker").onchange = update_archive_date;
+    document.getElementById("yearpicker").onchange = update_archive_date;
+    document.getElementById("daypicker").onchange = update_archive_date;
+    document.getElementById("hourpicker").onchange = doChange;
     document.body.style.overflow = "auto";
     oldParam = document.getElementById("Param").options.value;
     var T = new Date();      // Instantiate a Date object
+    year=document.getElementById("yearpicker")
+    month=document.getElementById("monthpicker")
+    day=document.getElementById("daypicker")
+    hour=document.getElementById("hourpicker")
+    year.selectedIndex = findIndexOfOptionValue(year,T.getFullYear())
+    month.selectedIndex = findIndexOfOptionValue(month,T.getMonth()+1)
+    day.selectedIndex = findIndexOfOptionValue(day, T.getDate())
+    hour.selectedIndex = 10
+
+    
     var lat = 49.05
     var lon = -122.18;
     var zoom = 10;
@@ -427,10 +513,13 @@ function getTimeZoneOffset() {
     return -1*n; // offset in minutes
 }
 
-// 2018-09-29_12 <-- init date
 function getBasedir()
 {
-    return("map-pngs/" + model() + "/latest/")
+    if(model()=="hrdps archive") {
+        return("hrdps-map-archive/")
+    } else {
+        return("map-pngs/" + model() + "/latest/")
+    }
 }
 
 function recordpageurl() {
@@ -506,6 +595,12 @@ function lat_in_bounds (lat) {
 	} else {
 	    return false;
 	}
+    } else if(model() == "hrdps archive") {
+        if(lat >= 48 && lat < 52) {
+            return true;
+        } else {
+            return false;
+        }
     } else {
 	return true;
     }
@@ -518,6 +613,12 @@ function lng_in_bounds (lng) {
 	} else {
 	    return false;
 	}
+    } else if(model() == "hrdps archive") {
+        if(lng>=-124 && lng < -118) {
+            return true;
+        } else {
+            return false;
+        }
     } else { return true; }
 }
 
@@ -573,11 +674,21 @@ function clearOverlaysnotIn (tiles) {
     });
 }
 
+function model_parent() {
+   var model;
+   if(model_is_hrdps()) {
+       model = "hrdps"
+   } else {
+       model = "gdps"
+   }
+   return model;
+}
+
 function realtilelat(lat) {
- return realtileinfo[model()].lats[lat];
+ return realtileinfo[model_parent()].lats[lat];
 }
 function realtilelng(lng) {
- return realtileinfo[model()].lons[lng];
+ return realtileinfo[model_parent()].lons[lng];
 }
 
 function addOverlay(tile, image, map, zoom, step) {
@@ -607,11 +718,34 @@ function tileName(tile,splittime,param,step) {
   return baseName;
 }
 
+function getSelectedValue(el) {
+    var element = document.getElementById(el)
+    var index = element.selectedIndex
+    // var real_index = Math.min(index, element.options.length-1)
+    // console.log('index was ' + index + ' but options had length ' + element.options.length + ' so we used ' + real_index);
+    return element.options[index].value
+}
+
 function getSplitTime() {
-  var datetimeidx = document.getElementById("datetime").selectedIndex;
-  var tValue  = document.getElementById("datetime").options[datetimeidx].value;
-  var splittime = tValue.split(" ");
-  return splittime;
+    // returns ["yyyy-mm-dd" "0800"] in UTC
+    if(model()=="hrdps archive") {
+	var offset = getTimeZoneOffset();
+	var year = getSelectedValue("yearpicker")
+	var month = getSelectedValue("monthpicker")
+	var day = getSelectedValue("daypicker")
+	var hour = getSelectedValue("hourpicker")
+	var D = new Date()
+	D.setFullYear(year, month, day)
+	D.setHours(hour/100 - offset/60)
+	var splittime = [D.getFullYear() + "-" + padwithzero(D.getMonth()) + "-" + padwithzero(D.getDate()), padwithzero(D.getHours()) + "00"];
+	// console.log(splittime)
+	return splittime
+    } else {
+	var datetimeidx = document.getElementById("datetime").selectedIndex;
+	var tValue  = document.getElementById("datetime").options[datetimeidx].value;
+	var splittime = tValue.split(" ");
+	return splittime;
+    }
 }
 
 function getParam() {
@@ -659,6 +793,7 @@ function loadImages()
     })
     // the head and foot are the same for all tiles (if I generate them right)
     headerfooterurlbase = getBasedir() + param + "_" + splittime[0];
+    // console.log('Looking for header foot in ' + headerfooterurlbase)
     document.getElementById("theTitle").src = headerfooterurlbase + ".head.png" ;
 //    console.log("Header should be in " + headerfooterurlbase + ".head.png")
     document.getElementById("theTitle").style.maxHeight = "48px";
@@ -1001,7 +1136,7 @@ function drawWindCanvas(inputcanvas,outputcanvas, zoom) {
     var scale;
     var step;
     var linewidth;
-    if(model() == "hrdps") {
+    if(model_is_hrdps()) {
       if(zoom == "high") { scale = 10; step = 1; linewidth = 1;}
       else if(zoom == "medium") { scale = 20; step = 4; linewidth = 4;}
       else { scale = 30 ; step = 15 ; linewidth = 7;}
