@@ -72,7 +72,7 @@ Kootenays, Wasa Estella,        49.796,-115.626,            4500, 0
 Kootenays, Sale Mt.,            51.17122,-118.21238,        4500, 0
 Kootenays, Idaho Pk.,           49.9738,-117.34437,         4500, 0
 Kootenays, Fernie Mic Towers,   49.44514,-114.99033,        4500, 0
-Kootenays, Fernie LZ,           49.51213, -115.05416,       2200, 0
+Kootenays, Elko,                49.3400, -115.1491,       4500, 0
 Smithers Area, Huson Bay Mt.,     54.7739,-127.27348,          4500, 0
 Smithers Area, Malkow Lookout,    54.83884,-127.14836,          4500, 0
 Smithers Area, Skilokus,          55.2633,-127.33389,          4500, 0
