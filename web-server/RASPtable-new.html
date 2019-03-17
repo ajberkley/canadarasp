@@ -80,12 +80,12 @@
     visibility: hidden;
     }
 
-<!-- select { -->
-<!--     font-size: 20pt; -->
-<!--     } -->
-<!-- input { -->
-<!--     font-size: 22pt; -->
-<!--     } -->
+select {
+    font-size: 16pt;
+    }
+input {
+    font-size: 16pt;
+    }
 /* HAMBURGER MENU
  * Made by Erik Terwan
  * 24th of November 2015
@@ -399,11 +399,11 @@ a:hover
 }
 #menuleft li
 {
-  padding: 10px 0;
+  padding: 5px 0;
   font-size: 22px;
 }
 #menuleft form {
-  padding: 10px 0;
+  padding: 5px 0;
   font-size: 22px;
 }
 #menuToggleLeft input:checked ~ ul
@@ -429,6 +429,8 @@ body { height: 100%; margin: 0px; padding: 0px; overflow: hidden; }
       <span></span>
       <span></span>
       <ul id="menuleft">
+	<li><a href="windgrams/">Windgrams</a></li>
+	<li>
 	  <div id="normaltimepicker">
 	    <small><div id="timezone">Map local time</div></small>
 	    <select title="Date/Time" id="datetime" size="5">
@@ -515,16 +517,23 @@ body { height: 100%; margin: 0px; padding: 0px; overflow: hidden; }
 	      <option value="2300">23:00</option>
 	    </select>
 	  </div>
+	</li>
+	<li>
 	  <div>
 	    <select title="Select Parameter" id="Param" size="4" font-size="18pt" >
 	    </select>
 	  </div>
+	</li>
+	<li>
 	  <div>
 	    <form>
 	      <INPUT class="showme" TYPE="BUTTON" NAME="OPACITY+" onclick="opacityplus();" value="OPACITY+"/>
-	      <INPUT class="showme" TYPE="BUTTON" NAME="OPACITY-" onclick="opacityminus();" value="OPACITY-"/>
+	      <INPUT class="showme" TYPE="BUTTON" NAME="OPACITY-" onclick="opacityminus();" value="OPACITY-"/><br>
+	      <INPUT TYPE="checkbox" class="showme" id="wind_checkbox" checked><small>Show wind direction</small></INPUT><br/>
+	      <INPUT TYPE="checkbox" class="showme" id="windgram_checkbox"><small>Show windgram locations</small></INPUT><br/>
 	    </form>
 	  </div>
+	</li>
 	  Model:
 
 	  <select title="Model" id="model" size="1" >
@@ -536,7 +545,7 @@ body { height: 100%; margin: 0px; padding: 0px; overflow: hidden; }
 	    LAT:<input class="showme" id="latBox" type="text" value="" size="8" readonly=true><br/>
 	    LON:<input class="showme" id="lonBox" type="text" value="" size="8" readonly=true>
 	  </div>
-	  <a href="RASPtable-old.html">OLD INTERFACE</a>
+	  <a href="RASPtable-old.html">Old map interface</a>
       </ul>
     </div>
   </nav>
@@ -565,11 +574,6 @@ body { height: 100%; margin: 0px; padding: 0px; overflow: hidden; }
 	    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" opacity="100" class="showme">
 	    <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 	  </form>
-	</li>
-	<hr>
-	<li>
-	  <INPUT TYPE="checkbox" class="showme" id="wind_checkbox" checked><small>Show wind direction</small></INPUT><br/>
-	  <INPUT TYPE="checkbox" class="showme" id="windgram_checkbox"><small>Show windgram locations</small></INPUT><br/>
 	</li>
       </ul>
     </div>
