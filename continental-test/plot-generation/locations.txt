@@ -58,7 +58,7 @@ Vancouver Island, Dallas Rd,     48.41624,-123.37668,       2200, 0
 Vancouver Island, Mt Prevost,    48.82178,-123.75069,       3800, 0
 Vancouver Island, Hill 60,       48.81432,-123.97625,       3800, 0
 Vancouver Island, Mt Arrowsmith,    49.224083,-124.595722,       3800, 0
-Vancouver Island, Mt. Bruce,     48.7695,-123.4753,         3800, 0
+Vancouver Island, Bruce Peak,     48.7695,-123.4753,         3800, 0
 Vancouver Island, Honeymoon Bay, 48.81093,-124.17143,       3800, 0
 Vancouver Island, Mt. Cain,      50.21873,-126.34808,       3800, 0
 Vancouver Island, Malahat,      48.59207,-123.5218,         3800, 0
