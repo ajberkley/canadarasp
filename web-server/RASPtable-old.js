@@ -68,25 +68,24 @@ function padwithzero(string) {
 }
 
 function setSize() {
-    return;
-    // var titleBox = document.getElementById("topTitle");
-    // var zoomBox = document.getElementById("zoomBox");;
-    // var scaleBox = document.getElementById("botScale");;
-    // var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-    // var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-    // titleBox.style.height   =  "68px";
-    // titleBox.style.overflow = "hidden" ;
-    // titleBox.style.position = "relative" ;
+    var titleBox = document.getElementById("topTitle");
+    var zoomBox = document.getElementById("zoomBox");;
+    var scaleBox = document.getElementById("botScale");;
+    var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+    var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    titleBox.style.height   =  "68px";
+    titleBox.style.overflow = "hidden" ;
+    titleBox.style.position = "relative" ;
 
-    // zoomBox = document.getElementById("zoomBox");
-    // zoomBox.style.width = "100vw";
-    // zoomBox.style.overflow = "hidden";
-    // zoomBox.style.position = "relative" ;
+    zoomBox = document.getElementById("zoomBox");
+    zoomBox.style.width = "100vw";
+    zoomBox.style.overflow = "hidden";
+    zoomBox.style.position = "relative" ;
 
-    // scaleBox = document.getElementById("botScale");
-    // titleBox.style.height = "50px";
-    // scaleBox.style.overflow = "hidden";
-    // scaleBox.style.position = "relative" ;
+    scaleBox = document.getElementById("botScale");
+    titleBox.style.height = "50px";
+    scaleBox.style.overflow = "hidden";
+    scaleBox.style.position = "relative" ;
 }
 
 function model_is_hrdps() {
@@ -402,21 +401,15 @@ function initIt() {
 	streetViewControl:  false,
 	minZoom: 3,
 	maxZoom: 15,
-	scaleControl: true,
-	fullscreenControl: false,
-	mapTypeControl: true,
-	mapTypeControlOptions: {
-	    // style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
-	    position: google.maps.ControlPosition.LEFT_BOTTOM
-	}
+	scaleControl: true
     };
     window.addEventListener("resize",setSize,false)
     map = new google.maps.Map(document.getElementById("zoomBox"), myOptions);
     setSize();
-    // if ( opacity_control == "N" ) {
-    // 	createOpacityControl(map, opacity);
-    // 	opacity_control = "Y";
-    // }
+    if ( opacity_control == "N" ) {
+	createOpacityControl(map, opacity);
+	opacity_control = "Y";
+    }
 
     if(windgram_checkbox.checked) {
 	displayWindgrams();
@@ -489,7 +482,7 @@ function setOpacityA(opa) {
     //console.log("setOpacityA("+opa+")")
     recordpageurl();
     var opacity_pixelx = OPACITY_MAX_PIXELS * opacity / 100;
-    // opacityCtrlKnob.setValueX(opacity_pixelx);
+    opacityCtrlKnob.setValueX(opacity_pixelx);
     setOpacity(opacity_pixelx)
 }
 
@@ -803,12 +796,12 @@ function loadImages()
     // console.log('Looking for header foot in ' + headerfooterurlbase)
     document.getElementById("theTitle").src = headerfooterurlbase + ".head.png" ;
 //    console.log("Header should be in " + headerfooterurlbase + ".head.png")
-    // document.getElementById("theTitle").style.maxHeight = "48px";
-    // document.getElementById("theTitle").style.height = "10%";
+    document.getElementById("theTitle").style.maxHeight = "48px";
+    document.getElementById("theTitle").style.height = "10%";
     document.getElementById("theScale").src = headerfooterurlbase + ".foot.png" ;
  //       console.log("footer should be in " + headerfooterurlbase + ".foot.png")
-    // document.getElementById("theScale").style.maxHeight = "48px";
-    // document.getElementById("theScale").style.height = "10%";
+    document.getElementById("theScale").style.maxHeight = "48px";
+    document.getElementById("theScale").style.height = "10%";
 }
 
 var Event;
@@ -985,32 +978,32 @@ function createOpacityControl(map, opacity) {
 //  opacityDiv.setAttribute("style", "margin:5px;overflow-x:hidden;overflow-y:hidden;background:url(" + sliderImageUrl + ") no-repeat;width:71px;height:21px;cursor:pointer;");
 
   // Create knob
-//   var opacityKnobDiv = document.createElement('DIV');
-//   opacityKnobDiv.id = "opacityKnobDiv";
-//   opacityKnobDiv.setAttribute("style", "padding:0;margin:0;overflow-x:hidden;overflow-y:hidden;background:url(opacity-slider3d7.png) no-repeat -71px 0;width:14px;height:21px;");
-// //  opacityKnobDiv.setAttribute("style", "padding:0;margin:0;overflow-x:hidden;overflow-y:hidden;background:url(" + sliderImageUrl + ") no-repeat -71px 0;width:14px;height:21px;");
-//   opacityDiv.appendChild(opacityKnobDiv);
+  var opacityKnobDiv = document.createElement('DIV');
+  opacityKnobDiv.id = "opacityKnobDiv";
+  opacityKnobDiv.setAttribute("style", "padding:0;margin:0;overflow-x:hidden;overflow-y:hidden;background:url(opacity-slider3d7.png) no-repeat -71px 0;width:14px;height:21px;");
+//  opacityKnobDiv.setAttribute("style", "padding:0;margin:0;overflow-x:hidden;overflow-y:hidden;background:url(" + sliderImageUrl + ") no-repeat -71px 0;width:14px;height:21px;");
+  opacityDiv.appendChild(opacityKnobDiv);
 
-//   opacityCtrlKnob = new ExtDraggableObject(opacityKnobDiv, {
-//     restrictY: true,
-//     container: opacityDiv
-//   });
+  opacityCtrlKnob = new ExtDraggableObject(opacityKnobDiv, {
+    restrictY: true,
+    container: opacityDiv
+  });
 
-//   google.maps.event.addListener(opacityCtrlKnob, "dragend", function () {
-//       setOpacity(opacityCtrlKnob.valueX());
-//   });
-
-  // google.maps.event.addDomListener(opacityDiv, "click", function (e) {
-  //   var left = findPosLeft(this);
-  //   opacity = e.pageX - left - 5; // - 5 as we're using a margin of 5px on the div
-  //   opacityCtrlKnob.setValueX(opacity);
-  //   setOpacity(opacity);
+  // google.maps.event.addListener(opacityCtrlKnob, "dragend", function () {
+  //     setOpacity(opacityCtrlKnob.valueX());
   // });
-  // map.controls[google.maps.ControlPosition.TOP_RIGHT].push(opacityDiv);
+
+  google.maps.event.addDomListener(opacityDiv, "click", function (e) {
+    var left = findPosLeft(this);
+    opacity = e.pageX - left - 5; // - 5 as we're using a margin of 5px on the div
+    opacityCtrlKnob.setValueX(opacity);
+    setOpacity(opacity);
+  });
+  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(opacityDiv);
 
   // Set initial value
   var initialValue = OPACITY_MAX_PIXELS * (opacity/ 100);
-  // opacityCtrlKnob.setValueX(initialValue);
+  opacityCtrlKnob.setValueX(initialValue);
   setOpacity(initialValue);
 }
 

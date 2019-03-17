@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 5.0 FINAL//EN">
+<html>
+<head>
+  <title>Canada RASP</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=US-ASCII" >
+  <meta HTTP-EQUIV="Content-Script-Type" content="text/javascript">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+<!--
+  Canada RASP tiled map viewer
+    ajb March 2019 add archive for part of BC HRDPS
+    ajb September/November 2018 added GDPS
+    ajb August 2018 HRDPS-continental coverage
+    ajb May-June 2018 switched to tile based viewer
+    ajb Mar 2013 heavily modified from
+    original work by:
+    p.scorer_at_leedsmet_dot_ac_dot_uk
+    Based on, and with many ideas taken from, gogo's RASPviewer
+    And thanks to the Uncountable and Invaluable contributions from <the_author_of> http://glidemet.co.uk,
+    to both this viewer and RASP-UK parametrisation.
+-->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkSvQdD6DtFPPSHmITPmacGqirGtNSqoc"> </script> 
+  <script type="text/javascript" src="real-tile-locs.js"> </script>
+  <script type="text/javascript" src="paramList.js?v=3"></script>
+  <script type="text/javascript" src="RASPtable-old.js?v=9"></script>
+  <script type="text/javascript" src="ExtDraggableObject.js"></script>
+  <script type="text/javascript" src="new-locations.js?v=3"> </script>
+  <style type="text/css">
+    #selectorDiv { display:inline-block; vertical-align:top; overflow:hidden; border:solid grey 1px;}
+    #topTitle {display:relative; height=10vh; top = 0px}
+    #zoomBox {height: 72vh; display:relative}
+    #botScale {display:relative; height:10vh}
+    textarea {background-color: #ffffff;
+    font-family: verdana,arial,helvetica;
+    font-size: 8pt}
+    html, body {
+     height:100%;
+     width:100%;
+    }
+    img {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    }
+    .optionBlue {
+    color: blue;
+    }
+
+    .optionBoldBlue {
+    font-weight: bold;
+    color: blue;
+    }
+
+    .optionRed {
+    font-weight: bold;
+    color: red;
+    }
+
+    .optionBoldRed {
+    font-weight: bold;
+    color: red;
+    }
+
+    .optionBold {
+    font-weight: bold;
+    }
+
+    #archivetimepicker {
+    visibility: hidden;
+    }
+    
+    #imgBox{
+    position:relative;
+    }
+  </style>
+
+  <style type="text/css">
+    html { height: 100% }
+    body { height: 100%; margin: 0px; padding: 0px }
+  </style>
+</head>
+<body>
+<noscript></noscript>
+<table border="1px solid black">
+  <tr height=10vh max-height=100px width=100vw>
+    <td>
+      <div id="normaltimepicker">
+      <small><div id="timezone">Map local time</div></small>
+      <select title="Date/Time" id="datetime" size="5">
+	<option></option>
+      </select>
+      </div>
+      <div id="archivetimepicker">
+	<small><div id="archive_offset_display">YYYY/MM/DD</div></small><br>
+	<select title="Year" id="yearpicker" size="1">
+	  <option value="2019">2019</option>
+	</select>
+	<select title="Month" id="monthpicker" size="1">
+	  <option value="01">01</option>
+	  <option value="02">02</option>
+	  <option value="03">03</option>
+	  <option value="04">04</option>
+	  <option value="05">05</option>
+	  <option value="06">06</option>
+	  <option value="07">07</option>
+	  <option value="08">08</option>
+	  <option value="09">09</option>
+	  <option value="10">10</option>
+	  <option value="11">11</option>
+	  <option value="12">12</option>
+	</select>
+	<select title="Day" id="daypicker" size="1">
+	  <option value="01">01</option>
+	  <option value="02">02</option>
+	  <option value="03">03</option>
+	  <option value="04">04</option>
+	  <option value="05">05</option>
+	  <option value="06">06</option>
+	  <option value="07">07</option>
+	  <option value="08">08</option>
+	  <option value="09">09</option>
+	  <option value="10">10</option>
+	  <option value="11">11</option>
+	  <option value="12">12</option>
+	  <option value="13">13</option>
+	  <option value="14">14</option>
+	  <option value="15">15</option>
+	  <option value="16">16</option>
+	  <option value="17">17</option>
+	  <option value="18">18</option>
+	  <option value="19">19</option>
+	  <option value="20">20</option>
+	  <option value="21">21</option>
+	  <option value="22">22</option>
+	  <option value="23">23</option>
+	  <option value="24">24</option>
+	  <option value="25">25</option>
+	  <option value="26">26</option>
+	  <option value="27">27</option>
+	  <option value="28">28</option>
+	  <option value="29">29</option>
+	  <option value="30">30</option>
+	  <option value="31">31</option>
+	</select>
+	<br>
+	<select title="hour" id="hourpicker" size="1">
+	  <option value="0000">00:00</option>
+	  <option value="0100">01:00</option>
+	  <option value="0200">02:00</option>
+	  <option value="0300">03:00</option>
+	  <option value="0400">04:00</option>
+	  <option value="0500">05:00</option>
+	  <option value="0600">06:00</option>
+	  <option value="0700">07:00</option>
+	  <option value="0800">08:00</option>
+	  <option value="0900" selected>09:00</option>
+	  <option value="1000">10:00</option>
+	  <option value="1100">11:00</option>
+	  <option value="1200">12:00</option>
+	  <option value="1300">13:00</option>
+	  <option value="1400">14:00</option>
+	  <option value="1500">15:00</option>
+	  <option value="1600">16:00</option>
+	  <option value="1700">17:00</option>
+	  <option value="1800">18:00</option>
+	  <option value="1900">19:00</option>
+	  <option value="2000">20:00</option>
+	  <option value="2100">21:00</option>
+	  <option value="2200">22:00</option>
+	  <option value="2300">23:00</option>
+	</select>
+      </div>
+    </td>
+    <td>
+      <select title="Select Parameter" id="Param" size="6" >
+      </select>
+    </td>
+    <td>
+      <form>
+	<small>
+	  <INPUT TYPE="checkbox" id="wind_checkbox" checked>Show wind direction on map</INPUT><br/>
+	  <INPUT TYPE="checkbox" id="windgram_checkbox">Show windgram locations on map</INPUT><br/>
+	  <table width=100%>
+	    <tr>
+	      <td>
+		<INPUT TYPE="BUTTON" NAME="OPACITY+" onclick="opacityplus();" value="OPACITY+"></INPUT>
+	      </td>
+	      <td>
+		<INPUT TYPE="BUTTON" NAME="OPACITY-" onclick="opacityminus();" value="OPACITY-"></INPUT>
+	      </td>
+	    </tr>
+	    </table>
+	</small>
+      </form>
+    </td>
+    <td width=30%>
+      <small>
+	<center>
+      <a href="aboutcanadarasp.html">About Canada RASP</a> by <a href="mailto:ajberkley@gmail.com">Andrew Berkley</a> and Peter Spear<br/>
+      <small>Data from: Environment and Climate Change Canada <a href="http://www.weatheroffice.gc.ca/grib/grib2_HRDPS_HR_e.html">HRDPS</a> model</small><br/>
+      </small>
+      <small><a href="windgrams/"> <b>Windgrams only page</b></a><br/></small>
+      <small>Model:</small>
+      <select title="Model" id="model" size="1" >
+        <option value = "hrdps" selected>HRDPS: Canada only</option>
+        <option value = "gdps">GDPS: Global</option>
+	<option value = "hrdps archive">HRDPS: BC archive</option>
+      </select><br/>
+      <!-- <small>Press and hold on the map to generate dynamic windgram</small> -->
+      <br/>
+      <center>
+    </td>
+    <td width=30%>
+      <center>
+      <table><tr><td>
+	<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+	  <input type="hidden" name="cmd" value="_s-xclick">
+	  <input type="hidden" name="hosted_button_id" value="R3QEBDRXCZNUW">
+	  <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+	  <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+	</form></td><td><small>Partially funded by the membership of <a href="http://bchpa.ca">BCHPA</a><br/>Please consider donating</small></td></tr></table>
+      </center>
+    <center>
+      <table>
+	<tr>
+	  <small>
+	  <td title="" colspan=1 >
+	    Latitude <br/>
+	    <input id="latBox" type="text" value="" size="8" readonly=true>
+	  </td>
+	  <td title="" colspan=1 >
+	    Longitude <br/>
+	    <input id="lonBox" type="text" value="" size="8" readonly=true>
+	  </td>
+	  </small>
+	</tr>
+      </table>
+    <a href="parameterdescription.html">How to use this page</a>
+    </center>
+    </td>
+  </tr>
+  <tr>
+    <td id="imgdata" valign="top" height="100%" width="100%" colspan=8>
+      <div id="topTitle"><center><img id="theTitle" onError="badImage(this);"></center></div> 
+      <div id="zoomBox"></div> 
+      <div id="botScale"><center><img id="theScale"></center></div>
+    </td>
+  </tr>
+</table>
+<script> initIt(); </script>
+</body>
+</html>
