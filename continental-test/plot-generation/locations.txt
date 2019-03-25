@@ -153,4 +153,5 @@ Vancouver Island, Mt Brenton,    48.8952675,-123.8232374,        3800, 0
 South Okanagan, Macintyre Bluff,       49.252102,-119.535756,       4500, 0
 Alberta, Prairie Mountain,            50.8886, -114.8081,      4500, 0
 Smithers Area, Murray Ridge,        54.53, -124.185,         4500, 0
-Vancouver Island, Mt Joan,    49.3436,-124.8751487,        4500, 0
+Vancouver Island, Mt Joan,    49.3436, -124.8751487,        4500, 0
+Yukon, Canyon Mt, 60.6760387, -134.90387,         4500, 0
