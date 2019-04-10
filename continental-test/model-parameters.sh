@@ -24,8 +24,10 @@ if [ $MODEL = "rdps" ]; then
   export PNGDIR="/mnt/map-pngs/rdps" # Where map PNGs go
 fi
 if [ $MODEL = "hrdps" ]; then
-   export WEBSERVER="dd.weather.gc.ca"
-   export DIRECTORY="model_hrdps/continental/grib2"
+   export WEBSERVER="hpfx.collab.science.gc.ca"
+   export DIRECTORY="$YEAR$MONTH$DAY/WXO-DD/model_hrdps/continental/grib2"
+#   export WEBSERVER="dd.weather.gc.ca"
+#   export DIRECTORY="model_hrdps/continental/grib2"
    export FILEHEADER="CMC_hrdps_continental"
    export TIMESTART="1"
    export TIMESTEP="1"
