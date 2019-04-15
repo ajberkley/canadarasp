@@ -156,3 +156,4 @@ Smithers Area, Murray Ridge,        54.53, -124.185,         4500, 0
 Vancouver Island, Mt Joan,    49.3436, -124.8751487,        4500, 0
 Yukon, Canyon Mt, 60.6760387, -134.90387,         4500, 0
 Vancouver Island, Port Alberni Airport,    49.319544, -124.928932,        4500, 0
+Alberta, Infinity Flight Park,            52.127119, -114.244131,      4500, 0
