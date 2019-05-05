@@ -99,7 +99,7 @@
 	(collect (list value (cadr c)))))
 	
 (defparameter *cloud-color-scale*  (make-basic-color-scale 0f0 100f0))
-(defparameter *vvel-color-scale*  (make-basic-color-scale -1.5f0 1.5f0))
+(defparameter *vvel-color-scale*  (make-basic-color-scale -1.0f0 1.0f0))
 (defparameter *thermal-color-scale*  (make-basic-color-scale -0.5f0 5.5f0))
 (defparameter *cape-color-scale*  (make-basic-color-scale 0f0 5000f0))
 (defparameter *hcrit-color-scale*  (make-basic-color-scale 0f0 4000f0))
