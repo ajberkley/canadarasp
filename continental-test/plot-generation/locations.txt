@@ -183,3 +183,4 @@ Manitoba, Brandon, 49.818085, -99.990035, 4500, 0
 Manitoba, Dauphin, 51.158083, -100.079932, 4500, 0
 Montana, Sweetgrass Hills: 48.911914, -111.363029, 4500, 0
 Kootenays, Mt Thompson, 49.09583333, -116.4172222, 4500, 0
+Sea to Sky, Mt Richardson, 49.569381, -123.764211, 4500, 0
