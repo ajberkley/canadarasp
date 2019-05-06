@@ -161,3 +161,9 @@ Vancouver Island, Buttle Lake,    49.772808, -125.581016,        4500, 0
 Sea to Sky, Sechelt Dump, 49.521593, -123.682225, 4500, 0
 Sea to Sky, Mt Elphinstone, 49.464689, -123.552963, 4500, 0
 Sea to Sky, Glenn Taylor Launch, 49.686812, -123.941164, 4500, 0
+Alberta, Consort, 52.007337, -110.780056, 4500, 0
+Alberta, Drumheller, 51.481894, -112.709501, 4500, 0
+Alberta, Empress, 50.953383, -110.001859, 4500, 0
+Alberta, Stettler, 52.323496, -112.719243, 4500, 0
+Alberta, Vegreville, 53.501066, -112.067566, 4500, 0
+Alberta, Wainwright, 52.834550, -110.850759, 4500, 0
