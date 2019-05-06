@@ -167,3 +167,19 @@ Alberta, Empress, 50.953383, -110.001859, 4500, 0
 Alberta, Stettler, 52.323496, -112.719243, 4500, 0
 Alberta, Vegreville, 53.501066, -112.067566, 4500, 0
 Alberta, Wainwright, 52.834550, -110.850759, 4500, 0
+Saskatchewan, Kindersley, 51.466213, -109.172061, 4500, 0
+Saskatchewan, North Battleford, 52.753291, -108.329564, 4500, 0
+Saskatchewan, Saskatoon, 52.125555, -106.777907, 4500, 0
+Saskatchewan, Yorkton, 51.220702, -102.490764, 4500, 0
+Saskatchewan, Outlook, 51.494783, -107.052925, 4500, 0
+Saskatchewan, Elrose, 51.125946, -108.008061, 4500, 0
+Saskatchewan, Macklin, 52.337680, -109.966698, 4500, 0
+Saskatchewan, Regina, 50.429723, -104.692495, 4500, 0
+Saskatchewan, Swift Current, 50.269295, -107.822356, 4500, 0
+Saskatchewan, Wood Mountain, 49.369454, -106.380284, 4500, 0
+Saskatchewan, Estevan, 49.142441, -103.026110, 4500, 0
+Saskatchewan, Moosomin, 50.157411, -101.664957, 4500, 0
+Manitoba, Brandon, 49.818085, -99.990035, 4500, 0
+Manitoba, Dauphin, 51.158083, -100.079932, 4500, 0
+Montana, Sweetgrass Hills: 48.911914, -111.363029, 4500, 0
+Kootenays, Mt Thompson, 49.09583333, -116.4172222, 4500, 0
