@@ -136,17 +136,18 @@ function setupRegions(){
 
 function updateRegion(){
   var region=document.getElementById("region").value;
-  while(document.getElementById("location").options.length>0){
-    document.getElementById("location").options[0] = null;
+  var locationselector=document.getElementById("location");
+  while(locationselector.options.length > 0) {
+    locationselector.options.remove(0);
   }
   var j = 0;
   for (i=0;i<locations.length;i++){
     if(locations[i][0]==region){
-      document.getElementById("location").options[j++] = new Option(locations[i][1],i)
+      locationselector.options[j++] = new Option(locations[i][1],i)
     }
   }
-  document.getElementById("location").index = 0;
-  document.getElementById("location").options[0].selected=true;
+  locationselector.index = 0;
+  locationselector.options[0].selected=true;
   showWindgram(false);
 }
 
