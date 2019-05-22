@@ -29,10 +29,10 @@
   <body>
     <div id="banner"><center>Click on red locations for a windgram, or press and hold on map background for a dynamic windgram</center></div>
     <div id="map"></div>
+    <script src="/regions.js"> </script>
     <script src="new-locations.js"> </script>
     <script>
       var map;
-      var regions = [ "Lower Mainland", "Sea to Sky", "Vancouver Island", "Kamloops Area","North Okanagan","South Okanagan","Kootenays","Smithers Area","Jasper Area","Alberta","Washington","Ski","Cariboo", "Montreal Area", "Yukon", "Saskatchewan", "Manitoba", "Montana"];
       function onDemandWindgram(lat, lon) {
 	window.open('/windgram?lat='+lat+'&lon='+lon);
       }

@@ -123,6 +123,17 @@ function updateDate (dayid) {
     clearLoadedCache();
 }
 
+function setupRegions(){
+    var regionselector = document.getElementById("region");
+    for (i=0;i<regions.length;i++){
+	var option = new Option(regions[i], regions[i]);
+	regionselector.options[i] = option;
+	if(i==0) {
+	    option.selected = true;
+	}
+    }
+}
+
 function updateRegion(){
   var region=document.getElementById("region").value;
   while(document.getElementById("location").options.length>0){
@@ -141,8 +152,6 @@ function updateRegion(){
 
 function badImage(thisImage)
 {
-    //console.log(thisImage);
-	//thisImage.onerror="";
 	thisImage.src = "imageMissing.jpg";
 }
 
@@ -173,6 +182,7 @@ function init() {
     }
     clearLoadedCache();
     
+    setupRegions();
     var qs = getQueryStrings();
     var query = qs["region"];
     if (query){
