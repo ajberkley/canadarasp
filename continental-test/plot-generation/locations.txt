@@ -186,3 +186,4 @@ Kootenays, Mt Thompson, 49.09583333, -116.4172222, 4500, 0
 Sea to Sky, Mt Richardson, 49.569381, -123.764211, 4500, 0
 Alberta, Twin Island Airpark, 53.471579, -113.154339, 4500, 0
 Alaska, Admiralty Island, 57.649009, -134.192556, 4500, 0
+Vancouver Island, Heather Mountain,    48.956103, -124.479867,        4500, 0
