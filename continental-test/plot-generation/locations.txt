@@ -188,3 +188,4 @@ Alberta, Twin Island Airpark, 53.471579, -113.154339, 4500, 0
 Alaska, Admiralty Island, 57.649009, -134.192556, 4500, 0
 Vancouver Island, Heather Mountain,    48.956103, -124.479867,        4500, 0
 Kamloops Area, Chutter Ranch,       50.114444,-120.669722,        4500, 0
+Sea to Sky, Miller Launch,     50.3958,-122.942317,        4500, 0
