@@ -136,28 +136,30 @@ function step () {
 function callWithTimeZone(callback) {
     var pos = map.getCenter();
     var timestamp = Math.round(Date.now()/1000);
-    var request = "/timezone?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp+"&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks";
-    var xhttp = new XMLHttpRequest();
-    xhttp.timeout = 1000; // 1 second before timeout
-    xhttp.onreadystatechange = function() {
-	if (this.readyState == 4 && this.status == 200) {
-	    var result = JSON.parse(this.responseText);
-	    if(result.status == "ZERO_RESULTS") {
-		var offset = 60*Math.round(pos.lng() * 24 / 360);
-		//console.log("Didn't get an answer from google about time zone offset, so using natural offset of " + offset);
-		callback(offset)
-	    } else {
-		//console.log(this.responseText);
-		//console.log("Got an answer, rawOffset in minutes is + " + result.rawOffset/60 + " dstOffset is " + result.dstOffset/60 );
-		callback(result.rawOffset/60 + result.dstOffset/60);
-	    }
-	}
-    };
-    xhttp.ontimeout = function (e) { console.log("Didn't get timezone information, leaving it unchanged");
-				     callback(undefined); };
-    xhttp.onerror = function (e) { console.log("Error getting timezone"); console.log(e); callback(undefined); };
-    xhttp.open("GET", request, true);
-    xhttp.send(); 
+    //var request = "/timezone?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp+"&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks";
+    var offset = 60*Math.round(pos.lng() * 24 / 360);
+    callback(offset);
+    // var xhttp = new XMLHttpRequest();
+    // xhttp.timeout = 1000; // 1 second before timeout
+    // xhttp.onreadystatechange = function() {
+    // 	if (this.readyState == 4 && this.status == 200) {
+    // 	    var result = JSON.parse(this.responseText);
+    // 	    if(result.status == "ZERO_RESULTS") {
+    // 		var offset = 60*Math.round(pos.lng() * 24 / 360);
+    // 		//console.log("Didn't get an answer from google about time zone offset, so using natural offset of " + offset);
+    // 		callback(offset)
+    // 	    } else {
+    // 		//console.log(this.responseText);
+    // 		//console.log("Got an answer, rawOffset in minutes is + " + result.rawOffset/60 + " dstOffset is " + result.dstOffset/60 );
+    // 		callback(result.rawOffset/60 + result.dstOffset/60);
+    // 	    }
+    // 	}
+    // };
+    // xhttp.ontimeout = function (e) { console.log("Didn't get timezone information, leaving it unchanged");
+    // 				     callback(undefined); };
+    // xhttp.onerror = function (e) { console.log("Error getting timezone"); console.log(e); callback(undefined); };
+    // xhttp.open("GET", request, true);
+    // xhttp.send(); 
 }
 
 function set_datetime_options (offset_in) {
