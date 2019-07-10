@@ -1,4 +1,4 @@
-(load "~/quicklisp/setup.lisp")
+;; (load "~/quicklisp/setup.lisp")
 (ql:quickload "hunchentoot")
 (ql:quickload "cl-ppcre")
 (ql:quickload "parse-float")

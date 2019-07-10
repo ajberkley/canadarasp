@@ -2,5 +2,5 @@
 while true
 do
     echo Starting server
-    sbcl --script timezone.lisp
+    nohup sbcl --load "/home/ubuntu/quicklisp/setup.lisp" --script timezone.lisp &
 done
