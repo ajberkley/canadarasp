@@ -88,5 +88,6 @@
 
 (start-web-server)
 (loop :while (string= (lookup 49.0 -123.0) "America/Vancouver")
-   :do (sleep 5))
+   :do (sleep 5)
+   :repeat 2)
 
