@@ -1,4 +1,4 @@
-(load "~/quicklisp/setup.lisp")
+;; (load "~/quicklisp/setup.lisp")
 (ql:quickload "hunchentoot")
 (ql:quickload "cl-ppcre")
 (ql:quickload "parse-float")
@@ -88,6 +88,5 @@
 
 (start-web-server)
 (loop :while (string= (lookup 49.0 -123.0) "America/Vancouver")
-   :do (sleep 5)
-   :repeat 2)
+   :do (sleep 5))
 
