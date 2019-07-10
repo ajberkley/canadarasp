@@ -2,7 +2,7 @@ import com.databerries.timezone.TimeZoneLookup;
 import java.time.ZoneId;
 import java.io.*;
 import java.util.Scanner;
-class testApp {
+class timezone {
     public static void main(String[] args) {
 	System.out.println("Loading library");
 	// instanciating the library takes ~1.5sec because it loads the dataset.
