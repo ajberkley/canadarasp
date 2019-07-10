@@ -1,3 +1,4 @@
+(load "~/quicklisp/setup.lisp")
 (ql:quickload "hunchentoot")
 (ql:quickload "cl-ppcre")
 (ql:quickload "parse-float")
@@ -8,7 +9,6 @@
 (defun initialize-timezone-process ()
   (let* ((process (sb-ext:run-program "/usr/bin/java" '("-cp" "timezone-lookup/src/main/java/" "timezone.java") :wait nil :input :stream :output :stream)))
     (when process
-      (format t "Initializing process to ~A~%" process)
       (let ((in (sb-ext:process-output process))
 	    (out (sb-ext:process-input process)))
 	(read-line in)
@@ -85,4 +85,8 @@
   (when *acceptor*
     (hunchentoot:stop *acceptor*))
   (setf *acceptor* (hunchentoot:start (make-instance 'hunchentoot:easy-acceptor :port 8082 :access-log-destination nil))))
+
+(start-web-server)
+(loop :while (string= (lookup 49.0 -123.0) "America/Vancouver")
+   :do (sleep 5))
 
