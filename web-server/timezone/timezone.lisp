@@ -7,7 +7,7 @@
 (defvar *timezone-lookup-process* nil)
 
 (defun initialize-timezone-process ()
-  (let* ((process (sb-ext:run-program "/usr/bin/java" '("-cp" "timezone-lookup/src/main/java/" "timezone.java") :wait nil :input :stream :output :stream)))
+  (let* ((process (sb-ext:run-program "/usr/bin/java" '("-cp" "/home/ubuntu/canadarasp/web-server/timezone/timezone-lookup/src/main/java/:/home/ubuntu/canadarasp/web-server/timezone" "timezone") :wait nil :input :stream :output :stream)))
     (when process
       (let ((in (sb-ext:process-output process))
 	    (out (sb-ext:process-input process)))
@@ -51,8 +51,8 @@
 	  ((> (length location) 100) "{\"status\":\"INVALID_REQUEST\", \"errorMessage\":\"Invalid location\"}")
 	  ((> (length timestamp) 100) "{\"status\":\"INVALID_REQUEST\", \"errorMessage\":\"Invalid timestring\"}")
 	  (t
-	   (hunchentoot:log-message* :info location)
-	   (hunchentoot:log-message* :info timestamp)
+	   ;; (hunchentoot:log-message* :info (format nil "~A" location))
+	   ;; (hunchentoot:log-message* :info (format nil "~A" timestamp))
 	   (sb-ext:with-timeout 2.0
 	     (let* ((timestamp (if timestamp (local-time:universal-to-timestamp (parse-integer timestamp)) (local-time:now)))
 		    (timezone (apply #'lookup (mapcar #'parse-float:parse-float (cl-ppcre:split "," location))))
@@ -62,8 +62,10 @@
 		   (local-time:timestamp-subtimezone timestamp timezone-parsed)
 		 (when dst
 		   (incf offset 3600))
-		 (format nil "{\"status\":\"OK\",\"rawOffset\":~d,\"dstOffset\":~d,\"timeZoneId\":\"~A\" }"
-			 offset (if dst -3600 0) timezone)))))))
+		 (if (string= timezone "null")
+		     (format nil "{\"status\":\"ZERO_RESULTS\"}")
+		     (format nil "{\"status\":\"OK\",\"rawOffset\":~d,\"dstOffset\":~d,\"timeZoneId\":\"~A\" }"
+			     offset (if dst -3600 0) timezone))))))))
     (timeout ()
       (hunchentoot:log-message* :error "Timeout~%")
       (kill-timezone-process)
@@ -74,8 +76,9 @@
 	  (format nil "{\"status\":\"INVALID_REQUEST\"}")
 	(hunchentoot:log-message* :error (format nil "~A" e))
 	(ignore-errors
-	  (kill-timezone-process)
-	  (initialize-timezone-process))))))
+	  (when (not (string= (lookup 49.0 -123.0) "America/Vancouver"))
+	    (kill-timezone-process)
+	    (initialize-timezone-process)))))))
 
 (defvar *acceptor* nil)
 

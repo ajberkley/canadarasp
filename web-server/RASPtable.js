@@ -136,33 +136,34 @@ function step () {
 function callWithTimeZone(callback) {
     var pos = map.getCenter();
     var timestamp = Math.round(Date.now()/1000);
-    //var request = "/timezone?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp+"&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks";
+    var request = "/timezone2?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp;
     var offset = 60*Math.round(pos.lng() * 24 / 360) + 60; //dst hardcoded
-    callback(offset);
-    // var xhttp = new XMLHttpRequest();
-    // xhttp.timeout = 1000; // 1 second before timeout
-    // xhttp.onreadystatechange = function() {
-    // 	if (this.readyState == 4 && this.status == 200) {
-    // 	    var result = JSON.parse(this.responseText);
-    // 	    if(result.status == "ZERO_RESULTS") {
-    // 		var offset = 60*Math.round(pos.lng() * 24 / 360);
-    // 		//console.log("Didn't get an answer from google about time zone offset, so using natural offset of " + offset);
-    // 		callback(offset)
-    // 	    } else {
-    // 		//console.log(this.responseText);
-    // 		//console.log("Got an answer, rawOffset in minutes is + " + result.rawOffset/60 + " dstOffset is " + result.dstOffset/60 );
-    // 		callback(result.rawOffset/60 + result.dstOffset/60);
-    // 	    }
-    // 	}
-    // };
-    // xhttp.ontimeout = function (e) { console.log("Didn't get timezone information, leaving it unchanged");
-    // 				     callback(undefined); };
-    // xhttp.onerror = function (e) { console.log("Error getting timezone"); console.log(e); callback(undefined); };
-    // xhttp.open("GET", request, true);
-    // xhttp.send(); 
+    // callback(offset);
+    var xhttp = new XMLHttpRequest();
+    xhttp.timeout = 1000; // 1 second before timeout
+    xhttp.onreadystatechange = function() {
+    	if (this.readyState == 4 && this.status == 200) {
+    	    var result = JSON.parse(this.responseText);
+    	    if(result.status == "ZERO_RESULTS") {
+    		var offset = 60*Math.round(pos.lng() * 24 / 360);
+    		// console.log("Didn't get an answer from google about time zone offset, so using natural offset of " + offset);
+    		callback(offset, "unknown")
+    	    } else {
+    		console.log(this.responseText);
+    		// console.log("Got an answer, rawOffset in minutes is + " + result.rawOffset/60 + " dstOffset is " + result.dstOffset/60 );
+    		callback(result.rawOffset/60 + result.dstOffset/60, result.timeZoneId);
+    	    }
+    	}
+    };
+    xhttp.ontimeout = function (e) { // console.log("Didn't get timezone information, leaving it unchanged");
+    				     callback(undefined, undefined); };
+    xhttp.onerror = function (e) { // console.log("Error getting timezone"); console.log(e); 
+				   callback(undefined, undefined); };
+    xhttp.open("GET", request, true);
+    xhttp.send(); 
 }
 
-function set_datetime_options (offset_in) {
+function set_datetime_options (offset_in, timezone) {
     var hourstep = 1;
     var hourpast = -24;
     var hourfuture = 99;
@@ -187,7 +188,7 @@ function set_datetime_options (offset_in) {
     }
     //console.log("date time being processed for UTC offset of " + offset);
 
-            var offsethourstring = "Timezone: UTC"+(offsethours<0?"":"+")+offsethours;
+            var offsethourstring = "<small>UTC"+(offsethours<0?"":"+")+offsethours+ " ("+timezone+")</small>";
             document.getElementById("timezone").innerHTML = offsethourstring;
             document.getElementById("timezone").style.display = "block";
     if(oldindex == -1) { // We need to do an initial population of the options.
@@ -264,7 +265,7 @@ function set_number_of_days() {
     // console.log('tried to set to ' + Math.min(oldIndex, num_days) + ' day.options.selectedIndex is ' + day.options.selectedIndex)
 }
 
-function set_archive_hours(offset_in) {
+function set_archive_hours(offset_in, timezone) {
     if(offset_in != undefined) {
 	offset = offset_in;
     } else {
@@ -279,19 +280,19 @@ function set_archive_hours(offset_in) {
 
 }
 
-function set_datetime_and_load_images (offset) {
+function set_datetime_and_load_images (offset, timezone) {
     if(model()=="hrdps archive"){
 	document.getElementById("archivetimepicker").style.height = ""
 	document.getElementById("archivetimepicker").style.visibility = "visible"
 	document.getElementById("normaltimepicker").style.height = "0px"
 	document.getElementById("normaltimepicker").style.visibility = "hidden"
-	set_archive_hours(offset)
+	set_archive_hours(offset, timezone)
     } else {
 	document.getElementById("archivetimepicker").style.height = "0px"
 	document.getElementById("normaltimepicker").style.height = ""
 	document.getElementById("normaltimepicker").style.visibility = "visible"
 	document.getElementById("archivetimepicker").style.visibility = "hidden"
-	set_datetime_options(offset);
+	set_datetime_options(offset, timezone);
     }
     doChange();
 }
