@@ -24,6 +24,7 @@ else
 fi
 aws ec2 wait volume-available --volume-ids $VOL_ID
 echo $VOL_ID available
+sleep 15
 source ./attach-download-box.sh 
 sleep 5
 sudo mkfs.ext4 $BLK_DEV
