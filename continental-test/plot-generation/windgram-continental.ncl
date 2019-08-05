@@ -223,6 +223,10 @@ begin
       hourFrom = taus(min(blarg));
       blarg = (/tTo,numtimes-1/);
       hourTo = taus(min(blarg));
+      ;; Now update the tFrom and tTo based on the hour clipping above
+      tFrom = hour_to_idx(hourFrom-startHour,False)
+      tTo = hour_to_idx(hourTo-startHour,True)
+      print("hourFrom is " + hourFrom + " hourTo is " + hourTo + " startHour is " + startHour);
     else
       hourFrom = taus(0)
       hourTo = taus(numtimes-1)
