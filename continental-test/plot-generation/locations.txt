@@ -190,12 +190,27 @@ Vancouver Island, Heather Mountain,    48.956103, -124.479867,        4500, 0
 Kamloops Area, Chutter Ranch,       50.114444,-120.669722,        4500, 0
 Sea to Sky, Miller Launch,     50.3958,-122.942317,        4500, 0
 Montana, Garrity Mountain, 46.13955, -113.09553, 4500, 0
-Montana, Lion Mountain, 45.3605, -112.5621, 4500, 0
-Montana, Sentinel, 46.5046, -113.5802, 4500, 0
-Montana, The Bumps, 46.1212, -112.5702, 4500, 0
+Montana, Lion Mountain, 45.60309, -112.93998, 4500, 0
+Montana, Sentinel, 46.85442, -113.96487, 4500, 0
+Montana, The Bumps, 46.20288, -112.94988, 4500, 0
 Montana, C Hill, 46.0602, -112.5701, 4500, 0
 Vancouver Island, Empress Mountain, 48.469725, -123.673792, 4500, 0
 Vancouver Island, Mount Muir, 48.480458, -123.866022, 4500, 0
 Vancouver Island, Mount Demers, 48.612844, -124.081825, 4500, 0
 Vancouver Island, Mount Walbran, 48.6919944, -124.5081583, 4500, 0
 Vancouver Island, Klitsa Mountain, 49.2532861, -125.230817, 4500, 0
+New England, Blue Mountain, 40.8115, -75.5224, 4500, 0
+New England, Brace Mountain, 42.0444, -73.4927, 4500, 0
+New England, Burke, 44.577, -71.8973, 4500, 0
+New England, Cannon Mountain, 44.1581, -71.6994, 4500, 0
+New England, Ellenville, 41.6726, -74.4032, 4500, 0
+New England, Hyner, 41.326, -77.6245, 4500, 0
+New England, Lake Champlain, 44.035100, -73.455714, 4500, 0
+New England, Morningside, 43.324, -72.3658, 4500, 0
+New England, Mt. Utsayantha, 42.3991, -74.5855, 4500, 0
+New England, Mt. Greylock, 42.637, -73.1674, 4500, 0
+New England, Mt. Tom, 42.242, -72.6488, 4500, 0
+New England, Plymouth, 41.8048, -70.5336, 4500, 0
+New England, Rocky Point, 40.9632, -72.9283, 4500, 0
+New England, Wellfleet, 41.9344, -69.9799, 4500, 0
+New England, West Rutland, 43.6179, -73.0813, 4500, 0
