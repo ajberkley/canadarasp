@@ -54,6 +54,11 @@ ulocSfc=0
 vlocSfc=0
 taus=0
 show_rain=1
+;; We want to plot from 7AM to 9PM local time
+desiredLocalStartHour = 7 
+desiredLocalEndHour = 21
+skipDayAt = 8 ;; if the day starts at 8AM, skip it, probably not useful as the run takes several hours to get out, so it's already mid-day
+dayOffset = 0
 
 if(model .eq. "hrdps") then
  print("Loading HRDPS procedures")
@@ -198,7 +203,7 @@ begin
    else
     TZ_str = "TZ="+quote+"Etc/GMT+" + abs(utcoffset) + quote 
    end if
-   date_str = TZ_str + " date "+quote+"+%a %d %b %Y %H:%M %Z" + quote+" -d " + quote + yyyy_mm_dd + " +" + tostring(stringtoint(run_time)+1) + "hours UTC" + quote
+   date_str = TZ_str + " date "+quote+"+%a %d %b %Y %H:%M %Z" + quote+" -d " + quote + yyyy_mm_dd + " +" + tostring(stringtoint(run_time)) + "hours UTC" + quote
    local_start_time = systemfunc(date_str)
    print ("Using model initialized on date " + yyyy_mm_dd + " at " + run_time + ":00 UTC")
    print("Local start time of the model is " + local_start_time)
@@ -206,55 +211,55 @@ begin
    print("First hour of the model in local time " + startHour)
    ;; plot_day = -1 implies do all days, otherwise is a day
    do plot_day = -1, numdays
-    if(plot_day.gt.-1) then ; only plot part of the data
-      hourFrom = 7 + 24 * plot_day
-      hourTo = 21 + 24 * plot_day
-      if(startHour.gt.hourFrom) then  ; model starts in the middle of the day. Skip this day
-       print("Partial day available at day " + plot_day + " because startHour is " + startHour + " and hourFrom is " + hourFrom);
-       hourFrom = startHour;
-       if(hourFrom.gt.hourTo) then ;; happens when the model starts late in the day
-        hourTo = hourFrom;
-       end if
+     if(startHour .gt. skipDayAt) then ; model starts too late in the day to be useful
+       dayOffset = (plot_day + 1) * 24 + desiredLocalStartHour - startHour
+     else
+       dayOffset = plot_day * 24 + desiredLocalStartHour - startHour
+     end if
+     if(dayOffset .lt. 0) then
+       dayShift = abs(dayOffset)
+       dayOffset = 0
+     else
+       dayShift = 0
+     end if
+    if(plot_day.gt.-1) then
+      ;; only plot part of the data
+      ;; So, we know startHour.  So we can define for ourselves in local time what a sane enumeration of days would be
+      ;; hourFrom should represent the number of hours from the start of the model
+      hourFrom = max((/0, min((/dayOffset + 24 * plot_day , numtimes - 1/))/))
+      hourTo = max((/0, min((/dayOffset + desiredLocalEndHour - desiredLocalStartHour - dayShift, numtimes - 1/))/))
+      print("So day " + plot_day + " starts at " + dayOffset + " hours into the run and ends at " + hourTo + " hours into the run")
+      if((hourTo - hourFrom) .lt. 5) then
+        print("Skipping day " + plot_day + " because the day has too few hours in it")
+	continue
       end if
+      tFrom = hour_to_idx(hourFrom,False)
+      tTo = hour_to_idx(hourTo,True)
       print("hourFrom is " + hourFrom + " hourTo is " + hourTo + " startHour is " + startHour);
-      tFrom = hour_to_idx(hourFrom-startHour,False)
-      tTo = hour_to_idx(hourTo-startHour,True)
-      blarg = (/tFrom,numtimes-1/);
-      hourFrom = taus(min(blarg));
-      blarg = (/tTo,numtimes-1/);
-      hourTo = taus(min(blarg));
-      ;; Now update the tFrom and tTo based on the hour clipping above
-      tFrom = hour_to_idx(hourFrom-startHour,False);
-      tTo = hour_to_idx(hourTo-startHour,True);
-      print("hourFrom is " + hourFrom + " hourTo is " + hourTo + " startHour is " + startHour);
+      print("tFrom is " + tFrom + " tTo is " + tTo);
+      print("taus(tFrom) = " + taus(tFrom) + " which should be approximately " + hourFrom)
+      print("taus(tTo) = " + taus(tTo) + " which should be approximately " + hourTo)
+      hourFrom = taus(tFrom)
+      hourTo = taus(tTo)
+      print("after rounding to hour spacing hourFrom is " + hourFrom + " hourTo is " + hourTo + " startHour is " + startHour);
     else
-      hourFrom = taus(0)
+      hourFrom = dayOffset
       hourTo = taus(numtimes-1)
-      tFrom = 0
+      tFrom = hour_to_idx(hourFrom, False)
       tTo=numtimes-1
     end if
     print("For day " + plot_day + " we will plot from model hour " + hourFrom + " to hour " + hourTo)
-    if((hourTo-hourFrom) .lt. 5) then
-     print("Nothing interesting to do continuing...")
-     continue;
-    end if
-    if((startHour .gt. 9) .and. (plot_day .eq. 0)) then
-     print("First day starts too late in the day, do not use")
-     continue;
-    end if
     if(plot_day.eq.-1) then
-     ;; The +2 is a kludge to round us from the 06 runs back to today if we are in PT  UGH.
-     ;; find which day has the first daylight hour.
      date_str = TZ_str + " date " + quote + "+%a, %b %d, %Y" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom) + "hours UTC" + quote
      local_day = systemfunc(date_str)
-     print ("local day is " + local_day)
+     print ("local day for multi day plot is " + local_day)
      file_date_str = TZ_str + " date " + quote + "+%Y-%m-%d" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom) + "hours UTC" + quote
      file_date = systemfunc(file_date_str)
      outputfile = output_dir + "/twoDay/" + outputfiletemplate
     else
      date_str = TZ_str + " date " + quote + "+%a, %b %d, %Y" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom) + "hours UTC" + quote
      local_day = systemfunc(date_str)
-     print ("local day is " + local_day)
+     print ("local day for single day plot is " + local_day)
      file_date_str = TZ_str + " date " + quote + "+%Y-%m-%d" + quote + " -d "+ quote + yyyy_mm_dd + " +" + (stringtointeger(run_time)+hourFrom) + "hours UTC" + quote
      file_date = systemfunc(file_date_str)
      outputfile = output_dir + "/oneDay/" + file_date + "/" + outputfiletemplate
@@ -273,8 +278,8 @@ begin
       end if
     end do
     print("Plotting from hour " + hourFrom + " to hour " + hourTo + ", from index " + tFrom + " to index " + tTo)
-    ; print("Daylight hours are " + lstDay)
-    ; print("Night time hours are " + lstNight)
+    ;print("Daylight hours are " + lstDay)
+    ;print("Night time hours are " + lstNight)
     print("Processing " + site_name + " at " + site_lat + "," + site_lon + " with UTC offset " + utcoffset + " hours and writing output to " + outputfile);
      ; find minimum & max z index
     do zBot=0,numlevels-1
