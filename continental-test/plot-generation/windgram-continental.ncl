@@ -226,8 +226,8 @@ begin
       ;; only plot part of the data
       ;; So, we know startHour.  So we can define for ourselves in local time what a sane enumeration of days would be
       ;; hourFrom should represent the number of hours from the start of the model
-      hourFrom = max((/0, min((/dayOffset + 24 * plot_day , numtimes - 1/))/))
-      hourTo = max((/0, min((/dayOffset + desiredLocalEndHour - desiredLocalStartHour - dayShift, numtimes - 1/))/))
+      hourFrom = max((/0, min((/dayOffset , taus(numtimes - 1)/))/))
+      hourTo = max((/0, min((/dayOffset + desiredLocalEndHour - desiredLocalStartHour - dayShift, taus(numtimes - 1)/))/))
       print("So day " + plot_day + " starts at " + dayOffset + " hours into the run and ends at " + hourTo + " hours into the run")
       if((hourTo - hourFrom) .lt. 5) then
         print("Skipping day " + plot_day + " because the day has too few hours in it")
