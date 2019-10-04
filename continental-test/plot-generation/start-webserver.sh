@@ -1,4 +1,8 @@
 #!/bin/bash
 pkill sbcl
 cd /home/ubuntu/continental-test/plot-generation
-nohup ./generate-windgram-on-demand.lisp &
+while true
+do
+nohup ./generate-windgram-on-demand.lisp
+sleep 1
+done
