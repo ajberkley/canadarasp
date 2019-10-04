@@ -70,10 +70,10 @@
     (destructuring-bind (x-blk-size y-blk-size)
 	(gdal-get-block-size* hband)
       (assert (= x-blk-size x-size))
-      (assert (= y-blk-size 1))
+      (assert (zerop (nth-value 1 (truncate y-size y-blk-size))))
       ;;(sb-ext::with-pinned-objects (array)
       (cffi:with-pointer-to-vector-data (ptr (sb-kernel:%array-data-vector array))
-	(loop :for y-offset :from 0 :below y-size
+	(loop :for y-offset :from 0 :below y-size :by y-blk-size
 	   :do
 	   (gdal-read-block hband 0 y-offset
 			    (cffi:inc-pointer ptr (* 8 x-size y-offset))))))
@@ -303,24 +303,4 @@ Example:
 	  (format t "Lower Right (~,4f, ~,4f) (LON ~,6f, LAT ~,6f)~%" lrx lry lrlon lrlat)
 	  (format t "Upper Left is ~A~%" (from-source-geo-ref-to-source-pixel (cons ulx uly)))
 	  (format t "Lower Right is ~A~%" (from-source-geo-ref-to-source-pixel (cons lrx lry)))
-	  (destructuring-bind (x y) (from-source-geo-ref-to-source-pixel (transform-point-unthreadsafe itransform -123.524985d0 49.132d0))
-	    (format t "At -123.524985, 49.132 we are at pixel ~A ~A~%" x y)
-	    (let ((data (gdal-read-all-data (gdal-get-raster-band handle 1))))
-	      (format t "At which point the value of the field is ~A~%" (aref data (round y) (round x)))))
-	  (destructuring-bind (tile-x-min . tile-y-min)
-	      (transform-point-unthreadsafe itransform -122.0d0 48.0d0)
-	    (destructuring-bind (tile-x-max . tile-y-max)
-		(transform-point-unthreadsafe itransform -120.0d0 50.0d0)
-	      (format t "TILE -122:48:-120:50 is ~A -> ~A ~%" (list tile-x-min tile-y-min) (list tile-x-max tile-y-max))
-	      ;; now invert the affine transformation
-	      (destructuring-bind (ulpixelx ulpixely)
-		  (from-source-geo-ref-to-source-pixel (cons tile-x-min tile-y-min))
-		(format t "TILE -122:48:-120:50 is ~A -> ~A~%"
-			(list ulpixelx ulpixely)
-			(from-source-geo-ref-to-source-pixel (cons tile-x-max tile-y-max)))
-		;; Now lets try figuring out what those pixels actually are
-		(let ((geo-ref (from-source-pixel-to-source-geo-ref ulpixelx ulpixely)))
-		  (format t "Pixel (~A,~A) is really ~A which is ~A~%" ulpixelx ulpixely geo-ref
-			  (apply #'from-source-geo-ref-to-lon-lat geo-ref)))
-		)))))
-      (values #'from-google-geo-ref-to-source-geo-ref #'from-source-pixel-to-lon-lat))))
+      (values #'from-google-geo-ref-to-source-geo-ref #'from-source-pixel-to-lon-lat))))))
