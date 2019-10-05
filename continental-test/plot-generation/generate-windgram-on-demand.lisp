@@ -37,7 +37,7 @@
 	(generate-windgram lon lat :one-day-date date))
       (progn
 	(setf (hunchentoot:content-type*) "text/plain")
-	"Invalid location or input: please send an email to ajberkley@gmail.com to request this general area be added.  Generally anything within about 100 km of an existing windgram will work for now.  --ajb Oct 2019")))
+	"Invalid location or input: please send an email to ajberkley@gmail.com to request this general area be added.  Generally anything within about 100 km of an existing windgram will work for now.  If you are generating a one day windgram (the default now), you want to choose a date and time in the date time picker so that the date is the desired date for the one day windgram in UTC time.  So, if you are on the west coast you want to choose a date / time that is at least 7 hours before the date of the target day.  So for example, date / times between 2019-10-01 17:00 and 2019-10-02 17:00 will generate a one day windgram for 2019-10-02.  Sorry for the confusion, I will fix this interface later.  If you want two day windgrams, select the checkbox at the bottom of the left hamburger menu. --ajb Oct 2019")))
   
 
 (hunchentoot:define-easy-handler (default :uri (lambda (x) (not (string= "/windgram" (script-name* x))))) ()
