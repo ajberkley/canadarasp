@@ -1,4 +1,5 @@
 /* Canada RASP tiled map viewer
+    ajb October 2019, on demand windgram interface to allow one day
     ajb March 2019, added archive HRDPS maps for BC
     ajb September 2018, added GDPS
     ajb August 2018, continental coverage!
@@ -55,7 +56,14 @@ function clearWindgrams () {
 }
 
 function onDemandWindgram(lat, lon) {
+    var twoDayDynamic = document.getElementById("twoday_checkbox").checked;
+    var splittime = getSplitTime();
+	console.log(splittime);
+    if (twoDayDynamic) {
 	window.open('windgram?lat='+lat+'&lon='+lon);
+    } else {
+	window.open('windgram?lat='+lat+'&lon='+lon+'&date='+splittime[0]);
+    }
 }
 
 function padwithzero(string) {
