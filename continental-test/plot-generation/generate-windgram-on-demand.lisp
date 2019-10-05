@@ -26,16 +26,18 @@
 	(read-sequence buffer str)
 	buffer)))
 
-(hunchentoot:define-easy-handler (windgram-handler :uri "/windgram") (lon lat)
+(hunchentoot:define-easy-handler (windgram-handler :uri "/windgram") (lon lat date)
   (or (ignore-errors
 	(setf (hunchentoot:content-type*) "image/png")
 	(assert (and (<= (length lon) 100) (<= (length lat) 100)))
 	(parse-real-number lon) ;; this will error if it fails
 	(parse-real-number lat) ;; this will error if it fails
-	(generate-windgram lon lat))
+	(assert (< (length date) 11))
+	(assert (every (lambda (x) (member x '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\-))) date))
+	(generate-windgram lon lat :one-day-date date))
       (progn
 	(setf (hunchentoot:content-type*) "text/plain")
-	"Invalid location: please send an email to ajberkley@gmail.com to request this general area be added.  Generally anything within about 100 km of an existing windgram will work for now (hope to have the entire domain available soon -- ajb Sept 2018)")))
+	"Invalid location or input: please send an email to ajberkley@gmail.com to request this general area be added.  Generally anything within about 100 km of an existing windgram will work for now.  --ajb Oct 2019")))
   
 
 (hunchentoot:define-easy-handler (default :uri (lambda (x) (not (string= "/windgram" (script-name* x))))) ()
@@ -54,7 +56,7 @@
 	      (coerce (nth-value 1 (cl-ppcre:scan-to-strings "hrdps_(.*)-run([0-9]*)_P" (format nil "~A"file))) 'list)
 	    (finding (list date run) maximizing (local-time:timestamp-to-universal (local-time:parse-timestring (format nil "~AT~A:00:00Z" date run))))))))
 
-(defun generate-windgram (lon lat)
+(defun generate-windgram (lon lat &key one-day-date)
   ;; filenames are like: hrdps_continental_2018-09-02-run06_P017.grib2
   (sb-posix:setenv "TZ" "America/Vancouver" 1)
   (sb-posix:setenv "NCARG_ROOT" *ncarg-root* 1)
@@ -65,7 +67,9 @@
 	(find-latest-date (format nil "/mnt/windgram-tiles/hrdps/~A" tile-id))
       (format t "Initialized at ~A run hour ~A~%" date run)
       (let* ((output-filename (format nil "windgram-~A-~A-~A-~A.png" date run lon lat))
-	     (real-output-file (format nil "/mnt/windgrams-data/twoDay/~A" output-filename)))
+	     (real-output-file (if one-day-date
+				   (format nil "/mnt/windgrams-data/oneDay/~A/~A" one-day-date output-filename)
+				   (format nil "/mnt/windgrams-data/twoDay/~A" output-filename))))
 	(ensure-directories-exist real-output-file)
 	(if (cl-fad:file-exists-p real-output-file)
 	    (progn (format t "File exists!~%")
