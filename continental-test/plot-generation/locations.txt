@@ -215,3 +215,4 @@ New England, Rocky Point, 40.9632, -72.9283, 4500, 0
 New England, Wellfleet, 41.9344, -69.9799, 4500, 0
 New England, West Rutland, 43.6179, -73.0813, 4500, 0
 Sea to Sky, Port Smellon, 49.540615, -123.483590, 4500, 0
+Van Island Hidden, Strathcona, 49.741639, -125.312205, 4500, 0
