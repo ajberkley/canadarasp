@@ -57,8 +57,7 @@ function clearWindgrams () {
 
 function onDemandWindgram(lat, lon) {
     var twoDayDynamic = document.getElementById("twoday_checkbox").checked;
-    var splittime = getSplitTime();
-	console.log(splittime);
+    var splittime = getSelectedDateLocal();
     if (twoDayDynamic) {
 	window.open('windgram?lat='+lat+'&lon='+lon);
     } else {
@@ -744,6 +743,21 @@ function getSelectedValue(el) {
     return element.options[index].value
 }
 
+function getSelectedDateLocal() {
+    // returns "yyyy-mm-dd" in local time
+    if(model()=="hrdps archive") {
+	var year = getSelectedValue("yearpicker");
+	var month = getSelectedValue("monthpicker");
+	var day = getSelectedValue("daypicker");
+        return year + "-" + month + "-" + day;
+    } else {
+	var datetimeidx = document.getElementById("datetime").selectedIndex;
+	var tValue  = document.getElementById("datetime").options[datetimeidx].text;
+	var splittime = tValue.split(" ");
+        return splittime[0];
+    }
+}
+
 function getSplitTime() {
     // returns ["yyyy-mm-dd" "0800"] in UTC
     if(model()=="hrdps archive") {
@@ -756,7 +770,7 @@ function getSplitTime() {
 	D.setFullYear(year, month, day)
 	D.setHours(hour/100 - offset/60)
 	var splittime = [D.getFullYear() + "-" + padwithzero(D.getMonth()) + "-" + padwithzero(D.getDate()), padwithzero(D.getHours()) + "00"];
-	// console.log(splittime)
+	// consolel.og(splittime)
 	return splittime
     } else {
 	var datetimeidx = document.getElementById("datetime").selectedIndex;
