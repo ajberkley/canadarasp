@@ -61,7 +61,7 @@ function onDemandWindgram(lat, lon) {
     if (twoDayDynamic) {
 	window.open('windgram?lat='+lat+'&lon='+lon);
     } else {
-	window.open('windgram?lat='+lat+'&lon='+lon+'&date='+splittime[0]);
+	window.open('windgram?lat='+lat+'&lon='+lon+'&date='+splittime);
     }
 }
 
@@ -156,7 +156,7 @@ function callWithTimeZone(callback) {
     		// console.log("Didn't get an answer from google about time zone offset, so using natural offset of " + offset);
     		callback(offset, "unknown")
     	    } else {
-    		console.log(this.responseText);
+	//    		console.log(this.responseText);
     		// console.log("Got an answer, rawOffset in minutes is + " + result.rawOffset/60 + " dstOffset is " + result.dstOffset/60 );
     		callback(result.rawOffset/60 + result.dstOffset/60, result.timeZoneId);
     	    }
@@ -753,6 +753,7 @@ function getSelectedDateLocal() {
     } else {
 	var datetimeidx = document.getElementById("datetime").selectedIndex;
 	var tValue  = document.getElementById("datetime").options[datetimeidx].text;
+	//	console.log(tValue);
 	var splittime = tValue.split(" ");
         return splittime[0];
     }
@@ -770,8 +771,7 @@ function getSplitTime() {
 	D.setFullYear(year, month, day)
 	D.setHours(hour/100 - offset/60)
 	var splittime = [D.getFullYear() + "-" + padwithzero(D.getMonth()) + "-" + padwithzero(D.getDate()), padwithzero(D.getHours()) + "00"];
-	// consolel.og(splittime)
-	return splittime
+	return splittime;
     } else {
 	var datetimeidx = document.getElementById("datetime").selectedIndex;
 	var tValue  = document.getElementById("datetime").options[datetimeidx].value;
