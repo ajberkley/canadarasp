@@ -45,7 +45,10 @@
    (format nil "Access denied"))
 
 (defun start-webserver ()
-  (hunchentoot:start (make-instance 'hunchentoot:easy-acceptor :port 8080)))
+  (hunchentoot:start
+   (make-instance 'hunchentoot:easy-acceptor :port 8080
+		  :taskmaster (make-instance 'hunchentoot:one-thread-per-connection-taskmaster
+					     :max-accept-count 64 :max-thread-count 2))))
 
 (defparameter *ncarg-root* (or (sb-posix:getenv "NCARG_ROOT") "/home/ubuntu/NCARG/"))
 
