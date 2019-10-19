@@ -14,7 +14,7 @@ echo "Generating $DIRECTORY file names" # takes a few seconds
 # This generates a few errors because HGT_SFC (for example) is not available at 000, but at all other times... even though it should be the opposite... whatever.
 for H in ${TIMES[*]}
  do
-  xargs -I {} echo http://$WEBSERVER/$DIRECTORY/$HOUR/0$H/$FILEHEADER"_"{}$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL < $FILE >> /tmp/wget.jobs
+  xargs -I {} echo https://$WEBSERVER/$DIRECTORY/$HOUR/0$H/$FILEHEADER"_"{}$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL < $FILE >> /tmp/wget.jobs
 done
 
 echo "Done generating $DIRECTORY file names"
@@ -29,8 +29,8 @@ echo "Checking data is on the server"
 
 for i in {1 .. 180}
 do
-  echo wget http://$WEBSERVER/$DIRECTORY/$HOUR/0$TIMESTOP/$FILEHEADER"_HGT_ISBL_1015"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"${TIMES[-1]}$TAIL
-       wget http://$WEBSERVER/$DIRECTORY/$HOUR/0$TIMESTOP/$FILEHEADER"_HGT_ISBL_1015"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"${TIMES[-1]}$TAIL
+  echo wget https://$WEBSERVER/$DIRECTORY/$HOUR/0$TIMESTOP/$FILEHEADER"_PRES_SFC_0"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"${TIMES[-1]}$TAIL
+       wget https://$WEBSERVER/$DIRECTORY/$HOUR/0$TIMESTOP/$FILEHEADER"_PRES_SFC_0"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"${TIMES[-1]}$TAIL
   ret=$?
   echo $ret
 
