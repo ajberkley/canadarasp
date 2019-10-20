@@ -345,7 +345,7 @@ function initIt() {
     document.getElementById("datetime").onchange = doChange;
     windgram_checkbox = document.getElementById('windgram_checkbox');
     
-    document.getElementById("Param").options[4].selected  = true;
+    document.getElementById("Param").options[5].selected  = true;
     whichBrowser();
     /*****************************************
      * Process URL tail and set menu options *
