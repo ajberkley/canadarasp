@@ -1,4 +1,5 @@
 /* Canada RASP tiled map viewer
+    ajb October 2019, add surface gust and model to request and cleanups
     ajb October 2019, on demand windgram interface to allow one day
     ajb March 2019, added archive HRDPS maps for BC
     ajb September 2018, added GDPS
@@ -14,7 +15,6 @@
 */
 
 var opacity_control = "N"; // keep track of whether we initialized the opacity control or not
-var archive_mode = false;  // Whether we are browsing archives or not
 var oldParam;
 
 var map;           // stores the google.map
@@ -24,6 +24,10 @@ var OPACITY_MAX_PIXELS = 57; // Width of opacity control image
 var regions = [ "Lower Mainland", "Sea to Sky", "Vancouver Island", "Kamloops Area","North Okanagan","South Okanagan","Kootenays","Smithers Area","Jasper Area","Alberta","Washington","Ski","Cariboo", "Montreal", "Yukon", "Saskatchewan", "Manitoba", "Montana"];
 var windgrammarkers = Array();
 var windgramsinitialized = false;
+
+var HRDPS_ARCHIVE = "hrdps_archive"
+var HRDPS = "hrdps"
+var GDPS = "gdps"
 
 function displayWindgrams() {
     if(windgramsinitialized) {
@@ -56,9 +60,8 @@ function clearWindgrams () {
 }
 
 function onDemandWindgram(lat, lon) {
-    var twoDayDynamic = document.getElementById("twoday_checkbox").checked;
     var splittime = getSelectedDateLocal();
-    if (twoDayDynamic) {
+    if (twoday_checkbox.checked) {
 	window.open('windgram?lat='+lat+'&lon='+lon);
     } else {
 	window.open('windgram?lat='+lat+'&lon='+lon+'&date='+splittime);
@@ -74,30 +77,8 @@ function padwithzero(string) {
     }
 }
 
-function setSize() {
-    return;
-    // var titleBox = document.getElementById("topTitle");
-    // var zoomBox = document.getElementById("zoomBox");;
-    // var scaleBox = document.getElementById("botScale");;
-    // var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-    // var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-    // titleBox.style.height   =  "68px";
-    // titleBox.style.overflow = "hidden" ;
-    // titleBox.style.position = "relative" ;
-
-    // zoomBox = document.getElementById("zoomBox");
-    // zoomBox.style.width = "100vw";
-    // zoomBox.style.overflow = "hidden";
-    // zoomBox.style.position = "relative" ;
-
-    // scaleBox = document.getElementById("botScale");
-    // titleBox.style.height = "50px";
-    // scaleBox.style.overflow = "hidden";
-    // scaleBox.style.position = "relative" ;
-}
-
 function model_is_hrdps() {
-    return(model() == "hrdps" || model() == "hrdps archive")
+    return(model() == HRDPS || model() == HRDPS_ARCHIVE)
 }
 
 function setupParamset () {
@@ -135,7 +116,7 @@ function model () {
 function step () {
     if(model_is_hrdps()) {
 	return 2;
-    } else if(model() === "gdps") {
+    } else if(model() === GDPS) {
 	return 10;
     }
 }
@@ -214,7 +195,7 @@ function set_datetime_options (offset_in, timezone) {
 	    var daylocal = padwithzero(localDate.getUTCDate());
 	    var monthlocal = padwithzero(localDate.getUTCMonth() + 1);
 	    var yearlocal = localDate.getUTCFullYear();
-	    if(model() != "gdps" || ((hourutc % 3) == 0)) { // GDPS is every 3 hours
+	    if(model() != GDPS || ((hourutc % 3) == 0)) { // GDPS is every 3 hours
 		var localtime = yearlocal+"-"+monthlocal+"-"+daylocal+" "+padwithzero(hourlocal)+":"+padwithzero(offsetmins); //+ " UTC"+(offsethours<0?"":"+")+offsethours;
 		var utctime = yearutc+"-"+monthutc+"-"+dayutc+" "+padwithzero(hourutc)+"00";
 		var option = new Option(localtime,utctime);
@@ -288,7 +269,7 @@ function set_archive_hours(offset_in, timezone) {
 }
 
 function set_datetime_and_load_images (offset, timezone) {
-    if(model()=="hrdps archive"){
+    if(model()==HRDPS_ARCHIVE){
 	document.getElementById("archivetimepicker").style.height = ""
 	document.getElementById("archivetimepicker").style.visibility = "visible"
 	document.getElementById("normaltimepicker").style.height = "0px"
@@ -317,6 +298,23 @@ function update_archive_date() {
     callWithTimeZone((function(offset) { set_archive_hours(offset); doChange(); }))
 }
 
+function set_checkbox_to(checkbox, string_state) {
+    if(string_state=="true") {
+	checkbox.checked = true;
+    } else {
+	checkbox.checked = false;
+    }
+}
+
+function set_option_list(options, string_state) {
+    for(j = 0; j < options.length; j++){
+	if(options[j].value == prams[1]){
+	    options[j].selected = true;
+	    break;
+	}
+    }
+}
+
 function initIt() {
     document.getElementById("model").onchange = (function () { document.getElementById("datetime").selectedIndex = -1; callWithTimeZone(set_datetime_and_load_images); setupParamset(); });
     document.getElementById("monthpicker").onchange = update_archive_date;
@@ -334,7 +332,6 @@ function initIt() {
     month.selectedIndex = findIndexOfOptionValue(month,T.getMonth()+1)
     day.selectedIndex = findIndexOfOptionValue(day, T.getDate())
     hour.selectedIndex = 10
-
     
     var lat = 49.05
     var lon = -122.18;
@@ -344,7 +341,8 @@ function initIt() {
     document.getElementById("Param").onchange = doChange;
     document.getElementById("datetime").onchange = doChange;
     windgram_checkbox = document.getElementById('windgram_checkbox');
-    
+    twoday_checkbox = document.getElementById('twoday_checkbox');
+    wind_checkbox = document.getElementById('wind_checkbox');    
     document.getElementById("Param").options[5].selected  = true;
     whichBrowser();
     /*****************************************
@@ -377,13 +375,8 @@ function initIt() {
 		opacity = 1*prams[1];
 	    }
 	    if(prams[0] == "param"){
-		for(j = 0; j < document.getElementById("Param").options.length; j++){
-		    if(document.getElementById("Param").options[j].value == prams[1]){
-			document.getElementById("Param").options[j].selected = true;
-			oldParam = document.getElementById("Param").value
-			break;
-		    }
-		}
+		set_option_list(document.getElementById("Param").options, prams[1])
+		oldParam = document.getElementById("Param").value
 	    }
 	    if(prams[0] == "lat") {
 		lat = 1*prams[1];
@@ -394,12 +387,17 @@ function initIt() {
 	    if(prams[0] == "zoom") {
 		zoom = 1*prams[1];
 	    }
+	    if(prams[0] == "model") {
+		set_option_list(document.getElementById("model").options, prams[1])
+	    }
+	    if(prams[0] == "twodaydynamic") {
+		set_checkbox_to(twoday_checkbox, prams[1])
+	    }
 	    if(prams[0] == "windgrams") {
-		if(prams[1]=="true") {
-		    windgram_checkbox.checked = true;
-		} else {
-		    windgram_checkbox.checked = false;
-		}
+		set_checkbox_to(windgram_checkbox, prams[1])
+	    }
+	    if(prams[0] == "wind_checkbox") {
+		set_checkbox_to(wind_checkbox, prams[1])
 	    }
 	}
     }
@@ -416,24 +414,16 @@ function initIt() {
 	fullscreenControl: false,
 	mapTypeControl: true,
 	mapTypeControlOptions: {
-	    // style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
 	    position: google.maps.ControlPosition.LEFT_BOTTOM
 	}
     };
-    window.addEventListener("resize",setSize,false)
     map = new google.maps.Map(document.getElementById("zoomBox"), myOptions);
-    setSize();
-    // if ( opacity_control == "N" ) {
-    // 	createOpacityControl(map, opacity);
-    // 	opacity_control = "Y";
-    // }
 
     if(windgram_checkbox.checked) {
 	displayWindgrams();
     } else {
 	clearWindgrams();
     }
-    //doChange();
 
     var boundsupdate;
     google.maps.event.addListener(map, "bounds_changed",
@@ -463,6 +453,8 @@ function initIt() {
 	recordpageurl();
     })
     wind_checkbox.addEventListener('change',(event) => { doChange(); recordpageurl();});
+    twoday_checkbox.addEventListener('change',(event) => { recordpageurl();});
+
     google.maps.event.addListener(map,'mouseup', function(){ clearTimeout(map.pressButtonTimer);});
     google.maps.event.addListener(map,'mousemove', function(){ clearTimeout(map.pressButtonTimer);});
     google.maps.event.addListener(map,'dragstart', function(){ clearTimeout(map.pressButtonTimer);});
@@ -479,7 +471,6 @@ function initIt() {
 		bubbles: true,
 		cancelable: true,
 		clientX: 20,
-		/* whatever properties you want to give it */
 	    });
 	    document.dispatchEvent(evt);
 	    onDemandWindgram(lat,lng);
@@ -532,10 +523,18 @@ function getTimeZoneOffset() {
 
 function getBasedir()
 {
-    if(model()=="hrdps archive") {
+    if(model()==HRDPS_ARCHIVE) {
         return("hrdps-map-archive/")
     } else {
         return("map-pngs/" + model() + "/latest/")
+    }
+}
+
+function encode_checkbox(checkbox, param){
+   if(checkbox.checked) {
+       return("," + param + "=true");
+    } else {
+	return("," + param + "=false");
     }
 }
 
@@ -545,12 +544,7 @@ function recordpageurl() {
     var zoom = map.getZoom()
     str = location.href.split("?")[0]
 	+ "?param=" + document.getElementById("Param").value
-	+ ",opacity=" + opacity + ",zoom=" + zoom + ",lat=" + pos.lat() + ",lon=" + pos.lng();
-    if(windgram_checkbox.checked) {
-	str = str + ",windgrams=true";
-    } else {
-	str = str + ",windgrams=false";
-    }
+	+ ",opacity=" + opacity + ",zoom=" + zoom + ",lat=" + pos.lat() + ",lon=" + pos.lng() + ",model=" + model() + encode_checkbox(twoday_checkbox, "twodaydynamic") + encode_checkbox(windgram_checkbox, "windgrams") + encode_checkbox(wind_checkbox, 'wind_checkbox')
     if (window.history.replaceState) {
 	//prevents browser from storing history with each change:
 	window.history.replaceState({}, "CanadaRASP", str);
@@ -606,13 +600,13 @@ function getImage(filename) {
 }
 
 function lat_in_bounds (lat) {
-    if(model() == "hrdps") {
+    if(model() == HRDPS) {
 	if(lat > 29 && lat < 70) {
 	    return true;
 	} else {
 	    return false;
 	}
-    } else if(model() == "hrdps archive") {
+    } else if(model() == HRDPS_ARCHIVE) {
         if(lat >= 48 && lat < 52) {
             return true;
         } else {
@@ -624,13 +618,13 @@ function lat_in_bounds (lat) {
 }
 
 function lng_in_bounds (lng) {
-    if(model() == "hrdps") {
+    if(model() == HRDPS) {
 	if(lng>= -153 && lng < -43) {
 	    return true;
 	} else {
 	    return false;
 	}
-    } else if(model() == "hrdps archive") {
+    } else if(model() == HRDPS_ARCHIVE) {
         if(lng>=-124 && lng < -118) {
             return true;
         } else {
@@ -694,9 +688,9 @@ function clearOverlaysnotIn (tiles) {
 function model_parent() {
    var model;
    if(model_is_hrdps()) {
-       model = "hrdps"
+       model = HRDPS
    } else {
-       model = "gdps"
+       model = GDPS
    }
    return model;
 }
@@ -745,7 +739,7 @@ function getSelectedValue(el) {
 
 function getSelectedDateLocal() {
     // returns "yyyy-mm-dd" in local time
-    if(model()=="hrdps archive") {
+    if(model()==HRDPS_ARCHIVE) {
 	var year = getSelectedValue("yearpicker");
 	var month = getSelectedValue("monthpicker");
 	var day = getSelectedValue("daypicker");
@@ -761,7 +755,7 @@ function getSelectedDateLocal() {
 
 function getSplitTime() {
     // returns ["yyyy-mm-dd" "0800"] in UTC
-    if(model()=="hrdps archive") {
+    if(model()==HRDPS_ARCHIVE) {
 	var offset = getTimeZoneOffset();
 	var year = getSelectedValue("yearpicker")
 	var month = getSelectedValue("monthpicker")
@@ -786,8 +780,7 @@ function getParam() {
 }
 
 function displayWind () {
-  wind_checkbox = document.getElementById('wind_checkbox').checked;
-  if(wind_checkbox) {
+  if(wind_checkbox.checked) {
     var name = getParam();
     var index = name.indexOf("wind");
     if((index > -1) && (name.indexOf("vwind") == -1)) {
@@ -1172,7 +1165,7 @@ function drawWindCanvas(inputcanvas,outputcanvas, zoom) {
       if(zoom == "high") { scale = 10; step = 1; linewidth = 1;}
       else if(zoom == "medium") { scale = 20; step = 4; linewidth = 4;}
       else { scale = 30 ; step = 15 ; linewidth = 7;}
-    } else if (model() == "gdps") {
+    } else if (model() == GDPS) {
       if(zoom == "high" || zoom == "medium") {
         scale = 10; step = 1; linewidth = 1;
       } else if(zoom=="low") { scale = 30; step = 3; linewidth = 3;}
