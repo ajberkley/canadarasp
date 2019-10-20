@@ -259,6 +259,7 @@
     ("terrain" "Terrain Height" "HGT_SFC_0" :mag ,*terrain-color-scale* "m")
     ("sfcpres" "Pressure MSL (mbar)" "PRMSL_MSL_0" :mag ,*surface-pressure-color-scale* "mbar" ,(lambda (x) (/ x 100.0)))
     ("rain" "Rain (mm/hr)" "PRATE_SFC_0" :mag ,*rain-color-scale* "mm/hr" ,(lambda (x) (* x 3600.0))) ;; kg m^2/s, water density is 1 g/cm^3
+    ("maxgust" "Max surface gust" "GUST_MAX_TGL_10" :mag ,*wind-color-scale* "[km/hr]")
     ))
 
 (load "model-parameters.lisp")
@@ -706,7 +707,7 @@ Doesn't work, tried a bunch of stuff.  UGH.  So, let's split the files before wa
 	       (labels ((d (filelabel)
 			  (format nil "~A/~A_~A~A~A~2,'0d~2,'0d~2,'0d_P~3,'0d~A"
 				  *directory* *fileheader* (translate-from-hrdps-names-to-current-model filelabel) *resolution* forecast-init-year forecast-init-month forecast-init-day forecast-init-hour 
-                                  (if (string= filelabel "HGT_SFC_0") 0 forecast-hour)
+                                  forecast-hour
                                   *tail*)))
 		 (if (listp filelabel/s) (mapcar #'d filelabel/s) (d filelabel/s))))
 	     (output-directory ()
