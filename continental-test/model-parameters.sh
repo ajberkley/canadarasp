@@ -48,14 +48,14 @@ if [ $MODEL = "hrdps" ]; then
 fi
 if [ $MODEL = "gdps" ]; then
    export WEBSERVER="hpfx.collab.science.gc.ca"
-   export DIRECTORY="$YEAR$MONTH$DAY/WXO-DD/model_gem_global/25km/grib2/lat_lon"
+   export DIRECTORY="$YEAR$MONTH$DAY/WXO-DD/model_gem_global/15km/grib2/lat_lon"
    # export WEBSERVER="dd.weather.gc.ca"
    # export DIRECTORY="model_gem_global/25km/grib2/lat_lon"
    export FILEHEADER="CMC_glb"
    export TIMESTART="0"
    export TIMESTEP="3"
    export TIMESTOP="99"
-   export RESOLUTION="_latlon.24x.24_"
+   export RESOLUTION="_latlon.15x.15_"
    export TAIL=".grib2"
    export FILE="GDPS-files.txt"
    export OUTPUTDIR="/mnt/input/gdps"
