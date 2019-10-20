@@ -46,6 +46,7 @@ paramListFull[ 39 ]= ["optionBoldBlue","wind4200","Wind at 4200m", "The speed an
 paramListFull[ 40 ]= ["",		 "cloudbase", 					"Cloud base", "If there are clouds, this shows cloudbase in m."];
 paramListFull[ 41 ]= ["",		 "terrain", 					"Terrain Height", "Height of model terrain"];
 paramListFull[ 42  ]= ["optionBoldRed","nope1","- OTHER -","noclick"];
+paramListFull[ 43 ]= ["optionBoldBlue",		 "maxgust", 					"Max wind gust", "Maximum predicted wind gust at the surface"];
 
 
 var HRDPSparamListFull = [
@@ -53,6 +54,7 @@ var HRDPSparamListFull = [
 	paramListFull[4],
 	paramListFull[5],
 	paramListFull[6],
+	paramListFull[43],
 	paramListFull[7],
 	paramListFull[8],
 	paramListFull[9],
@@ -86,6 +88,7 @@ var GDPSparamListFull = [
 	paramListFull[4],
 	paramListFull[5],
 	paramListFull[6],
+	paramListFull[43],
 	paramListFull[7],
 	paramListFull[8],
 	paramListFull[9],
