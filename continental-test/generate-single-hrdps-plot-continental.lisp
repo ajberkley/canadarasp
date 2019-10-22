@@ -259,7 +259,7 @@
     ("terrain" "Terrain Height" "HGT_SFC_0" :mag ,*terrain-color-scale* "m")
     ("sfcpres" "Pressure MSL (mbar)" "PRMSL_MSL_0" :mag ,*surface-pressure-color-scale* "mbar" ,(lambda (x) (/ x 100.0)))
     ("rain" "Rain (mm/hr)" "PRATE_SFC_0" :mag ,*rain-color-scale* "mm/hr" ,(lambda (x) (* x 3600.0))) ;; kg m^2/s, water density is 1 g/cm^3
-    ("maxgust" "Max surface gust" "GUST_MAX_TGL_10" :mag ,*wind-color-scale* "[km/hr]")
+    ("maxgust" "Max surface gust" "GUST_MAX_TGL_10" :mag ,*wind-color-scale* "[km/hr]" ,(lambda (x) (* 3.6 x)))
     ))
 
 (load "model-parameters.lisp")
