@@ -41,11 +41,12 @@ if [ -z $NODIRS ]; then
    done
    echo "Making directories ends at `date`"
 fi
-
-if [ -z $NOCLIP ]; then
-  echo "Starting clipping wind to terrain at `date`"
-  ./clip-wind-to-terrain.sh
-  echo "Done clipping wind to terrain at `date`"
+if [ $MODEL == "hrdps" ]; then
+  if [ -z $NOCLIP ]; then
+    echo "Starting clipping wind to terrain at `date`"
+    ./clip-wind-to-terrain.sh
+    echo "Done clipping wind to terrain at `date`"
+  fi
 fi
 
 if [ -z $NOTILES ]; then
@@ -55,9 +56,7 @@ if [ -z $NOTILES ]; then
 fi
 if [ -z $NOWINDGRAMS ]; then
     echo "Generating windgrams at `date`"
-#    if [ $MODEL = "hrdps" ]; then
          ./do-windgrams-continental.sh $YEAR $MONTH $DAY $HOUR
-#    fi
     echo "Done generating windgrams `date`"
 fi
 if [ -z $NOMAP ]; then     # if string is NULL
