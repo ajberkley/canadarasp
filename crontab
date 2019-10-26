@@ -23,7 +23,7 @@ SHELL=/bin/bash
 BASH_ENV=/home/ubuntu/.bashrc
 PATH=$PATH:/bin:/usr/bin:/home/ubuntu/.local/bin:/sbin:/usr/sbin
 # m h  dom mon dow   command
-15 16 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh gdps >> /tmp/cronlog 2>&1
+15 8 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh gdps >> /tmp/cronlog 2>&1
 15 1 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh hrdps >> /tmp/cronlog 2>&1
 30 13 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh hrdps >> /tmp/cronlog 2>&1
 5 8 * * * /home/ubuntu/canadarasp/make-windgram-dirs.sh
