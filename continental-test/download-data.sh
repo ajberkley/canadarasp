@@ -47,3 +47,4 @@ parallel --gnu -n 8 -j 8 wget --timeout=120 -c -nc -nv {} < /tmp/wget.jobs
 echo "Second time"
 parallel --gnu -n 8 -j 4 wget -c -nc -nv {} < /tmp/wget.jobs
 cd $RASPBASEDIR
+source ./clean-up-hgt-sfc.sh $MODEL $DOWNLOADDIRECTORY
