@@ -29,8 +29,8 @@ echo "Checking data is on the server"
 
 for i in {1 .. 180}
 do
-  echo wget https://$WEBSERVER/$DIRECTORY/$HOUR/0$TIMESTOP/$FILEHEADER"_PRES_SFC_0"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"${TIMES[-1]}$TAIL
-       wget https://$WEBSERVER/$DIRECTORY/$HOUR/0$TIMESTOP/$FILEHEADER"_PRES_SFC_0"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"${TIMES[-1]}$TAIL
+  echo wget --timeout=30 https://$WEBSERVER/$DIRECTORY/$HOUR/0$TIMESTOP/$FILEHEADER"_PRES_SFC_0"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"${TIMES[-1]}$TAIL
+       wget --timeout=30 https://$WEBSERVER/$DIRECTORY/$HOUR/0$TIMESTOP/$FILEHEADER"_PRES_SFC_0"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"${TIMES[-1]}$TAIL
   ret=$?
   echo $ret
 
@@ -43,8 +43,12 @@ do
 done
 
 echo "downloading $DIRECTORY data from time 0 to $TIMESTOP by $TIMESTEP hours input $DOWNLOADDIRECTORY"
-parallel --gnu -n 8 -j 8 wget --timeout=120 -c -nc -nv {} < /tmp/wget.jobs
+parallel --gnu -n 8 -j 8 wget --timeout=60 -c -nc -nv {} < /tmp/wget.jobs
 echo "Second time"
-parallel --gnu -n 8 -j 4 wget -c -nc -nv {} < /tmp/wget.jobs
+parallel --gnu -n 8 -j 4 wget --timeout=60 -c -nc -nv {} < /tmp/wget.jobs
+echo "Third time"
+parallel --gnu -n 8 -j 4 wget --timeout=60 -c -nc -nv {} < /tmp/wget.jobs
+echo "Fourth time"
+parallel --gnu -n 8 -j 4 wget --timeout=60 -c -nc -nv {} < /tmp/wget.jobs
 cd $RASPBASEDIR
 source ./clean-up-hgt-sfc.sh $MODEL $DOWNLOADDIRECTORY
