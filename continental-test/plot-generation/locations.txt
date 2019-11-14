@@ -216,3 +216,7 @@ New England, Wellfleet, 41.9344, -69.9799, 4500, 0
 New England, West Rutland, 43.6179, -73.0813, 4500, 0
 Sea to Sky, Port Smellon, 49.540615, -123.483590, 4500, 0
 Van Island Hidden, Strathcona, 49.741639, -125.312205, 4500, 0
+Montana, Tarkio, 47.026711, -114.702461, 4500, 0
+Montana, Cooney, 47.579179, -113.620464, 4500, 0
+Montana, Morrell, 47.197203, -113.357026, 4500, 0
+Montana, Wolverine, 47.427573, -113.547494, 4500, 0
