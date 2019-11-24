@@ -9,8 +9,7 @@ HR=`date -u +%H`  # takes about 7-9 hours for a run to be complete
 # HOUR 18 takes 7 hours to run, so it is ready at 0000 and good until 0700 ;; ok, i changed this to be 0000 so we don't have to round back hour=12 too...
 ROUNDBACK=0
 if [ $MODEL == "gdps" ]; then
-  if [ $HR -gt 3 -a $HR -lt 17 ] ; then export HOUR=00 ; else export HOUR=12; fi;
-  if [ $HOUR == 12 ]; then ROUNDBACK=1; fi;
+  export HOUR=00
 else
   if [ $HR -ge 0 -a $HR -le 7 ] ; then export HOUR=18 ; elif [ $HR -gt 7 -a $HR -lt 13 ] ; then export HOUR=00 ; elif [ $HR -ge 13 -a $HR -le 19 ]; then export HOUR=06; else export HOUR=12; fi;
   if [ $HOUR == 18 ]; then ROUNDBACK=1; fi;

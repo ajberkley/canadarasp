@@ -65,19 +65,20 @@
 (defun gdal-read-all-data (hband)
   (assert (eq (gdal-get-raster-data-type hband) :gdt_float64))
   (let* ((x-size (gdal-get-raster-band-x-size hband))
-	 (y-size (gdal-get-raster-band-y-size hband))
-	 (array (make-array (list y-size x-size) :element-type 'double-float)))
+	 (y-size (gdal-get-raster-band-y-size hband)))
     (destructuring-bind (x-blk-size y-blk-size)
 	(gdal-get-block-size* hband)
       (assert (= x-blk-size x-size))
-      (assert (zerop (nth-value 1 (truncate y-size y-blk-size))))
-      ;;(sb-ext::with-pinned-objects (array)
-      (cffi:with-pointer-to-vector-data (ptr (sb-kernel:%array-data-vector array))
-	(loop :for y-offset :from 0 :below y-size :by y-blk-size
-	   :do
-	   (gdal-read-block hband 0 y-offset
-			    (cffi:inc-pointer ptr (* 8 x-size y-offset))))))
-    array))
+      (let ((array (make-array (list (* y-blk-size (ceiling y-size y-blk-size)) x-size)
+                               :element-type 'double-float)))
+        ;;(assert (zerop (nth-value 1 (truncate y-size y-blk-size))))
+        ;;(sb-ext::with-pinned-objects (array)
+        (cffi:with-pointer-to-vector-data (ptr (sb-kernel:%array-data-vector array))
+          (loop :for y-offset :from 0 :below y-size :by y-blk-size
+             :do
+             (gdal-read-block hband 0 (floor y-offset y-blk-size)
+                              (cffi:inc-pointer ptr (* 8 x-size y-offset)))))
+        array))))
 
 (declaim (inline array-map))
 (defun array-map (output-type function &rest arrays)
