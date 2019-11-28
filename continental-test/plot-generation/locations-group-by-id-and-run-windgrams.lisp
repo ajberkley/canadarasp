@@ -17,10 +17,11 @@
 	    :for index :from 0
 	    :while line
 	    :do
-	       (destructuring-bind (region location lon lat max-altitude flag)
+	       (destructuring-bind (region location lon lat &optional model)
 		   (mapcar (lambda (x) (string-trim '(#\Space) x)) (cl-ppcre:split "," line))
-		 (declare (ignorable flag max-altitude flag region))
-		 (push (list :label-lat-lon (format nil "~A,~A,~A" location lon lat) :index index) (gethash (tile-id lon lat) result-hash)))))
+		 (declare (ignorable region))
+		 (when (or (not model) (string= model *model*))
+		   (push (list :label-lat-lon (format nil "~A,~A,~A" location lon lat) :index index) (gethash (tile-id lon lat) result-hash)))))
     (with-open-file (out outputfilename :direction :output :if-exists :supersede)
       (iter (for (tile-id list-of-sites) in-hashtable result-hash)
 	       (for labels_lats_lons = "")
