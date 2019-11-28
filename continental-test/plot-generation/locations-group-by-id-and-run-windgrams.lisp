@@ -21,7 +21,7 @@
 		   (mapcar (lambda (x) (string-trim '(#\Space) x)) (cl-ppcre:split "," line))
 		 (declare (ignorable region))
 		 (when (or (not model) (string= model *model*))
-		   (push (list :label-lat-lon (format nil "~A,~A,~A" location lon lat) :index index) (gethash (tile-id lon lat) result-hash)))))
+		   (push (list :label-lat-lon (format nil "~A,~A,~A" location lon lat) :index index) (gethash (tile-id lon lat) result-hash))))))
     (with-open-file (out outputfilename :direction :output :if-exists :supersede)
       (iter (for (tile-id list-of-sites) in-hashtable result-hash)
 	       (for labels_lats_lons = "")
