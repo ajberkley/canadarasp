@@ -221,4 +221,8 @@ Montana, Cooney, 47.579179, -113.620464
 Montana, Morrell, 47.197203, -113.357026
 Montana, Wolverine, 47.427573, -113.547494
 Mexico, La Malinche, 18.9224610, -99.5970052, gdps
-Mexico, Iguala, 18.3864107, -99.4737014, gdps
+Mexico, Iguala, 18.5888915, -99.6063711, gdps
+Mexico, Upper San Marcos, 20.3516590, -103.5410829, gdps
+Mexico, Tapalpa Launch, 19.9422450, -103.6540016, gdps
+Mexico, El Picacho Launch, 19.0129322, -99.4722801, gdps
+Mexico, Bistro launch Malinolco, 19.0098685, -99.4907445, gdps
