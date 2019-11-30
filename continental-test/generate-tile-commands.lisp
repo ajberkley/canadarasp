@@ -18,7 +18,8 @@
 	 (destructuring-bind (region location lon lat &optional model)
 	     (mapcar (lambda (x) (string-trim '(#\Space) x)) (cl-ppcre:split "," line))
 	   (declare (ignorable region model location))
-	   (pushnew (multiple-value-list (tile-id lon lat)) tile-ids :test #'equalp))))
+	   (when (or (not model) (string= model *model*))
+	     (pushnew (multiple-value-list (tile-id lon lat)) tile-ids :test #'equalp)))))
     tile-ids))
 
 (defun only-required-tile-iterator ()
