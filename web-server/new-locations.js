@@ -233,3 +233,4 @@ locations[225]=["Mexico","El Picacho Launch",19.0129322,-99.4722801];
 locations[226]=["Mexico","Bistro launch Malinolco",19.0098685,-99.4907445];
 locations[227]=["Mexico","Taxco Launch",18.5888915,-99.6063711];
 locations[228]=["Mexico","Zaachila Launch",16.93435278,-96.827794444];
+locations[229]=["Northern BC","Knipple Lake",56.396610,-129.987623];
