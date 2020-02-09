@@ -424,7 +424,7 @@
 
 (defcached get-terrain-altitude ()
   (let ((data (handler-case
-		  (grib-load-data (input-file "HGT_SFC" :level 0))
+		  (grib-load-data (input-file "HGT_SFC" :level 0 :forecast-hour *forecast-hour*))
 		(sb-int:simple-file-error ()
 		  (grib-load-data (input-file "HGT_SFC" :level 0 :forecast-hour 0))))))
     data))
@@ -432,17 +432,17 @@
 (defcached get-altitudes ()
   (mapcar (lambda (isbl-level)
 	     (cons isbl-level
-		   (grib-load-data (input-file "HGT_ISBL" :isbl-level isbl-level))))
+		   (grib-load-data (input-file "HGT_ISBL" :isbl-level isbl-level :forecast-hour *forecast-hour*))))
 	  *isbl-levels*))
 
 (defcached get-temperatures ()
   (mapcar (lambda (isbl-level)
 	     (cons isbl-level
-		   (grib-load-data (input-file "TMP_ISBL" :isbl-level isbl-level))))
+		   (grib-load-data (input-file "TMP_ISBL" :isbl-level isbl-level :forecast-hour *forecast-hour*))))
 	  *isbl-levels*))
 
 (defcached get-surface-temperature ()
-  (let ((data (grib-load-data (input-file "TMP_TGL" :level 2))))
+  (let ((data (grib-load-data (input-file "TMP_TGL" :level 2 :forecast-hour *forecast-hour*))))
     data))
 
 (defconstant +dry-adiabatic-lapse-rate+ 0.0098d0 "K / meter")
@@ -490,10 +490,10 @@
 ;; now need surface sensible heat flux, vhf, etc...
 
 (defcached get-surface-sensible-heat-flux ()
-  (grib-load-data (input-file "SHTFL_SFC" :level 0)))
+  (grib-load-data (input-file "SHTFL_SFC" :level 0 :forecast-hour *forecast-hour*)))
 
 (defcached get-latent-heat-flux ()
-  (grib-load-data (input-file "LHTFL_SFC" :level 0)))
+  (grib-load-data (input-file "LHTFL_SFC" :level 0 :forecast-hour *forecast-hour*)))
 
 (defconstant +heat-capacity-of-air-rt+ 1006d0 "J/kg K at STP for dry air")
 (defconstant +heat-of-vaporization-of-water+ 2.502d6 "J/kg")
@@ -508,7 +508,7 @@
 			  (get-surface-temperature)))
 
 (defcached get-surface-pressure ()
-  (grib-load-data (input-file "PRES_SFC" :level 0)))
+  (grib-load-data (input-file "PRES_SFC" :level 0 :forecast-hour *forecast-hour*)))
 
 (defcached get-potential-temperature ()
   "Potential temperature is the temperature a parcel of air would have if
@@ -572,7 +572,7 @@
   ;; Need to get boundary layer depth to make sure we don't predict clouds
   ;; that would never form
   (let ((surface-dewpoint-depression
-	 (grib-load-data (input-file "DEPR_TGL" :level 2))))
+	 (grib-load-data (input-file "DEPR_TGL" :level 2 :forecast-hour *forecast-hour*))))
     (array-map-double-float (lambda (x h) (+ (* x 121d0) h))
 			    surface-dewpoint-depression (get-terrain-altitude))))
 
@@ -661,14 +661,14 @@
 
 (defun write-double-array (array variable-name parameter-num)
   (sb-ext::with-pinned-objects (array)
-    (with-code-handle (handle (handler-case (grib-clone (input-file "HGT_SFC" :level 0))
+    (with-code-handle (handle (handler-case (grib-clone (input-file "HGT_SFC" :level 0 :forecast-hour *forecast-hour*))
 				(sb-int:simple-file-error ()
 				  (grib-clone (input-file "HGT_SFC" :level 0 :forecast-hour 0)))))
       (codes_set_long handle "parameterCategory" 190)
       (codes_set_long handle "parameterNumber" parameter-num)
       (codes_set_long handle "local_table" 1)
       (codes-set-double-array handle "values" array)
-      (let ((filename (cl-ppcre:regex-replace "HGT_SFC" (input-file "HGT_SFC" :level 0) variable-name)))
+      (let ((filename (cl-ppcre:regex-replace "HGT_SFC" (input-file "HGT_SFC" :level 0 :forecast-hour *forecast-hour*) variable-name)))
 	(format t "Writing file ~A~%" filename)
 	(codes_write_message handle filename "w")))))
 
@@ -690,7 +690,7 @@
     (write-double-array bldepth "BLDEPTH" 194)))
 
 (defun read-back-hcrit-agl ()
-  (grib-load-data (input-file "HCRIT_SFC" :level 0) :print-statistics t)
+  (grib-load-data (input-file "HCRIT_SFC" :level 0 :forecast-hour *forecast-hour*) :print-statistics t)
   nil)
 
 (defun do-all-variables (hours)
