@@ -11,7 +11,7 @@ ROUNDBACK=0
 if [ $MODEL == "gdps" ]; then
   export HOUR=00
 else
-  if [ $HR -ge 0 -a $HR -le 7 ] ; then export HOUR=18 ; elif [ $HR -gt 7 -a $HR -lt 13 ] ; then export HOUR=00 ; elif [ $HR -ge 13 -a $HR -le 19 ]; then export HOUR=06; else export HOUR=12; fi;
+  if [ $HR -ge 0 -a $HR -le 7 ] ; then export HOUR=18 ; elif [ $HR -gt 7 -a $HR -lt 12 ] ; then export HOUR=00 ; elif [ $HR -ge 12 -a $HR -le 19 ]; then export HOUR=06; else export HOUR=12; fi;
   if [ $HOUR == 18 ]; then ROUNDBACK=1; fi;
 fi
 
