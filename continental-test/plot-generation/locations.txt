@@ -231,3 +231,4 @@ Mexico, Zaachila Launch, 16.93435278, -96.827794444, gdps
 Northern BC, Knipple Lake, 56.396610, -129.987623
 Sea to Sky, Brittania, 49.6345, -123.19895
 Sea to Sky, Lonetree Lions Bay, 49.439675, -123.230853
+South Okanagan, Wilson Mt, 49.193419,-119.562444
