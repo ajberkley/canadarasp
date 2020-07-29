@@ -234,3 +234,4 @@ Sea to Sky, Lonetree Lions Bay, 49.439675, -123.230853
 South Okanagan, Wilson Mt, 49.193419,-119.562444
 Sunshine Coast, Saltery Bay, 49.789414, -123.7761
 Vancouver Island, Gold River, 49.803608, -126.024633
+Kootenays, Mt. Eerie, 49.192660, -117.420842
