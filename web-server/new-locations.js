@@ -239,3 +239,7 @@ locations[231]=["Sea to Sky","Lonetree Lions Bay",49.439675,-123.230853];
 locations[232]=["South Okanagan","Wilson Mt",49.193419,-119.562444];
 locations[233]=["Sunshine Coast","Saltery Bay",49.789414,-123.7761];
 locations[234]=["Vancouver Island","Gold River",49.803608,-126.024633];
+locations[235]=["Kootenays","Mt. Eerie",49.192660,-117.420842];
+locations[236]=["Montreal","CSS4",45.63243,-72.822218];
+locations[237]=["Montreal","CSR3",46.113839,-71.929765];
+locations[238]=["Montreal","Mont Ham-Sud",45.7933324,-71.6429429];
