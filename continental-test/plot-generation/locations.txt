@@ -237,4 +237,6 @@ Vancouver Island, Gold River, 49.803608, -126.024633
 Kootenays, Mt. Eerie, 49.192660, -117.420842
 Montreal, CSS4, 45.63243, -72.822218
 Montreal, CSR3, 46.113839, -71.929765
-Montreal, Mont Ham-Sud, 45.7933324, -71.6429429 
+Montreal, Mont Ham-Sud, 45.7933324, -71.6429429
+Hidden, Waterton Alberta, 49.050651, -113.911664 
+Hidden, Castle Mountain Alberta, 49.319147, -114.412594
