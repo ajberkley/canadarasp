@@ -2,14 +2,11 @@
 cd /tmp
 rm -f blarg.png
 HOUR=`date +%H`
-if [ "$HOUR" -le 8 ] ; then
+if [ "$HOUR" -le 14 ] ; then
 	INITHOUR=1800
 	YYYYMMDD=`date --date="now - 1 day" +%Y-%m-%d`
-elif [ "$HOUR" -le 20 ] ; then
-	INITHOUR=0600
-	YYYYMMDD=`date +%Y-%m-%d`
 else
-	INITHOUR=1800
+	INITHOUR=0600
 	YYYYMMDD=`date +%Y-%m-%d`
 fi
 echo Run was $YYYYMMDD $INITHOUR
