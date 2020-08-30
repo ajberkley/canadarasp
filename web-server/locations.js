@@ -243,3 +243,5 @@ locations[235]=["Kootenays","Mt. Eerie"];
 locations[236]=["Montreal","CSS4"];
 locations[237]=["Montreal","CSR3"];
 locations[238]=["Montreal","Mont Ham-Sud"];
+locations[239]=["Hidden","Waterton Alberta"];
+locations[240]=["Hidden","Castle Mountain Alberta"];
