@@ -24,4 +24,4 @@ else
 	echo "Map not available, bad"
 	aws cloudwatch put-metric-data --namespace canadarasp --metric-name hrdps_maps --value 0
 fi
-#rm blarg.png
+rm -f blarg.png

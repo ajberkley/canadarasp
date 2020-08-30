@@ -23,15 +23,29 @@ SHELL=/bin/bash
 BASH_ENV=/home/ubuntu/.bashrc
 PATH=$PATH:/bin:/usr/bin:/home/ubuntu/.local/bin:/sbin:/usr/sbin
 # m h  dom mon dow   command
+# CANADARASP
 00 00 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/check-service.sh
 15 01 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh hrdps >> /tmp/cronlog 2>&1
-30 01 * * * source ~/.bashrc ; (cd /home/ubuntu/hrdps-coastal-info/; ./upload-files-to-s3.lisp hrdps >> /tmp/cronlog)
-45 01 * * * source ~/.bashrc ; /home/ubuntu/hrdps-coastal-info/check-service.sh hrdps_continental
 30 03 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/check-service.sh
-00 05 * * * source ~/.bashrc ; (cd /home/ubuntu/hrdps-coastal-info/ ; ./upload-files-to-s3.lisp gdps > /tmp/cronlog)
-15 05 * * * source ~/.bashrc ; /home/ubuntu/hrdps-coastal-info/check-service.sh glb
 15 08 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh gdps >> /tmp/cronlog 2>&1
 05 08 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/make-windgram-dirs.sh
-30 13 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh hrdps >> /tmp/cronlog 2>&1
-45 13 * * * source ~/.bashrc ; (cd /home/ubuntu/hrdps-coastal-info/; ./upload-files-to-s3.lisp hrdps >> /tmp/cronlog)
-00 14 * * * source ~/.bashrc ; /home/ubuntu/hrdps-coastal-info/check-service.sh hrdps_continental
+30 12 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh hrdps >> /tmp/cronlog 2>&1
+00 *  * * * source ~/.bashrc ; /home/ubuntu/canadarasp/check-maps.sh
+# 12 30 was 13 30... could be as early as 11 00??
+# SURFACE GDPS
+00 5 * * * source ~/.bashrc ; (cd /home/ubuntu/hrdps-coastal-info/ ; ./upload-files-to-s3.lisp gdps >> /tmp/cronlog)  # 00
+15 6 * * * source ~/.bashrc ; /home/ubuntu/hrdps-coastal-info/check-service.sh glb 42
+# 00 01 * * * source ~/.bashrc ; /home/ubuntu/hrdps-coastal-info/trim-all.sh glb
+00 15 * * * source ~/.bashrc ; /home/ubuntu/hrdps-coastal-info/check-all.sh glb
+# SURFACE HRDPS
+30 1 * * * source ~/.bashrc ; (cd /home/ubuntu/hrdps-coastal-info/; ./upload-files-to-s3.lisp hrdps >> /tmp/cronlog)
+30 8 * * * source ~/.bashrc ; (cd /home/ubuntu/hrdps-coastal-info/; ./upload-files-to-s3.lisp hrdps >> /tmp/cronlog)
+30 14 * * * source ~/.bashrc ; (cd /home/ubuntu/hrdps-coastal-info/; ./upload-files-to-s3.lisp hrdps >> /tmp/cronlog)
+30 21 * * * source ~/.bashrc ; (cd /home/ubuntu/hrdps-coastal-info/; ./upload-files-to-s3.lisp hrdps >> /tmp/cronlog)
+45 1 * * * source ~/.bashrc ; /home/ubuntu/hrdps-coastal-info/check-service.sh hrdps_continental  16 # 18
+45 8 * * * source ~/.bashrc ; /home/ubuntu/hrdps-coastal-info/check-service.sh hrdps_continental  15 # 00
+45 14 * * * source ~/.bashrc ; /home/ubuntu/hrdps-coastal-info/check-service.sh hrdps_continental 15 # 06
+45 21 * * * source ~/.bashrc ; /home/ubuntu/hrdps-coastal-info/check-service.sh hrdps_continental 15 # 12
+00 15 * * * source ~/.bashrc ; /home/ubuntu/hrdps-coastal-info/check-all.sh hrdps_continental
+# 00 02 1 * * source ~/.bashrc ; /home/ubuntu/hrdps-coastal-info/trim-all.sh hrdps_continental
+00 01 * * * /usr/sbin/logrotate -l /tmp/surface-log-rotate-log -s /tmp/surface-log-state /home/ubuntu/hrdps-coastal-info/logrotate.conf 
