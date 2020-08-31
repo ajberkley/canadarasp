@@ -234,7 +234,7 @@
 
 (defun warp-to-google-map-tif (filename-unwarped filename-warped)
   ;; Data is stored at doubles, so I should be able to recognize this
-   (print/run-program "/usr/bin/gdalwarp" ;; 100 ms
+   (print/run-program "/usr/local/bin/gdalwarp" ;; 100 ms
 		      (list "-overwrite" "-dstnodata" (format nil "~A" +dst-no-data-double+)
 			    "-t_srs" "EPSG:3857" "-of" "GTiff"
 			    filename-unwarped filename-warped)))
