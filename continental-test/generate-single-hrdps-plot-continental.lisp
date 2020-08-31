@@ -347,12 +347,9 @@
 			     do
 			       (when (and (>= y-source 0) (< y-source image-height)) ;; sometimes the chunk is partially outside the source image
 				 (when (= (image! y-source x-source 3) 255)
-				   (assert (= (image! y-source x-source 0) (aref image y-source x-source 0)))
-				   (assert (= (image! y-source x-source 1) (aref image y-source x-source 1)))
-				   (assert (= (image! y-source x-source 2) (aref image y-source x-source 2)))
-				   (loop for band below 4 do
-				   	(setf (aref output-image y-target x-target band)
-				   	      (image! y-source x-source band)))
+				   ;; (assert (= (image! y-source x-source 0) (aref image y-source x-source 0)))
+				   ;; (assert (= (image! y-source x-source 1) (aref image y-source x-source 1)))
+				   ;; (assert (= (image! y-source x-source 2) (aref image y-source x-source 2)))
 				   (draw y-target x-target (image! y-source x-source 0) (image! y-source x-source 1) (image! y-source x-source 2)))))))
 		   output-image)))
 	(iter (for (values chunk chunk-lat-lon) = (funcall chunk-iterator))
