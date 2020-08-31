@@ -406,6 +406,14 @@
 ;; Our chunk-image function goes from x-pixel-min to below x-pixel-max, same for y, so the lat/lon bounds we
 ;; derive above are truly the upper left and lower right.
 
+(defmacro destructuring-vector-bind (bindings array &body body)
+  (let ((arr (gensym)))
+    `(let* ((,arr ,array)
+           ,@(iter (for x in bindings)
+                   (for y from 0)
+                   (collect (list x `(aref ,arr ,y)))))
+       ,@body)))
+
 (defun draw-magnitude (file color-scale output-directory filename &optional (scale #'identity))
   (declare (optimize (speed 3) (safety 0)))
   (cl-gdal::maybe-initialize-gdal-ogr)
@@ -474,14 +482,6 @@
 
 (defun prepare-files-for-draw-winds (ufile vfile)
   (combine-winds-warp-and-return-new-files ufile vfile))
-
-(defmacro destructuring-vector-bind (bindings array &body body)
-  (let ((arr (gensym)))
-    `(let* ((,arr ,array)
-           ,@(iter (for x in bindings)
-                   (for y from 0)
-                   (collect (list x `(aref ,arr ,y)))))
-       ,@body)))
 
 (defun draw-winds** (ufile-input vfile-input output-directory filename vector-output-filename &key (color-scale *wind-color-scale*))
   (declare (optimize (speed 3)))
