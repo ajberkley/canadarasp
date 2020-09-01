@@ -3,8 +3,8 @@
 (load "~/quicklisp/setup.lisp")
 
 (setf asdf:*central-registry* '(#P"/home/ubuntu/quicklisp/quicklisp/"                                                                                                    
-                                #P"/home/ubuntu/continental-test/cl-gdal/"                                                                                               
-                                #P"/home/ubuntu/continental-test/"))
+                                #P"/home/ubuntu/canadarasp/continental-test/cl-gdal/"                                                                                               
+                                #P"/home/ubuntu/canadarasp/continental-test/"))
 
 (ql:quickload "iterate")
 (ql:quickload "trivial-garbage")
@@ -21,7 +21,7 @@
 (use-package :cl-gdal)
 (use-package :cl-ogr)
 
-(ql:quickload "png") ;; WARNING, I HAVE LOCAL CHANGES TO CL-PNG! in files image.lisp and libpng.lisp
+(ql:quickload "png") ;; WARNING, you need to clone https://github.com/ajberkley/cl-png.git into /home/ubuntu/quicklisp/local-projects until patches accepted upstream
 (require 'png)
 
 (quicklisp::quickload "local-time")
@@ -47,31 +47,45 @@
     (format nil "~A-~2,'0d-~2,'0d_~2,'0d/" yyyy mm dd hh)
     (format nil "~A-~2,'0d-~2,'0d/" yyyy mm dd)))
 
-(defparameter *wind-color-scale*  
-  '((0f0 (255 255 255))
-    (5f0 (204 204 204))
-    (10f0 (121 235 151))
-    (15f0 (0 255 94))
-    (20f0 (177 255 63))
-    (25f0 (252 253 56))
-    (30f0 (255 107 0))
-    (35f0 (243 0 0))
-    (40f0 (169 0 0))
-    (45f0 (135 0 120))
-    (50f0 (0 0 255))))
+(defstruct (color-scale-entry)
+  (value 0f0 :type single-float)
+  (color #(0 0 0) :type (simple-array (unsigned-byte 8) (3))))
+
+(defun make-color-scale (color-scale-info)
+  (map 'vector (lambda (info)
+                 (destructuring-bind (value color) info
+                   (make-color-scale-entry :value (coerce value 'single-float)
+                                           :color (make-array 3 :element-type '(unsigned-byte 8)
+                                                              :initial-contents color))))
+       color-scale-info))
+
+(defparameter *wind-color-scale*
+  (make-color-scale
+   '((0f0 (255 255 255))
+     (5f0 (204 204 204))
+     (10f0 (121 235 151))
+     (15f0 (0 255 94))
+     (20f0 (177 255 63))
+     (25f0 (252 253 56))
+     (30f0 (255 107 0))
+     (35f0 (243 0 0))
+     (40f0 (169 0 0))
+     (45f0 (135 0 120))
+     (50f0 (0 0 255)))))
 
 (defparameter *normalized-color-scale*
-  `((0.0f0 (0 0 255))
-    (0.10f0 (0 153 255))
-    (0.20f0 (0 238 204 ))
-    (0.30f0 (0 204 51 ))
-    (0.40f0 (102 221 0))
-    (0.50f0 (255 255 0))
-    (0.60f0 (255 204 0))
-    (0.70f0 (255 136 0))
-    (0.80f0 (255 17 0))
-    (0.90f0 (187 0 51))
-    (1.00f0 (90 0 90))))
+  (make-color-scale
+   `((0.0f0 (0 0 255))
+     (0.10f0 (0 153 255))
+     (0.20f0 (0 238 204 ))
+     (0.30f0 (0 204 51 ))
+     (0.40f0 (102 221 0))
+     (0.50f0 (255 255 0))
+     (0.60f0 (255 204 0))
+     (0.70f0 (255 136 0))
+     (0.80f0 (255 17 0))
+     (0.90f0 (187 0 51))
+     (1.00f0 (90 0 90)))))
 
 (defun find-bounding-colors (color-scale target-value)
   (let (low high)
@@ -84,19 +98,35 @@
       (setf high (car (last color-scale 1))))
     (list low high)))
 
+;; (declaim (inline lookup-in-color-scale))
+;; (defun lookup-in-color-scale (value color-scale)
+;;   (declare (optimize (speed 3)))
+;;   (declare (type single-float value))
+;;   (or (iter (for c in color-scale)
+;; 	    (for pc previous c initially (car c))
+;; 	    (until (>= (the single-float (car c)) value))
+;; 	    (finally (return (cadr pc))))
+;;       (cadar color-scale)))
+
 (declaim (inline lookup-in-color-scale))
 (defun lookup-in-color-scale (value color-scale)
   (declare (optimize (speed 3)))
-  (declare (type single-float value))
-  (or (iter (for c in color-scale)
-	    (for pc previous c initially (car c))
-	    (until (>= (the single-float (car c)) value))
-	    (finally (return (cadr pc)))) (cadar color-scale)))
+  (declare (type single-float value)
+           (type simple-vector color-scale))
+  ;; simple binsearch is probably faster
+  (let* ((previous (aref color-scale 0)))
+    (declare (type color-scale-entry previous))
+    (loop
+       for c of-type color-scale-entry across color-scale
+       while (> value (the single-float (color-scale-entry-value c)))
+       do (setf previous c)
+       finally (return (color-scale-entry-color previous)))))
 
 (defun make-basic-color-scale (min max)
-  (iter (for value from min by (/ (- max min) (1- (length *normalized-color-scale*))))
-	(for c in *normalized-color-scale*)
-	(collect (list value (cadr c)))))
+  (make-color-scale
+   (iter (for value from min by (/ (- max min) (1- (length *normalized-color-scale*))))
+         (for c in-vector *normalized-color-scale*)
+         (collect (list value (color-scale-entry-color c))))))
 	
 (defparameter *cloud-color-scale*  (make-basic-color-scale 0f0 100f0))
 (defparameter *vvel-color-scale*  (make-basic-color-scale -1.0f0 1.0f0))
@@ -136,10 +166,10 @@
   (cl-gd:with-image* (width height)
     (cl-gd:allocate-color 255 255 255) ;; background color, white
     (let ((black (cl-gd:allocate-color 0 0 0))
-	  (colors (iter (for c in color-scale)
-			(collect (list (first c)
-				       (apply #'cl-gd:allocate-color
-					      (second c)))))))
+	  (colors (iter (for c in-vector color-scale)
+			(collect (list (color-scale-entry-value c)
+                                       (let ((color (color-scale-entry-color c)))
+				       (cl-gd:allocate-color (aref color 0) (aref color 1) (aref color 2))))))))
       (cl-gd:with-default-color (black)
 	(iter
 	  (with step = (/ (- width (* 2 border)) (1- (length color-scale))))
@@ -215,8 +245,8 @@
 
 (defun tmp-filename (&optional file (extension ""))
   (if file
-    (format nil "/mnt/~A~A-~A-~A.~A" *unique-identifier* (incf *tmp-fileindex*) file (sxhash (list file *tmp-fileindex* extension)) extension)
-    (format nil "/mnt/~A~A.tmp" *unique-identifier* (incf *tmp-fileindex*))))
+    (format nil "/tmp/~A~A-~A-~A.~A" *unique-identifier* (incf *tmp-fileindex*) file (sxhash (list file *tmp-fileindex* extension)) extension)
+    (format nil "/tmp/~A~A.tmp" *unique-identifier* (incf *tmp-fileindex*))))
 
 (defun rm-file (filename)
   (print/run-program "/bin/rm" (list filename)))
@@ -255,7 +285,7 @@
     ("sfctemp" "Surface temperature (2m AGL)" "TMP_TGL_2" :mag ,*surface-temperature-color-scale* "[C]" ;; ,(lambda (x) (print x) (- x 273.15) (break))
 	       )
     ("sfcdewpt" "Surface Dew Point Depression (2m AGL)" "DEPR_TGL_2" :mag ,*surface-dewpoint-depression-color-scale* "[C]" ;; ,(lambda (x) (- x 273.15))
-		)
+         	)
     ("terrain" "Terrain Height" "HGT_SFC_0" :mag ,*terrain-color-scale* "m")
     ("sfcpres" "Pressure MSL (mbar)" "PRMSL_MSL_0" :mag ,*surface-pressure-color-scale* "mbar" ,(lambda (x) (/ x 100.0)))
     ("rain" "Rain (mm/hr)" "PRATE_SFC_0" :mag ,*rain-color-scale* "mm/hr" ,(lambda (x) (* x 3600.0))) ;; kg m^2/s, water density is 1 g/cm^3
@@ -272,62 +302,37 @@
 				   (directory-from-date yyyy mm dd) (directory-from-tile-info tile)))
 	  (ensure-directories-exist directory))))
 
-(defmacro with-drawable-image ((draw-func image y-size x-size &key debug (channels 4) (bits 8)) &body body)
-  (let ((debug-gensym (when debug (gensym)))
-	(displaced (gensym))
-	(size (gensym))
-	(offset (gensym)))
-    `(let* ((,image (png::make-image ,y-size ,x-size ,channels ,bits))
-	    (,displaced (array-displacement ,image))
-	    (,size (* ,channels ,x-size))
-	    ,@(when debug (list (list debug-gensym 0)))) ;; our output image
-       (declare (type (array (unsigned-byte ,bits) (* * ,channels)) ,image)
-		(type (simple-array (unsigned-byte ,bits) (*)) ,displaced))
-       (labels (,(if (= channels 4)
-		     `(,draw-func (x y red green blue) ;; 2.7 seconds
-				  (declare (type (integer -1000000 100000000) x y))
-				  (declare (type (unsigned-byte ,bits) red green blue))
-				  (let ((,offset (+ (* ,channels x) (* ,size y))))
-				    (declare (type (integer 0 100000000000) ,offset))
-				    (setf (aref ,displaced (+ 0 ,offset)) red)
-				    (setf (aref ,displaced (+ 1 ,offset)) green)
-				    (setf (aref ,displaced (+ 2 ,offset)) blue)
-				    (setf (aref ,displaced (+ 3 ,offset)) 255)
-				    ,@(when debug
-					    `((assert (= (aref ,image y x 0) red))
-					      (assert (= (aref ,image y x 1) green))
-					      (assert (= (aref ,image y x 2) blue))
-					      (assert (= (aref ,image y x 3) 255))
-					      (incf ,debug-gensym)
-					      (when (= (mod ,debug-gensym 100) 0)
-						(format t "~A: ~A,~A -> ~A, ~A, ~A~%" ,debug-gensym y x red green blue)
-						(sleep 0.01))))
-				    (values)))
-		     `(,draw-func (x y gray)
-				  (declare (type (integer -1000000 100000000) x y))
-				  (declare (type (unsigned-byte ,bits) gray))
-				  (setf (aref ,displaced (+ x (* ,size y))) gray)
-				  (values))))
-	 (declare (inline ,draw-func))
-	 ,@body))))
+(defmacro with-drawable-image ((draw-func image y-size x-size &key (channels 4) (bits 8)) &body body)
+  `(let* ((,image (png::make-image ,y-size ,x-size ,channels ,bits))) ;; our output image
+     (declare (type (simple-array (unsigned-byte ,bits) (* * ,channels)) ,image))
+     (labels (,(if (= channels 4)
+                   `(,draw-func (y x red green blue)
+                                (declare (type (unsigned-byte ,bits) red green blue))
+                                (setf (aref ,image y x 0) red)
+                                (setf (aref ,image y x 1) green)
+                                (setf (aref ,image y x 2) blue)
+                                (setf (aref ,image y x 3) 255)
+                                (values))
+                   `(,draw-func (y x gray)
+                                (declare (type (unsigned-byte ,bits) gray))
+                                (setf (aref ,image y x 0) gray)
+                                (values))))
+       (declare (inline ,draw-func))
+       ,@body)))
 
 (deftype image-size () '(integer 0 10000000000))
 
 (defun chunk-image (image chunk-iterator &optional (filename-generator (lambda (lat-lon-info)
 									 (format nil "test-stuff-~A.png" lat-lon-info))))
   (declare (optimize (speed 3)))
-  (declare (type png::rgba-image image)
+  (declare (type (simple-array (unsigned-byte 8) (* * 4)) image)
 	   (type function chunk-iterator filename-generator))
-  (assert (typep image 'png::rgba-image))
+  (assert (typep image 'png::image))
   (let* ((image-height (png::image-height image))
-	 (image-width (png::image-width image))
-	 (displaced-image (array-displacement image)))
-    (declare (type image-size image-height image-width)
-	     (type (simple-array (unsigned-byte 8) (*)) displaced-image))
+	 (image-width (png::image-width image)))
+    (declare (type image-size image-height image-width))
     (macrolet ((image! (y x band)
-		 `(aref displaced-image (the image-size (+ (the (integer 0 4) ,band)
-							   (* 4 (the image-size ,x))
-							   (* 4 image-width (the image-size ,y)))))))
+		 `(aref image ,y ,x ,band)))
       (labels ((do-chunk (x-pixel-min x-pixel-max y-pixel-min y-pixel-max)
 		 (declare (type fixnum x-pixel-max x-pixel-min y-pixel-max y-pixel-min))
 		 (with-drawable-image (draw output-image (the image-size (- y-pixel-max y-pixel-min)) (the image-size (- x-pixel-max x-pixel-min)))
@@ -335,22 +340,14 @@
 		      for x-target fixnum from 0
 		      for x-source fixnum from x-pixel-min below x-pixel-max
 		      do
-			(when (and (>= x-source 0) (< x-source image-width)) ;; why do i have to check?
+			(when (and (>= x-source 0) (< x-source image-width)) ;; sometimes the chunk is partially outside the source image
 			  (loop
 			     for y-target fixnum from 0
 			     for y-source fixnum from y-pixel-min below y-pixel-max
 			     do
-			       (when (and (>= y-source 0) (< y-source image-height)) ;; why do i have to check?
+			       (when (and (>= y-source 0) (< y-source image-height)) ;; sometimes the chunk is partially outside the source image
 				 (when (= (image! y-source x-source 3) 255)
-				   ;; (assert (= (image! y-source x-source 0) (aref image y-source x-source 0)))
-				   ;; (assert (= (image! y-source x-source 1) (aref image y-source x-source 1)))
-				   ;; (assert (= (image! y-source x-source 2) (aref image y-source x-source 2)))
-				   ;; (loop for band below 4 do
-				   ;; 	(setf (aref output-image y-target x-target band)
-				   ;; 	      (image! y-source x-source band)
-				   ;; 	      ))
-				   (draw x-target y-target (image! y-source x-source 0) (image! y-source x-source 1) (image! y-source x-source 2))
-				   )))))
+				   (draw y-target x-target (image! y-source x-source 0) (image! y-source x-source 1) (image! y-source x-source 2)))))))
 		   output-image)))
 	(iter (for (values chunk chunk-lat-lon) = (funcall chunk-iterator))
 	      (while chunk)
@@ -406,13 +403,23 @@
 			  (format output-stream "\"~,d\" : ~,8f" k v))
 		    (format output-stream "};~%")))))))))
 
-    ;; Our chunk-image function goes from x-pixel-min to below x-pixel-max, same for y, so the lat/lon bounds we
+;; Our chunk-image function goes from x-pixel-min to below x-pixel-max, same for y, so the lat/lon bounds we
 ;; derive above are truly the upper left and lower right.
 
+(defmacro destructuring-vector-bind (bindings array &body body)
+  (let ((arr (gensym)))
+    `(let* ((,arr ,array)
+           ,@(iter (for x in bindings)
+                   (for y from 0)
+                   (collect (list x `(aref ,arr ,y)))))
+       ,@body)))
+
 (defun draw-magnitude (file color-scale output-directory filename &optional (scale #'identity))
-  (declare (optimize (speed 3)))
+  (declare (optimize (speed 3) (safety 0)))
   (cl-gdal::maybe-initialize-gdal-ogr)
-  (let ((filename-warped (tmp-filename "blarg" "grib2")))
+  (let ((filename-warped (tmp-filename "blarg" "grib2"))
+        (scale (coerce scale 'function)))
+    (declare (type function scale))
     (warp-to-google-map-tif file filename-warped)
     (cl-gdal::with-gdal-file (handle filename-warped) ;; macroize this section of reading data... with-data-from-file
       (let* ((data (cl-gdal::gdal-read-all-data (cl-gdal::gdal-get-raster-band handle 1)))
@@ -425,12 +432,15 @@
 	       (loop for y fixnum below y-size do
 		    (let ((d (aref data y x)))
 		      (when (not (= d +dst-no-data-double+))
-			(destructuring-bind (red green blue)
-			    (lookup-in-color-scale (funcall scale (coerce d 'single-float)) color-scale)
-			  (draw x y red green blue))))))
+                        (let ((color (lookup-in-color-scale (funcall scale (coerce d 'single-float)) color-scale)))
+                          (declare (type (simple-array (unsigned-byte 8) (3)) color))
+                          (destructuring-vector-bind (red green blue)
+                              color
+                            (draw y x red green blue)))))))
 	  (let ((tile-iterator (tile-iterator)) ;; gives me lat lon bounds
 		(lon-lat-to-pixel-transformer (cl-gdal::generate-lat-lon-to-pixel-transform handle)))
 	    (declare (type function tile-iterator lon-lat-to-pixel-transformer))
+            (assert (typep image 'png::rgb-alpha-image))
 	    (chunk-image
 	     image
 	     (lambda () (let ((tile (funcall tile-iterator)))
@@ -442,7 +452,7 @@
     (rm-file filename-warped)
     t))
 
- ;;A chunk-generator gives me null or a list of ulx uly lrx lry bounds
+;; A chunk-generator gives me null or a list of ulx uly lrx lry bounds
 
 (defun combine-winds-warp-and-return-new-files (ugrib vgrib)
   (destructuring-bind (ugrib-rotated vgrib-rotated)
@@ -472,21 +482,6 @@
 
 (defun prepare-files-for-draw-winds (ufile vfile)
   (combine-winds-warp-and-return-new-files ufile vfile))
-
-;; Say this takes 100 seconds.  We want to add three wind levels (up to 4500m), so 13 wind levels
-;; 48 hours = (* 13 48) -> 624 files * 100 seconds.  (* 624 100) 62400 seconds.  Now assuming
-;; full 16x parallelization and 2x faster CPU -> (/ 62400 32) -> 1950 seconds or 32 minutes.
-;; Cutting down to 24 hours (only daylight hours) gives us 16 minutes.
-
-;; (let ((wind-levels 13)
-;;       (hours-for-two-days 48)
-;;       (time-per-file 80)
-;;       (parallelization 16)
-;;       (cpu-factor 2))
-;;   (* wind-levels hours-for-two-days time-per-file (/ parallelization) (/ cpu-factor) (/ 3600) 60.0))
-;; 26 minutes for winds
-
-;; There are 10 other levels, each takes 4 seconds or so, so... another couple minutes.
 
 (defun draw-winds** (ufile-input vfile-input output-directory filename vector-output-filename &key (color-scale *wind-color-scale*))
   (declare (optimize (speed 3)))
@@ -541,156 +536,27 @@
 					(mag (calculate-magnitude u v)))
 				   (declare (type double-float u v))
 				   (when (not (= mag +dst-no-data-single+))
-				     (destructuring-bind (red green blue)
+				     (destructuring-vector-bind (red green blue)
 					 (lookup-in-color-scale mag color-scale)
-				       (draw x-real y-real red green blue)
+				       (draw y-real x-real red green blue)
 				       (let ((angle (- (float (atan v u) 0f0)))) ;; negative because y goes down the image
 					 ;; (when (= x-real 0)
 					 ;;   (format t "angle is ~A -> ~A~%" angle (round (+ 3145 (* angle 1000f0))))
 					 ;;   (sleep 0.1))
-					 (draw-vector x-real y-real (1+ (round (+ (* pi 37f0) (* angle 37f0))))))))))) ;; -pi to pi, (* 2 pi 37f0)
+					 (draw-vector y-real x-real (1+ (round (+ (* pi 37f0) (* angle 37f0))))))))))) ;; -pi to pi, (* 2 pi 37f0)
 		     (png::encode-file image (format nil "~A/~A/~A" output-directory (directory-from-tile-info tile) filename))
-		     (png::encode-file image-vector (format nil "~A/~A/~A" output-directory (directory-from-tile-info tile) vector-output-filename))
-		     ))))))
+		     (png::encode-file image-vector (format nil "~A/~A/~A" output-directory (directory-from-tile-info tile) vector-output-filename))))))))
     (rm-file ufile)
     (rm-file vfile)))))
-
-(defun test-alpha-png ()
-  (let ((image (png::make-image  128 128 4 8)))
-    (iter (for x below 128)
-	  (iter (for y below 128)
-		(setf (aref image x y 0) x)
-		(setf (aref image x y 1) y)
-		(setf (aref image x y 3) x)))
-    (png::encode-file image "testfile.png")))
-
-	     
-;; Looks like the geometry I want is an OGR Line String
-
-;; OK, let's just write a 
-
-;; use epsg 3857 for what I want.
-;; SUPER IMPORTANT BELOW!!!
-  ;; need to rotate the wind to N/S?  Or do i..... see below
-  ;; cat CMC_hrdps_west_UGRD_TGL_80_ps2.5km_2018081018_P041-00.grib2 CMC_hrdps_west_VGRD_TGL_80_ps2.5km_2018081018_P041-00.grib2  > input.grib2
-  ;; wgrib2 input.grib2 -set_grib_type s -new_grid_winds earth -new_grid_interpolation neighbor -new_grid nps:247.000000:60.000000 230.093688:685:2500.000000 44.689624:485:2500.000000  output.grib2 ;; 200 ms on my pc, no problem... only wind files
-  ;; (with-output-from-program (grid-defn "/home/ajb/canadarasp/continental-test/grid_defn.pl" '("/home/ajb/canadarasp/continental-test/input.grib"))
-  ;;   (with-output-from-program (var "/usr/bin/wgrib2" (append (list "/home/ajb/canadarasp/continental-test/input.grib2" "-set_grib_type" "s" "-new_grid_winds" "earth" "-new_grid_interpolation" "neighbor" "-new_grid") (cl-ppcre:split " " grid-defn) (list "output.grib2")))
-  ;;     var))
-  ;; gdalwarp -t_srs 'EPSG:4326' input.grib2 -of GTiff test4.tif
-  ;; gdal_translate -of png -ot Byte -scale -10 10 1 255 -a_srs EPSG:4326 test4.tif test.png    ## could do -b 1 for n/s?, -b 2 e/w?
-;; could draw the arrows without rotating wind into a png and then call
-;; gdalwarp with the right input projection and output projection and bang!
-;; it would rotate the arrows too...  sweeeet.
-
-;; So, here's the plan.  We open the GRIB2 file, write out a GeoTIFF with the
-;; new U/V data but 10x the resolution?
-
-;; <defs>
-;;     <marker id='head' orient='auto' markerWidth='2' markerHeight='4'
-;;             refX='0.1' refY='2'>
-;;       <path d='M0,0 V4 L2,2 Z' fill='red' />
-;;     </marker>
-;;   </defs>    
-;;   <path
-;;     marker-end='url(#head)'
-;;     stroke-width='5' fill='none' stroke='black'  
-;;     d='M0,0 C45,45 45,-45 90,0'
-;;     />    
-
-
-
-
-;; At this point, since I have the geotiff generation in hand, why not work on the javascript visualization instead?
-;; I can do the background colors on the server, that's easy, but streamlines and the like seem hard?  Or not...
-;; let me just do it and then I can convert to using d3.  Or, I can write it using javascript on the server and then
-;; it would be easier to move it to the client, but I hate developing in javascript.  It's more fun to use common
-;; lisp.
-
-;; OK, let's just do it.  Let's see how to get wind arrows into the system so I can move to using the continental
-;; HRDPS.  Then if I want I can expand to other weather systems, but really it's about presenting data in a useful
-;; manner for soaring pilots.  Not eye candy.
-
-;; so svg, or raster for the wind arrows... gdal makes it easy I think to handle vector data, so if I project it, then it should work and will be easy. Let's start by just making u arrows and seeing what happens.
-
-;; The following works (with or without concatenating the two files
-;; gdalwarp -overwrite -t_srs "EPSG:3857" -of GTiff CMC_hrdps_west_UGRD_TGL_120_ps2.5km_2018081118_P001-00.grib2 blarg.tif
-;; gdal_translate -of png -ot Byte -scale -10 10 1 255 blarg.tif blarg.png
-
-;; Also works if I go to grid_winds.
-
-
-;; Now, below is a start on how I am going to automatically clip out the tiles.
-
-;; from osgeo import osr, gdal
-
-;; # get the existing coordinate system
-;; ds = gdal.Open('path/to/file')
-;; old_cs= osr.SpatialReference()
-;; old_cs.ImportFromWkt(ds.GetProjectionRef())
-
-;; # create the new coordinate system
-;; wgs84_wkt = """
-;; GEOGCS["WGS 84",
-;;     DATUM["WGS_1984",
-;;         SPHEROID["WGS 84",6378137,298.257223563,
-;;             AUTHORITY["EPSG","7030"]],
-;;         AUTHORITY["EPSG","6326"]],
-;;     PRIMEM["Greenwich",0,
-;;         AUTHORITY["EPSG","8901"]],
-;;     UNIT["degree",0.01745329251994328,
-;;         AUTHORITY["EPSG","9122"]],
-;;     AUTHORITY["EPSG","4326"]]"""
-;; new_cs = osr.SpatialReference()
-;; new_cs .ImportFromWkt(wgs84_wkt) ;; this gives me lat/lon .. i will need to convert from new to old
-
-;; # create a transform object to convert between coordinate systems
-;; transform = osr.CoordinateTransformation(old_cs,new_cs) 
-
-;; #get the point to transform, pixel (0,0) in this case
-;; width = ds.RasterXSize
-;; height = ds.RasterYSize
-;; gt = ds.GetGeoTransform()
-;; minx = gt[0]
-;; miny = gt[3] + width*gt[4] + height*gt[5] 
-
-;; #get the coordinates in lat long
-;; latlong = transform.TransformPoint(x,y) 
-    
-#|
-Trying some things:
-
-TEST1: This cases gdalwarp to output a truncated file, though the corners look ok.
-
-cat CMC_hrdps_continental_UGRD_TGL_120_ps2.5km_2018081206_P001-00.grib2 CMC_hrdps_continental_VGRD_TGL_120_ps2.5km_2018081206_P001-00.grib2 > input.grib2
-wgrib2 input.grib2 -set_grib_type s -new_grid_winds earth -new_grid_interpolation neighbor -new_grid nps:252.000000:60.000000 231.9186:2576:2500.000000 35.6073:1456:2500.000000 output.grib2 # here I updated these based on the HRDPS continental page, otherwise small floating point errors 231.9186 = 360 - 128.0813 W
-
-/usr/local/bin/gdalwarp -overwrite -t_srs "EPSG:3857" -of "GTiff" output.grib2 test.tiff
-gdal_translate -of png -ot Byte -scale -10 10 1 255 test.tiff test.png
-eog test.png
-
-TEST2:
-
-cat CMC_hrdps_continental_UGRD_TGL_120_ps2.5km_2018081206_P001-00.grib2 CMC_hrdps_continental_VGRD_TGL_120_ps2.5km_2018081206_P001-00.grib2 > input.grib2
-wgrib2 input.grib2 -set_grib_type jpeg -new_grid_winds earth -new_grid_interpolation neighbor -new_grid nps:252.000000:60.000000 231.9186:2576:2500.000000 35.6073:1456:2500.000000 output.grib2 # here I updated these based on the HRDPS continental page, otherwise small floating point errors 231.9186 = 360 - 128.0813 W
-
-/usr/local/bin/gdalwarp -overwrite -t_srs "EPSG:3857" -of "GTiff" output.grib2 test.tiff
-gdal_translate -of png -ot Byte -scale -10 10 1 255 test.tiff test.png
-eog test.png
-
-Doesn't work, tried a bunch of stuff.  UGH.  So, let's split the files before warping?
-
-|#
-
 
 (defun display-file (file &optional (min "-10") (max "10"))
   (print/run-program "/usr/local/bin/gdal_translate" (list "-of" "png" "-ot" "Byte" "-scale" min max "1" "255" "-b" "1" file "/tmp/test.png"))
   (print/run-program "/usr/bin/eog" (list "/tmp/test.png")))
 
-(defparameter *forecast-init-year* (parse-integer (or (sb-posix:getenv "YEAR") "2018")))
-(defparameter *forecast-init-month* (parse-integer (or (sb-posix:getenv "MONTH") "9")))
-(defparameter *forecast-init-day* (parse-integer (or (sb-posix:getenv "DAY") "17")))
-(defparameter *forecast-init-hour* (parse-integer (or (sb-posix:getenv "HOUR") "6")))
+(defparameter *forecast-init-year* (parse-integer (or (sb-posix:getenv "YEAR") "2020")))
+(defparameter *forecast-init-month* (parse-integer (or (sb-posix:getenv "MONTH") "8")))
+(defparameter *forecast-init-day* (parse-integer (or (sb-posix:getenv "DAY") "31")))
+(defparameter *forecast-init-hour* (parse-integer (or (sb-posix:getenv "HOUR") "00")))
 
 (defun do-it-if-necessary (forecast-hour &key (forecast-init-year *forecast-init-year*) (forecast-init-month *forecast-init-month*) (forecast-init-day *forecast-init-day*)
 					   (forecast-init-hour *forecast-init-hour*) (only-generate-header-footer nil) (params-and-names *params-and-names*))
