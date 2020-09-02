@@ -62,9 +62,9 @@ function clearWindgrams () {
 function onDemandWindgram(lat, lon) {
     var splittime = getSelectedDateLocal();
     if (twoday_checkbox.checked) {
-	window.open('windgram?lat='+lat+'&lon='+lon);
+	window.open('windgram?lat='+lat+'&lon='+lon+'&interactive=t');
     } else {
-	window.open('windgram?lat='+lat+'&lon='+lon+'&date='+splittime);
+	window.open('windgram?lat='+lat+'&lon='+lon+'&date='+splittime+'&interactive=t');
     }
 }
 
