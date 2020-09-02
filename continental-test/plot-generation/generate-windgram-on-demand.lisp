@@ -26,30 +26,6 @@
 	(read-sequence buffer str)
 	buffer)))
 
-(hunchentoot:define-easy-handler (windgram-handler :uri "/windgram") (lon lat date)
-  (or (ignore-errors
-	(setf (hunchentoot:content-type*) "image/png")
-	(assert (and (<= (length lon) 100) (<= (length lat) 100)))
-	(parse-real-number lon) ;; this will error if it fails
-	(parse-real-number lat) ;; this will error if it fails
-	(assert (< (length date) 11))
-	(assert (every (lambda (x) (member x '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\-))) date))
-	(generate-windgram lon lat :one-day-date date))
-      (progn
-	(setf (hunchentoot:content-type*) "text/plain")
-	"Invalid location or input: please send an email to ajberkley@gmail.com to request this general area be added.  Generally anything within about 100 km of an existing windgram will work for now.  If you are generating a one day windgram (the default now), you want to choose a date and time in the date time picker so that the date is the desired date for the one day windgram.  If you want two day windgrams, select the checkbox at the bottom of the left hamburger menu. --ajb Oct 2019")))
-  
-
-(hunchentoot:define-easy-handler (default :uri (lambda (x) (not (string= "/windgram" (script-name* x))))) ()
-   (setf (hunchentoot:content-type*) "text/plain")
-   (format nil "Access denied"))
-
-(defun start-webserver ()
-  (hunchentoot:start
-   (make-instance 'hunchentoot:easy-acceptor :port 8090
-		  :taskmaster (make-instance 'hunchentoot:one-thread-per-connection-taskmaster
-					     :max-accept-count 64 :max-thread-count 2))))
-
 (defparameter *ncarg-root* (or (sb-posix:getenv "NCARG_ROOT") "/home/ubuntu/NCARG/"))
 
 (defun find-latest-date (directory)
@@ -87,6 +63,30 @@
                                        "numdays=-1"
 				       (format nil "labels_lats_lons=\";~,4f ~,4f,~A,~A\"" (parse-real-number lat) (parse-real-number lon) lat lon)))
 	      (read-binary-file real-output-file)))))))
+
+(hunchentoot:define-easy-handler (windgram-handler :uri "/windgram") (lon lat date)
+  (or (ignore-errors
+	(setf (hunchentoot:content-type*) "image/png")
+	(assert (and (<= (length lon) 100) (<= (length lat) 100)))
+	(parse-real-number lon) ;; this will error if it fails
+	(parse-real-number lat) ;; this will error if it fails
+	(assert (< (length date) 11))
+	(assert (every (lambda (x) (member x '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\-))) date))
+	(generate-windgram lon lat :one-day-date date))
+      (progn
+	(setf (hunchentoot:content-type*) "text/plain")
+	"Invalid location or input: please send an email to ajberkley@gmail.com to request this general area be added.  Generally anything within about 100 km of an existing windgram will work for now.  If you are generating a one day windgram (the default now), you want to choose a date and time in the date time picker so that the date is the desired date for the one day windgram.  If you want two day windgrams, select the checkbox at the bottom of the left hamburger menu. --ajb Oct 2019")))
+  
+
+(hunchentoot:define-easy-handler (default :uri (lambda (x) (not (string= "/windgram" (script-name* x))))) ()
+   (setf (hunchentoot:content-type*) "text/plain")
+   (format nil "Access denied"))
+
+(defun start-webserver ()
+  (hunchentoot:start
+   (make-instance 'hunchentoot:easy-acceptor :port 8090
+		  :taskmaster (make-instance 'hunchentoot:one-thread-per-connection-taskmaster
+					     :max-accept-count 64 :max-thread-count 2))))
 
 (start-webserver)
 (iter (sleep 3600))
