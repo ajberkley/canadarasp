@@ -16,13 +16,13 @@ if [ $? -eq 0 ]; then
  ./download-data.sh $MODEL /$DBOXNAME
  cd /home/ubuntu/canadarasp/aws-utils
  source ./unmount-download-box.sh
- source ./start-compute-server.sh $SERVER
- ( sleep 7200 ; source ./stop-compute-server.sh $SERVER)
+ source ./start-compute-server.sh "$SERVER"
+ ( sleep 7200 ; source ./stop-compute-server.sh "$SERVER")
 else
  echo "Something failed while mounting download box..."
  df
  if [ $TRY -lt 3 ] ; then
   echo Trying again for try $TRY $(( TRY + 1 ))
-  /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh $MODEL $SERVER $(( TRY + 1 ))
+  /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh $MODEL "$SERVER" $(( TRY + 1 ))
  fi
 fi
