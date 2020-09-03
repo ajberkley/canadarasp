@@ -24,7 +24,8 @@ MONTH=${2:-$MONTH}
 DAY=${3:-$DAY}
 HOUR=${4:-$HOUR}
 source ./model-parameters.sh $MODEL
-echo Generating tiles from $YEAR-$MONTH-$DAY for ${#TIMES[@]} hours
+
+echo "Generating tiles from $YEAR-$MONTH-$DAY for ${#TIMES[@]} hours"
 export OMP_NUM_THREADS=1
 if [ -z $NOFIX ] ; then
     echo FIXING files starts at `date`
@@ -56,20 +57,18 @@ if [ -z $NOFIX ] ; then
     echo FIXING files ends at `date`
 fi
 export -n OMP_NUM_THREADS
-# determine which hours we will process and plot
 
-for Y in ${YVALS[@]}
-do
-    for X in ${XVALS[@]}
-    do
-	DIRECTORYNAME=$TILEDIR/$X:$((X+XSTEP)):$Y:$((Y+YSTEP))
-	mkdir -p $DIRECTORYNAME
-    done
-done
+# Generate the output directories for the windgram tile grib files
+if [ -z $NOTILES ]; then
+    echo "Generating output directories"
+    ./required-tiles.lisp | xargs -d \\n mkdir -p
+fi
 
+# Generate a command list for wgrib2 that cuts the original data files into tiles
+# and then run the commands
 if [ -z $NOTILES ]; then
    # The tiles will be generated actually 10% larger than required in the east west direction, and then we will clip by 10%.  This lets us ignore the rotated grid for all the lat/lons we care about.
-   echo "Generating commands starts at `date`" # This actually takes two minutes or so!
+   echo "Generating commands for generating windgram tiles starts at `date`" # This actually takes two minutes or so!
    rm -f /mnt/parallel-jobs
    rm -f /mnt/args
    ARGSFILES=""
@@ -86,29 +85,20 @@ if [ -z $NOTILES ]; then
    time parallel --gnu -n 1 -j $PARALLELTILE < /mnt/args
    export -n OMP_NUM_THREADS
    echo "Done generating grib tiles at `date`"
+   rm -f /mnt/args
+   rm -f /mnt/parallel-jobs
 fi
-rm -f /mnt/args
-rm -f /mnt/parallel-jobs
-echo "Starting concatenating files for each hour at `date`"
+
+# Concatenate the many different grib2 files in each windgram-tile directory into a single grib2 file
+# which can then be loaded just at once by NCL.
+
 if [ -z $NOTILES ]; then
+    echo "Starting concatenating files for each hour at `date`"
     for H in ${TIMES[*]}
     do
-	for Y in ${YVALS[@]}
-	do
-	    for X in ${XVALS[@]}
-	    do
-		DIRECTORYNAME=$TILEDIR/$X:$((X+XSTEP)):$Y:$((Y+YSTEP))
-		P=$DIRECTORYNAME
-		OUTPUT=$DIRECTORYNAME/$MODEL"_"$YEAR-$MONTH-$DAY-run$HOUR"_P0"$H".grib2"
-		CATLIST="$P/*VGRD_ISBL_*_P0$H$TAIL $P/*UGRD_ISBL_*_P0$H$TAIL $P/*DEPR_ISBL_*_P0$H$TAIL $P/*TMP_ISBL_*_P0$H$TAIL $P/*HGT_SFC*_P0$H$TAIL $P/*HGT_ISBL*_P0$H$TAIL $P/*TGL*_P0$H$TAIL $P/*PRATE*_P0$H$TAIL $P/*TCDC_SFC*_P0$H$TAIL $P/*PRMSL*_P0$H$TAIL  $P/*HTFL*_P0$H$TAIL"
-		cat $CATLIST > $OUTPUT
-		# $P/*CAPE*_P0$H-00.grib2
-		# $P/*VVEL*_P0$H-00.grib2
-		rm $CATLIST
-	    done
-	done
+        ./required-tiles.lisp | xargs -d \\n ./concatenate-windgram-tiles.sh $YEAR $MONTH $DAY $HOUR $H
     done
+    echo "Done concatenating files for each hour at `date`"
 fi
-echo "Done concatenating files for each hour at `date`"
-echo "Done TILE GENERATION at `date`"
 
+echo "Done TILE GENERATION at `date`"

@@ -6,27 +6,7 @@
 (use-package :cl-fad)
 (use-package :cl-ppcre)
 (load "model-parameters.lisp")
-
-(defun find-all-tile-ids (&optional (filename "/home/ubuntu/continental-test/plot-generation/locations.txt"))
-  (let (tile-ids)
-    (with-open-file (str filename :direction :input)
-      (read-line str)
-      (loop :for line = (read-line str nil nil)
-	 :for index :from 0
-	 :while line
-	 :do
-	 (destructuring-bind (region location lon lat &optional model)
-	     (mapcar (lambda (x) (string-trim '(#\Space) x)) (cl-ppcre:split "," line))
-	   (declare (ignorable region model location))
-	   (when (or (not model) (string= model *model*))
-	     (pushnew (multiple-value-list (tile-id lon lat)) tile-ids :test #'equalp)))))
-    tile-ids))
-
-(defun only-required-tile-iterator ()
-  (let ((tile-ids (find-all-tile-ids)))
-    (lambda ()
-      (prog1 (car tile-ids)
-	(setf tile-ids (cdr tile-ids))))))
+(load "required-tile-iterator.lisp")
 
 (defun directory* (directory file-mask)
   (let* ((file-mask (concatenate 'string
@@ -45,8 +25,7 @@
       (with-open-file (str outputfile :direction :output :if-exists :supersede)
 	(map nil (lambda (file)
 		   (let ((f (file-namestring file))
-			 (tile-iterator (only-required-tile-iterator);; (tile-iterator domain)
-			   ))
+			 (tile-iterator (only-required-tile-iterator)))
 		     (labels ((do-it (&optional (limit 100))
 				(let ((count 0))
 				  (loop :for tile = (funcall tile-iterator)
@@ -71,5 +50,5 @@
 				   res)
 			    str))))))
 		   files)))))
-			      
+
 (make-files)
