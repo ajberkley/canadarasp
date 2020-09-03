@@ -5,7 +5,8 @@
   `(let (,filevar)
      (unwind-protect
 	  (progn
-	    (setf ,filevar (gdal-open ,filename ,access))
+            (sb-int:with-float-traps-masked (:invalid)
+              (setf ,filevar (gdal-open ,filename ,access)))
 	    (assert (not (cffi::null-pointer-p ,filevar)) nil "Failed to open file")
 	    ,@body)
        (when (not (cffi::null-pointer-p ,filevar)) (gdal-close ,filevar)))))
@@ -79,6 +80,12 @@
              (gdal-read-block hband 0 (floor y-offset y-blk-size)
                               (cffi:inc-pointer ptr (* 8 x-size y-offset)))))
         array))))
+
+(defun gdal-get-raster-no-data-value* (hband)
+  (cffi:with-foreign-object (psuccess :int)
+    (let ((result (cl-gdal::gdal-get-raster-no-data-value hband psuccess)))
+      (assert (= (cffi:mem-ref psuccess :int) 1))
+      result)))
 
 (declaim (inline array-map))
 (defun array-map (output-type function &rest arrays)
