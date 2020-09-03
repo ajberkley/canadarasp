@@ -10,13 +10,13 @@ MONTH=${2:-$MONTH}
 DAY=${3:-$DAY}
 HOUR=${4:-$HOUR}
 FORECASTHOUR=$5
-DIRECTORY=$6
+H=$FORECASTHOUR
+DIRECTORYNAME=$6
 source ./model-parameters.sh $MODEL
-echo Combining files into windgram tiles from $YEAR-$MONTH-$DAY-$HOUR at forecast hour $FORECASTHOUR in directory $DIRECTORY
+echo Combining files into windgram tiles from $YEAR-$MONTH-$DAY-$HOUR at forecast hour $FORECASTHOUR in directory $DIRECTORYNAME
 
-P=$DIRECTORY
-OUTPUT=$DIRECTORY/$MODEL"_"$YEAR-$MONTH-$DAY-run$HOUR"_P0"$H".grib2"
+P=$DIRECTORYNAME
+OUTPUT=$P/$MODEL"_"$YEAR-$MONTH-$DAY-run$HOUR"_P0"$H".grib2"
 CATLIST="$P/*VGRD_ISBL_*_P0$H$TAIL $P/*UGRD_ISBL_*_P0$H$TAIL $P/*DEPR_ISBL_*_P0$H$TAIL $P/*TMP_ISBL_*_P0$H$TAIL $P/*HGT_SFC*_P0$H$TAIL $P/*HGT_ISBL*_P0$H$TAIL $P/*TGL*_P0$H$TAIL $P/*PRATE*_P0$H$TAIL $P/*TCDC_SFC*_P0$H$TAIL $P/*PRMSL*_P0$H$TAIL  $P/*HTFL*_P0$H$TAIL"
 cat $CATLIST > $OUTPUT
 rm $CATLIST
-
