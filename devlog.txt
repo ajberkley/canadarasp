@@ -1,4 +1,6 @@
-﻿Upgrade and development notes
+﻿THIS FILE IS OUT OF DATE.  DO NOT LOOK AT IT EXCEPT FOR HISTORICAL DEVELOPMENT INFO (WHICH PROBABLY ISN'T USEFUL)
+
+Upgrade and development notes
 TODO
  -1)  RAIN set 0.0 to be transparent / white.
  0) Hours on x-axis for multiday GDPS windgrams broken
