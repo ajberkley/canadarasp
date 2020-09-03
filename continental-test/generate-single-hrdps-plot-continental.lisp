@@ -2,9 +2,9 @@
 
 (load "~/quicklisp/setup.lisp")
 
-(setf asdf:*central-registry* '(#P"/home/ubuntu/quicklisp/quicklisp/"                                                                                                    
-                                #P"/home/ubuntu/canadarasp/continental-test/cl-gdal/"                                                                                               
-                                #P"/home/ubuntu/canadarasp/continental-test/"))
+(setf asdf:*central-registry* '(#P"~/quicklisp/quicklisp/"                                                                                                    
+                                #P"~/canadarasp/continental-test/cl-gdal/"                                                                                               
+                                #P"~/canadarasp/continental-test/"))
 
 (ql:quickload "iterate")
 (ql:quickload "trivial-garbage")
@@ -47,9 +47,12 @@
     (format nil "~A-~2,'0d-~2,'0d_~2,'0d/" yyyy mm dd hh)
     (format nil "~A-~2,'0d-~2,'0d/" yyyy mm dd)))
 
+(deftype rgb-color-type ()
+  '(simple-array (unsigned-byte 8) (3)))
+
 (defstruct (color-scale-entry)
   (value 0f0 :type single-float)
-  (color #(0 0 0) :type (simple-array (unsigned-byte 8) (3))))
+  (color #(0 0 0) :type rgb-color-type))
 
 (defun make-color-scale (color-scale-info)
   (map 'vector (lambda (info)
