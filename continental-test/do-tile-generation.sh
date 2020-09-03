@@ -96,7 +96,7 @@ if [ -z $NOTILES ]; then
     echo "Starting concatenating files for each hour at `date`"
     for H in ${TIMES[*]}
     do
-        ./required-tiles.lisp | xargs -d \\n ./concatenate-windgram-tiles.sh $YEAR $MONTH $DAY $HOUR $H
+        ./required-tiles.lisp | xargs -n 1 -d \\n ./concatenate-windgram-tiles.sh $YEAR $MONTH $DAY $HOUR $H
     done
     echo "Done concatenating files for each hour at `date`"
 fi
