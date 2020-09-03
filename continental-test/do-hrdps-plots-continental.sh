@@ -44,7 +44,7 @@ if [ -z $NOTILES ]; then
 fi
 if [ -z $NOWINDGRAMS ]; then
     echo "Generating windgrams at `date`"
-         ./do-windgrams-continental.sh $YEAR $MONTH $DAY $HOUR
+    ./do-windgrams-continental.sh $YEAR $MONTH $DAY $HOUR
     echo "Done generating windgrams `date`"
 fi
 if [ -z $NOMAP ]; then     # if string is NULL
