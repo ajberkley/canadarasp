@@ -29,18 +29,6 @@ Z=`date +%-:::z` # This is UTC offset
 source ./model-parameters.sh $MODEL
 echo "do-hrdps-plots.sh $YEAR-$MONTH-$DAY $HOUR for ${#TIMES[@]} hours, local UTC offset is $Z"
 
-if [ -z $NODIRS ]; then
-   echo "Making directories starts at `date`"
-   for Y in ${YVALS[@]}
-   do
-       for X in ${XVALS[@]}
-       do
-   	DIRECTORYNAME=$TILEDIR/$X:$((X+XSTEP)):$Y:$((Y+YSTEP))
-   	mkdir -p $DIRECTORYNAME
-       done
-   done
-   echo "Making directories ends at `date`"
-fi
 if [ $MODEL == "hrdps" ]; then
   if [ -z $NOCLIP ]; then
     echo "Starting clipping wind to terrain at `date`"
