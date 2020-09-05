@@ -36,9 +36,6 @@ source /home/ubuntu/canadarasp/aws-utils/unmount-download-box.sh
 source /home/ubuntu/canadarasp/aws-utils/delete-download-box.sh
 #echo NOT DELETING THE DOWNLOAD BOX
 echo Done moving downloaded data to local disk at `date`
-echo "Generating new variables like HCRIT"
-./do-generate-new-variables.sh # takes 3 minute
-echo "Done generating new variables"
 
 # generate HRDPS plots and windgrams
 if [ -z $NOPLOT ]; then     # if string is NULL

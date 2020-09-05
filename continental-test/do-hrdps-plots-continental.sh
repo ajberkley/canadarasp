@@ -29,6 +29,10 @@ Z=`date +%-:::z` # This is UTC offset
 source ./model-parameters.sh $MODEL
 echo "do-hrdps-plots.sh $YEAR-$MONTH-$DAY $HOUR for ${#TIMES[@]} hours, local UTC offset is $Z"
 
+echo "Generating new variables like HCRIT"
+./do-generate-new-variables.sh # takes 3 minute
+echo "Done generating new variables"
+
 if [ $MODEL == "hrdps" ]; then
   if [ -z $NOCLIP ]; then
     echo "Starting clipping wind to terrain at `date`"
