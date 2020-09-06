@@ -35,6 +35,17 @@ BC off the HRDPS-WEST model, but once we moved to the continental
 model it was about 10x too slow to be useful, so I wrote the stuff
 that needed to be fast in common lisp.
 
+The map overlay views are a bespoke
+pre-[WTMS](https://en.wikipedia.org/wiki/Web_Map_Tile_Service) viewer
+with simple caching and just a fixed zoom.  In principle we might want
+to move to a WTMS based storage scheme instead of the single zoom
+layer we use now, but given the limited dynamic range in zoom it is
+likely overkill.  If we were serving the data out to anyone except our
+own javascript viewer then we should consider doing this.  I did some
+experiments with generating TMS tiles using modern tools but didn't
+find any benefit in computation times or flexibility over the bespoke
+system currently in use.
+
 It costs roughly $1300 CAD / year to run the system.
 
 # ECCC
@@ -78,14 +89,6 @@ fields into a 2x2 degree windgram tile.  While generating the map pngs
 we work on each field individually, so we can load them directly
 though we still output 2x2 degree PNGs for speed of loading in the web
 browser.
-
-## WCS / WMS
-
-ECCC provides a WCS and WMS interface to the HRDPS data.  My
-experiments with trying to use the WCS interface found it was about
-100x too slow to be useful for generating dynamic windgrams.  I did
-not investigate the WMS interface to replace the map pngs, but I
-expect it to be as slow.
 
 ## Contacts
 
@@ -254,13 +257,12 @@ slicing the entire data set up and leaving it in GRIB2 format and
 serving that raw and using any of the geo javascript libraries to
 decode it.  That's probably the simplest.  Either way, GRIB2 or
 pseudo-PNG we could then move the windgram generation to the client
-side if serving those static files is fast enough.  Or, I could write
-a thin web service that mimics WCS over these pre-sliced files.  The
-funny thing is this is what WCS is supposed to be --- provide a nice
-interface to getting raw data, but to make it performant is tricky I
-guess.  It really looks like they don't decompress the data in
-advance, or slice it up like I do, so it ends up taking half a second
-to just query a single field at a single point.
+side if serving those static files is fast enough.
+
+Anyway, we could just use gdal-translate to do the remapping instead
+of what we use now.  Just translate to 8 bit grayscale for everything
+and put the scale information into some small JSON packets for
+ingesting in the viewer.
 
 ## Improved interface and visualization
 
@@ -282,3 +284,59 @@ packed, etc.  The NAM model, though, would again cost several hundred
 dollars a year to process and I'm not sure I'd get enough increase in
 users to cover the cost.  Mainly the development time is what's
 stopping me though.  I just don't have the motivation right now.
+
+# Some experiments
+## Playing with WCS/WMS
+
+ECCC provides a WCS and WMS interface to the HRDPS data.  My
+experiments with trying to use the WCS interface found it was about
+100x too slow to be useful for generating dynamic windgrams.  I did
+not investigate the WMS interface to replace the map pngs, but I
+expect it to be as slow as all the data needs to be generated
+dynamically.
+
+This stuff is mainly for desktop GIS apps I guess.  The WCS test took
+roughly 0.5 seconds to get a single field at a single location (and it
+doesn't support single points, despite the standard saying that should
+work, just regions, but whatever).
+
+## Playing with TMS / WTMS
+
+WTMS is a static image based tiling scheme for maps very similar to
+what we use, but that handles dynamic zooming and scaled down preview
+tiles.  This doesn't exactly match what we want here because the
+underlying data is not particularly high resolution, so the dynamic
+range is well covered by a fixed zoom level but where the user sees
+the individual pixels.  We have basically a bespoke version of this
+implemented.  Regardless, let's see about the standard tool chains and
+whether we can leverage them to remove some of the canadrasp backend
+complexity.
+
+I found `gdal2tiles.py` which appears to do what we want.
+
+### gdal2tiles.py
+*Summary: this tool seems best if the underlying data set is much higher resolution... it is way too slow and space wasteful as written to be useful for our backend*
+
+Here we can use gdal2tiles.py to generate a TMS compatible set of fixed PNGs.  Here is an example
+```
+gdal_translate -of GTiff -ot Byte -scale -10 50 0 255 /mnt/input/hrdps/CMC_hrdps_continental_TMP_TGL_2_ps2.5km_2020083100_P001-00.grib2 /mnt/input/hrdps/CMC_hrdps_continental_TMP_TGL_2_ps2.5km_2020083100_P001-00.tiff
+```
+this scales from Celsius to 8-bit gray scale (-10 to 50C to 0 to 255).  This is relatively fast (0.8 seconds, most of that time is uncompressing the original GRIB file).
+
+```time gdal2tiles.py -r near -z1-10 /mnt/input/hrdps/CMC_hrdps_continental_TMP_TGL_2_ps2.5km_2020083100_P001-00.tiff blarg```
+
+then generates the PNG files.  This takes... 5 minutes instead of 1-2
+seconds it takes currently.  This is because it is trying to
+interpolate beyond the original resolution.  It's kind of dumb that
+way.  We start with a roughly 3000x2000 image and instead of setting
+the maximum resolution to that (ie 2.5km/2.5km) and just pixelating
+the zoom like we do, it spends a lot of time interpolating and the
+output is too large too because of the over-sampling.
+
+Also would need to rewrite the map viewer to use fixed zoom, etc.  All
+in all this doesn't seem to meet my needs.
+
+The commercial implementation
+[maptiler](https://www.maptiler.com/engine/) might work but it costs
+money.
+
