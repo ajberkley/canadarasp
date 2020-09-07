@@ -340,3 +340,60 @@ The commercial implementation
 [maptiler](https://www.maptiler.com/engine/) might work but it costs
 money.
 
+### gdal_retile.py
+This might be better but suffers from the same generic problem as above.
+
+## How to save some time / money so we can add NAM / GFS
+
+Here is how the time is spent:
+ 1. Initial start-up (copy files, make swap file) (3 minutes?)
+ 2. Generating new variables (3 minutes)
+ 3. Clipping wind to terrain (currently does not happen)
+ 4. Fixing TGL grib files (1 minute)
+ 5. Generate the sub tiles for the windgrams (14 minutes)
+ 6. Concatenating the sub tiles into single grib files (2.25 minutes)
+ 7. Generating and uploading windgrams (3.5 minutes)
+ 8. Generate the map pngs (14 minutes)
+ 9. Uploading map png files (5 minutes)
+
+Total is about 45 minutes.
+
+About 0.7 seconds * 4800 files is spent opening and uncompressing the
+same GRIB2 file each time with almost perfect parallelization.  So if
+we combined the tasks 5 and 8 we could save roughly five minutes.  Or
+if we went to keeping all the GRIB2 tiles we could save the windgram
+drawing (move to client side).
+
+That isn't enough to make or break the whole thing but I feel like I can
+probably remove most of 5... more like saving 10 minutes.
+
+If we could save 15 minutes then with no cost we could add a single
+run of the NAM probably.
+
+### GRIB2 tiles
+
+It looks like generating all the GRIB2 windgram tiles is probably a
+good idea.  Then writing a small access interface which opens,
+decompresses, and then streams just the single point to the user as a
+JSON message would probably work.  It would take maybe 1 second to
+decompress each file.  Then we can do client side windgram generation.
+
+(They cannot access the full tiles as that is 48 MB per windgram which
+is too much to push down phones regularly... see below).  A single
+point is tiny, though (roughly 50 kB assuming a JSON/text blow-up of
+10x).
+
+Currently the data needed for each windgram is kept on the web-server
+in GRIB2 format compressed with the complex-2 algorithm (best trade
+between time and space).  Each 2x2 degree grid is roughly 48 MB of
+data... 1 MB per hour.  There are 1288 2x2 grids which gives a total
+space requirement of 62 GB.  I also am keeping two runs around which
+is wasteful.  At 0.10 USD/GB-month and assuming we are only increasing
+the size by say 50 GB, would cost (* 50 0.1 1.3 12) $78/year which is
+OK.  SO.  If we increase the web prod storage by another 50 GB or so
+we can generate all the windgram tiles.  Then we can move windgram
+drawing to the client side.  This saves 10 minutes on the server side
+per day, or roughly 5 hours a month which costs (* 5 0.768 1.3)
+$5/month which roughly cancels this out.
+
+Of course if we add the NAM that is double this, but that's OK.
