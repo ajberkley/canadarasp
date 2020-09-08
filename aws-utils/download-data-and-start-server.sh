@@ -6,7 +6,9 @@ echo Downloading data for $MODEL
 DBOXNAME=download-box-$MODEL
 cd /home/ubuntu/canadarasp/aws-utils
 source ./create-download-box.sh /$DBOXNAME
-source ./aws-write-tag.sh `./get-compute-server-id.sh $SERVER` model $MODEL
+COMPUTEID=`./get-compute-server-id.sh "$SERVER"`
+echo Server id is $COMPUTEID
+source ./aws-write-tag.sh $COMPUTEID model $MODEL
 cd /home/ubuntu/canadarasp/continental-test
 source ./guess-time.sh $MODEL
 /home/ubuntu/canadarasp/aws-utils/check-download-box-mounted.sh /$DBOXNAME
