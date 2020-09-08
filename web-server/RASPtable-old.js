@@ -20,7 +20,6 @@ var map;           // stores the google.map
 var opacity = 50;  // default opacity
 var OPACITY_MAX_PIXELS = 57; // Width of opacity control image
 
-var regions = [ "Lower Mainland", "Sea to Sky", "Vancouver Island", "Kamloops Area","North Okanagan","South Okanagan","Kootenays","Smithers Area","Jasper Area","Alberta","Washington","Ski","Cariboo", "Montreal"];
 var windgrammarkers = Array();
 var windgramsinitialized = false;
 
