@@ -21,7 +21,6 @@ var map;           // stores the google.map
 var opacity = 50;  // default opacity
 var OPACITY_MAX_PIXELS = 57; // Width of opacity control image
 
-var regions = [ "Lower Mainland", "Sea to Sky", "Vancouver Island", "Kamloops Area","North Okanagan","South Okanagan","Kootenays","Smithers Area","Jasper Area","Alberta","Washington","Ski","Cariboo", "Montreal", "Yukon", "Saskatchewan", "Manitoba", "Montana"];
 var windgrammarkers = Array();
 var windgramsinitialized = false;
 
@@ -46,8 +45,9 @@ function displayWindgrams() {
 			title: text
 		    });
 		    windgrammarkers.push(marker);
-		    var mylocationidxlocal = mylocationidx++; 
-		    google.maps.event.addListener(marker,'click', function() { window.open('windgrams/?region='+myregionidx+'&location='+mylocationidxlocal+'&Model='+model())});
+		    var mylocationidxlocal = mylocationidx++;
+                    var myregionidxlocal = myregionidx;
+		    google.maps.event.addListener(marker,'click', function() { window.open('windgrams/?region='+myregionidxlocal+'&location='+mylocationidxlocal+'&Model='+model())});
 		}
             });
 	});
