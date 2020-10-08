@@ -241,3 +241,4 @@ Montreal, Mont Ham-Sud, 45.7933324, -71.6429429
 Hidden, Waterton Alberta, 49.050651, -113.911664 
 Hidden, Castle Mountain Alberta, 49.319147, -114.412594
 Prince Edward Island, Bonshaw, 46.185326, -63.425988 
+Montana, Lake Blaine, 48.26222, -114.10611
