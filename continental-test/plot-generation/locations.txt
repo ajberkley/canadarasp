@@ -245,3 +245,4 @@ Montana, Lake Blaine, 48.26222, -114.10611
 Montana, Waterloo, 45.765933, -112.117536
 Montana, East Ridge, 46.00394166666667, -112.444172
 Montana, Red Mountain, 45.764522, -112.482308
+Mexico, La Cumbre Colima, 19.181164, -103.692158, gdps
