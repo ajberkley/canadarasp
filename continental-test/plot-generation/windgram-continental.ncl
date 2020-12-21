@@ -194,7 +194,7 @@ begin
     load_variables_one_point(a,locY,locX)
     outputfiletemplate = str_get_field(output_files,site_idx+1,";")
   ; FIGURE OUT WHAT DAYS AND HOURS WILL BE USED IN THE PLOT
-   utcoffset = stringtolong(systemfunc("curl -s 'http://alpha.canadarasp.com/timezone?location=" + site_lat + "," + site_lon + "&timestamp=" + secondssinceepoch + "&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks' | grep 'rawOffset\|dstOffset' | awk '{ a++; if(a==1) {printf " + quote + "%d +" + quote + ", $3 } else { print $3 }}' | tr [,] " + quote + " " + quote + "| bc"))
+   utcoffset = stringtolong(systemfunc("curl -s 'http://canadarasp.com/timezone?location=" + site_lat + "," + site_lon + "&timestamp=" + secondssinceepoch + "&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks' | grep 'rawOffset\|dstOffset' | awk '{ a++; if(a==1) {printf " + quote + "%d +" + quote + ", $3 } else { print $3 }}' | tr [,] " + quote + " " + quote + "| bc"))
    utcoffset = utcoffset / 3600
    print("UTC offset is " + utcoffset)
    ;; utcoffset = round(utcoffset,1)
