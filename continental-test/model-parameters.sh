@@ -3,8 +3,8 @@
 MODEL=${1:-$MODEL} # Use parameter or environment variable MODEL
 MODEL=${MODEL:-"hrdps"}
 case $MODEL in
-    rdps|hrdps|gdps) echo Setting configuration parameters for MODEL $MODEL ;;
-    *) echo MODEL $MODEL is not one of rdps hrdps or gdps; exit -1 ;;
+    rdps|hrdps|gdps|hrdps_west) echo Setting configuration parameters for MODEL $MODEL ;;
+    *) echo MODEL $MODEL is not one of rdps hrdps gdps or hrdps_west; exit -1 ;;
 esac
 
 export MODEL=$MODEL
@@ -22,6 +22,12 @@ if [ $MODEL = "rdps" ]; then
   export OUTPUTDIR="/mnt/input/rdps"  # Where input data is
   export TILEDIR="/mnt/windgram-tiles/rdps" # Where windgram grib2 tiles go
   export PNGDIR="/mnt/map-pngs/rdps" # Where map PNGs go
+filename () {
+ FILELABEL=$1;
+ H=$2;
+ echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL 
+}
+
 fi
 if [ $MODEL = "hrdps" ]; then
 #   export WEBSERVER="hpfx.collab.science.gc.ca"
@@ -44,6 +50,11 @@ if [ $MODEL = "hrdps" ]; then
    export YMIN=26
    export YSTEP=2
    export YMAX=70
+filename () {
+ FILELABEL=$1;
+ H=$2;
+ echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL 
+}
 
 fi
 if [ $MODEL = "gdps" ]; then
@@ -67,6 +78,38 @@ if [ $MODEL = "gdps" ]; then
    export YMIN=-80
    export YSTEP=10
    export YMAX=80
+filename () {
+ FILELABEL=$1;
+ H=$2;
+ echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL 
+}
+
+fi
+if [ $MODEL = "hrdps_west" ]; then
+   export WEBSERVER="dd.alpha.meteo.gc.ca"
+   export DIRECTORY="model_hrdps/west/1km/grib2"
+   export FILEHEADER="CMC_hrdps_west"
+   export TIMESTART="1" # no prate data for zero
+   export TIMESTEP="1"
+   export TIMESTOP="48"
+   export RESOLUTION="_rotated_latlon0.009x0.009_"
+   export TAIL="-00.grib2"
+   export FILE="HRDPS-files.txt"
+   export OUTPUTDIR="/mnt/input/hrdps_west"
+   export TILEDIR="/mnt/windgram-tiles/hrdps_west"
+   export PNGDIR="/mnt/map-pngs/hrdps_west"
+   export XMIN=-152
+   export XMAX=-42
+   export XSTEP=2
+   export YMIN=26
+   export YSTEP=2
+   export YMAX=70
+filename () {
+ FILELABEL=$1;
+ H=$2;
+ echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY"T"$HOUR"Z_P0"$H$TAIL 
+}
+
 fi
 export XVALS=($(seq $XMIN $XSTEP $XMAX))
 export YVALS=($(seq $YMIN $YSTEP $YMAX))
@@ -77,10 +120,3 @@ if [ $MODEL = "hrdps" ]; then
     else
        export LEVELS=(550 600 650 700 750 800 850 875 900 925 950 970 985 1000 1015)
 fi
-
-filename () {
- FILELABEL=$1;
- H=$2;
- echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL 
-}
-

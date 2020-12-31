@@ -20,7 +20,7 @@
 (defun make-files ()
   (destructuring-bind (year month day hour h outputfile)
       (or (cdr *posix-argv*) '("2018" "08" "18" "18" "03" "blarg.txt"))
-    (let* ((files (directory* *directory* (format nil "*~A~A~A~A_P0~A*.grib2" year month day hour h))))
+    (let* ((files (directory* *directory* (file-glob-for year month day hour h))))
       (format t "Processing ~A files for hour ~A into ~A~%" (length files) h outputfile)
       (with-open-file (str outputfile :direction :output :if-exists :supersede)
 	(map nil (lambda (file)

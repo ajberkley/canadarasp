@@ -574,7 +574,7 @@
     (make-tile-directories yearutc monthutc dayutc forecast-init-year forecast-init-month forecast-init-day forecast-init-hour)
     (labels ((gen-input-filename/s (filelabel/s)
 	       (labels ((d (filelabel)
-			  (format nil "~A/~A_~A~A~A~2,'0d~2,'0d~2,'0d_P~3,'0d~A"
+                          (filename 
 				  *directory* *fileheader* (translate-from-hrdps-names-to-current-model filelabel) *resolution* forecast-init-year forecast-init-month forecast-init-day forecast-init-hour 
                                   (if (and (string= *model* "gdps") (string= filelabel "HGT_SFC_0")) 0 forecast-hour)
                                   *tail*)))

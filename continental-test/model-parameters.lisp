@@ -1,7 +1,7 @@
 (defparameter *isbl-levels* '(1015 1000 985 970 950 925 900 875 850 800 750 700 650 600 550)) ;; same GDPS, RDPS, HRDPS
 (defparameter *date* (concatenate 'string (sb-posix:getenv "YEAR") (sb-posix:getenv "MONTH") (sb-posix:getenv "DAY")))
-(defparameter *forecast-zero-hour* (parse-integer (or (sb-posix:getenv "HOUR") "0")))
 (defparameter *model* (or (sb-posix:getenv "MODEL") "hrdps"))
+(defparameter *forecast-zero-hour* (parse-integer (or (sb-posix:getenv "HOUR") "0")))
 (defparameter *fileheader* (or (sb-posix:getenv "FILEHEADER") "CMC_hrdps_continental"))
 (defparameter *directory* (or (sb-posix:getenv "OUTPUTDIR") "/mnt/input/hrdps"))
 (defparameter *timestart* (parse-integer (or (sb-posix:getenv "TIMESTART") "0")))
@@ -20,6 +20,45 @@
 (defparameter *xstep* (parse-integer (or (sb-posix:getenv "XSTEP") "2")))
 (defparameter *ystep* (parse-integer (or (sb-posix:getenv "YSTEP") "2")))
 
+(defun file-glob-for (year month day hour h)
+  (if (member *model* '("hrdps" "gdps" "rdps"))
+      (format nil "*~A~A~A~A_P0~A*.grib2" year month day hour h)
+      (format nil "*~A~A~AT~AZ_P0~A*.grib2" year month day hour h)))
+
+(defun time-string (init-year init-month init-day init-hour hour)
+  (format nil "~A~2,'0d~2,'0d~A~2,'0d~A_P~3,'0d"
+          init-year init-month init-day (if (string= *model* "hrdps_west")
+                                            "T" "")
+          init-hour (if (string= *model* "hrdps_west")
+                        "Z" "")
+          hour))
+
+(defun time-string* (date forecast-zero-hour forecast-hour)
+  (if (string= *model* "hrdps_west")
+      (format nil "~AT~2,'0dZ_P~3,'0d" date forecast-zero-hour forecast-hour))
+      (format nil "~A~2,'0d_P~3,'0d" date forecast-zero-hour forecast-hour))
+  
+(defun filename (directory fileheader filelabel resolution init-year init-month init-day init-hour hour tail)
+  (format nil "~A/~A_~A~A~A~A"
+          directory fileheader (translate-from-hrdps-names-to-current-model filelabel) resolution
+          (time-string init-year init-month init-day init-hour hour)
+          tail))
+
+(defun input-file (variable &key level isbl-level forecast-hour
+					    (date *date*) (forecast-zero-hour *forecast-zero-hour*))
+  (assert (numberp forecast-zero-hour))
+  (assert (numberp forecast-hour))
+  (let* ((header (format nil "~A/~A" *directory* *fileheader*)))
+    (cond
+      (level (format nil "~A_~A_~A~A~A~A"
+		     header variable level *resolution* (time-string* date forecast-zero-hour forecast-hour) *tail*))
+      (isbl-level
+       (if (member *model* '("gdps" "rdps") :test #'string=)
+	   (format nil "~A_~A_~3,'0D~A~A~A"
+		   header variable isbl-level *resolution* (time-string* date forecast-zero-hour forecast-hour) *tail*)
+	   (format nil "~A_~A_~4,'0D~A~A~A"
+		   header variable isbl-level *resolution* (time-string* date forecast-zero-hour forecast-hour) *tail*)))
+      (t (error "unknown format type")))))
 
 (defun tile-iterator ()
   (let* ((ulx *ulx*)
