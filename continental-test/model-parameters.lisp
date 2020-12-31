@@ -37,7 +37,14 @@
   (if (string= *model* "hrdps_west")
       (format nil "~AT~2,'0dZ_P~3,'0d" date forecast-zero-hour forecast-hour))
       (format nil "~A~2,'0d_P~3,'0d" date forecast-zero-hour forecast-hour))
-  
+
+(defun translate-from-hrdps-names-to-current-model (name)
+  "The GDPS and RDPS use UGRD_ISBL_950 instead of UGRD_ISBL_0950"
+  (if (and (find *model* '("rdps" "gdps") :test #'string=) (> (length name) 9) (string= (subseq name 5 9) "ISBL"))
+      (destructuring-bind (grd isbl num) (cl-ppcre:split #\_ name)
+	(format nil "~A_~A_~A" grd isbl (parse-integer num)))
+      name))
+
 (defun filename (directory fileheader filelabel resolution init-year init-month init-day init-hour hour tail)
   (format nil "~A/~A_~A~A~A~A"
           directory fileheader (translate-from-hrdps-names-to-current-model filelabel) resolution

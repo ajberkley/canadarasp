@@ -256,13 +256,6 @@
 
 (defparameter *tmp-files* nil)
 
-(defun translate-from-hrdps-names-to-current-model (name)
-  "The GDPS and RDPS use UGRD_ISBL_950 instead of UGRD_ISBL_0950"
-  (if (and (find *model* '("rdps" "gdps") :test #'string=) (> (length name) 9) (string= (subseq name 5 9) "ISBL"))
-      (destructuring-bind (grd isbl num) (cl-ppcre:split #\_ name)
-	(format nil "~A_~A_~A" grd isbl (parse-integer num)))
-      name))
-
 (defparameter *params-and-names*
   `(("sfcwind" "Wind at 10m" ("UGRD_TGL_10" "VGRD_TGL_10") :wind ,*wind-color-scale* "[km/hr]")
     ("sfcwind1" "Wind at 40m" ("UGRD_TGL_40" "VGRD_TGL_40") :wind ,*wind-color-scale* "[km/hr]")
