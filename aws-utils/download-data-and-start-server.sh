@@ -1,6 +1,6 @@
 #!/bin/bash
 MODEL=${1:-"gdps"}
-SERVER=${2:"HRDPS PROD V7"}
+SERVER=${2:"HRDPS PROD V8"}
 TRY=${3:-0}
 echo Downloading data for $MODEL
 DBOXNAME=download-box-$MODEL
