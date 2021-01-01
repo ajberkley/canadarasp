@@ -30,7 +30,7 @@ source ./model-parameters.sh $MODEL
 echo "do-hrdps-plots.sh $YEAR-$MONTH-$DAY $HOUR for ${#TIMES[@]} hours, local UTC offset is $Z"
 
 echo "Generating new variables like HCRIT"
-./do-generate-new-variables.sh # takes 3 minute
+./do-generate-new-variables.sh # takes 3 minutes or so (2:40)
 echo "Done generating new variables"
 
 if [ $MODEL == "hrdps" ]; then
@@ -43,7 +43,7 @@ fi
 
 if [ -z $NOTILES ]; then
     echo "Generating tiles at `date`"
-    ./do-tile-generation.sh $YEAR $MONTH $DAY $HOUR 
+    ./do-tile-generation.sh $YEAR $MONTH $DAY $HOUR # takes 
     echo "Done generating tiles at `date`"
 fi
 if [ -z $NOWINDGRAMS ]; then
@@ -55,7 +55,7 @@ if [ -z $NOMAP ]; then     # if string is NULL
     echo "Starting tile graphic generation at `date`"
     FORECASTHOURS=($(seq -w $TIMESTART $TIMESTEP $TIMESTOP))
     echo "Generating headers and footers for all hours starting at `date`"
-    ./generate-single-hrdps-plot-continental.lisp --only-generate-header-footer
+    ./generate-single-hrdps-plot-continental.lisp --only-generate-header-footer # 3 seconds
     echo "Done generating headers and footers at `date`"
     rm -f /mnt/forecast-hours
     for I in ${FORECASTHOURS[*]}
@@ -64,9 +64,9 @@ if [ -z $NOMAP ]; then     # if string is NULL
     done
     echo "Starting to generate all map pngs at `date`"
     export OMP_NUM_THREADS=1
-    parallel --gnu -j 16 ./generate-single-hrdps-plot-continental.lisp {} < /mnt/forecast-hours
+    parallel --gnu -j 16 ./generate-single-hrdps-plot-continental.lisp {} < /mnt/forecast-hours  # 4 min 10 seconds for j = 16., 5 min for j = 15
     export -n OMP_NUM_THREADS
-    #rm /mnt/forecast-hours
+    # rm /mnt/forecast-hours
     echo "Done tile graphic generation at `date`"
 fi
 

@@ -27,6 +27,7 @@ source ./model-parameters.sh $MODEL
 
 echo "Generating tiles from $YEAR-$MONTH-$DAY for ${#TIMES[@]} hours"
 export OMP_NUM_THREADS=1
+# Fixing takes 20 seconds
 if [ -z $NOFIX ] ; then
     echo FIXING files starts at `date`
     # fix level info for TGL files
@@ -67,8 +68,9 @@ fi
 # Generate a command list for wgrib2 that cuts the original data files into tiles
 # and then run the commands
 if [ -z $NOTILES ]; then
-   # The tiles will be generated actually 10% larger than required in the east west direction, and then we will clip by 10%.  This lets us ignore the rotated grid for all the lat/lons we care about.
-   echo "Generating commands for generating windgram tiles starts at `date`" # This actually takes two minutes or so!
+    # The tiles will be generated actually 10% larger than required in the east west direction, and then we will clip by 10%.  This lets us ignore the rotated grid for all the lat/lons we care about.
+    # Takes 5 seconds to generate commands
+   echo "Generating commands for generating windgram tiles starts at `date`"
    rm -f /mnt/parallel-jobs
    rm -f /mnt/args
    ARGSFILES=""
@@ -80,9 +82,10 @@ if [ -z $NOTILES ]; then
    parallel --gnu -n 1 -j $PARALLELTILE < /mnt/parallel-jobs
    cat $ARGSFILE > /mnt/args
    echo "Done generating commands at `date`"
+   # Generating actual tiles takes 14 minutes!
    echo "Generating grib tiles starts at `date`"
    export OMP_NUM_THREADS=1
-   time parallel --gnu -n 1 -j $PARALLELTILE < /mnt/args
+   parallel --gnu -n 1 -j $PARALLELTILE < /mnt/args
    export -n OMP_NUM_THREADS
    echo "Done generating grib tiles at `date`"
    rm -f /mnt/args
@@ -90,7 +93,7 @@ if [ -z $NOTILES ]; then
 fi
 
 # Concatenate the many different grib2 files in each windgram-tile directory into a single grib2 file
-# which can then be loaded just at once by NCL.
+# which can then be loaded just at once by NCL.  This takes 4 minutes!
 
 if [ -z $NOTILES ]; then
     echo "Starting concatenating files for each hour at `date`"

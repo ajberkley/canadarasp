@@ -21,7 +21,7 @@
 (defparameter *ystep* (parse-integer (or (sb-posix:getenv "YSTEP") "2")))
 
 (defun file-glob-for (year month day hour h)
-  (if (member *model* '("hrdps" "gdps" "rdps"))
+  (if (member *model* '("hrdps" "gdps" "rdps") :test #'string=)
       (format nil "*~A~A~A~A_P0~A*.grib2" year month day hour h)
       (format nil "*~A~A~AT~AZ_P0~A*.grib2" year month day hour h)))
 
