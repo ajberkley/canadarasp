@@ -1,12 +1,12 @@
 #!/usr/local/bin/sbcl --script
 
 (load "~/quicklisp/setup.lisp")
-(load "../model-parameters.lisp")
 (require :cl-ppcre)
 (require :iterate)
-
 (use-package :cl-ppcre)
 (use-package :iterate)
+(load "../model-parameters.lisp")
+
 
 (defun handle-locations (&optional (filename "/home/ubuntu/continental-test/plot-generation/locations.txt") (outputfilename "/home/ubuntu/continental-test/plot-generation/run-my-windgrams.sh"))
   (let ((result-hash (make-hash-table :test 'equalp))
