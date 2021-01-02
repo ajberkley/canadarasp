@@ -1,5 +1,5 @@
 #!/bin/sh
-mkdir ~/.config/common-lisp/source-registry.conf.d
+mkdir -p ~/.config/common-lisp/source-registry.conf.d
 cd /home/ubuntu
 git clone https://github.com/ljosa/cl-png.git
 git clone https://github.com/ajberkley/cl-gdal.git
