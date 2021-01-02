@@ -9,6 +9,9 @@ MY_INSTANCE_ID=`get-my-instance-id.sh`
 SHUTDOWN=`aws-read-tag.sh $MY_INSTANCE_ID shutdown`
 SHUTDOWN=${SHUTDOWN:-true}
 MODEL=`aws-read-tag.sh $MY_INSTANCE_ID model`
+
+/home/ubuntu/canadarasp/setup-lisp.sh
+
 if [ $SHUTDOWN == "true" ]; then
  echo Going to shutdown after run
 else

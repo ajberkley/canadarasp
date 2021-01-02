@@ -7,4 +7,4 @@ git clone https://github.com/ajberkley/mmap-shared-cache.git
 echo '(:tree "/home/ubuntu/cl-png")' > ~/.config/common-lisp/source-registry.conf.d/10-cl-png.conf
 echo '(:tree "/home/ubuntu/cl-gdal")' > ~/.config/common-lisp/source-registry.conf.d/11-cl-gdal.conf
 echo '(:tree "/home/ubuntu/mmap-shared-cache")' > ~/.config/common-lisp/source-registry.conf.d/12-mmap-shared-cache.conf
-sbcl --eval '(progn (quicklisp:quickload "osicat") (quicklisp:quickload "alexandria") (quit))'
+sbcl --eval '(progn (quicklisp:quickload "osicat") (quicklisp:quickload "alexandria") (quicklisp:quickload "cl-gd") (quit))'

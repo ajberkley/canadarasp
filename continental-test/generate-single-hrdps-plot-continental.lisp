@@ -38,8 +38,8 @@
 
 ;; Add these to model-parameters.lisp... check gdps values, etc. (gdps will be about half the value I think)
 (declaim (type image-size *output-xsize* *output-ysize*))
-(defvar *output-xsize* 3348)
-(defvar *output-ysize* 2162)
+(defvar *output-xsize* (if (string= *model* "gdps") 1650 3348))
+(defvar *output-ysize* (if (string= *model* "gdps") 1100 2162))
 
 (defun base-directory ()
   (format nil "~A/" *pngdir*))
