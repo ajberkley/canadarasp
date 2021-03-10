@@ -1,20 +1,19 @@
 #!/usr/bin/sbcl --script
 
 (load "~/quicklisp/setup.lisp")
-(load "../model-parameters.lisp")
 (require :hunchentoot)
 (require :cl-ppcre)
 (require :cl-fad)
 (require :iterate)
-(require :local-time)
 (require :parse-number)
-
+(load "../model-parameters.lisp")
+(require :local-time)
 (use-package :parse-number)
 (use-package :cl-ppcre)
 (use-package :iterate)
 (use-package :hunchentoot)
 (use-package :cl-fad)
-(use-package :local-time)
+;;(use-package :local-time)
 (load "utils.lisp")
 
 (defparameter *counter* 0)
