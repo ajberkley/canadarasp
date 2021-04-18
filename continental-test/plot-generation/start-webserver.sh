@@ -1,5 +1,5 @@
 #!/bin/bash
-pkill sbcl
+# pkill sbcl
 cd /home/ubuntu/continental-test/plot-generation
 while true
 do

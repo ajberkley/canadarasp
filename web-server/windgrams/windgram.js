@@ -171,10 +171,11 @@ function init() {
     var thisYear = new Date().getFullYear();
     var thisMonth = new Date().getMonth();
     //var thisDay = new Date().getDate();
-    year.options[0] = new Option(thisYear-1 + '',thisYear-1);
-    year.options[1] = new Option(thisYear + '',thisYear);
-    year.options[2] = new Option(thisYear+1 + '',thisYear+1);
-    year.options[1].selected = true;
+    year.options[0] = new Option(thisYear-2 + '',thisYear-2);
+    year.options[1] = new Option(thisYear-1 + '',thisYear-1);
+    year.options[2] = new Option(thisYear + '',thisYear);
+    year.options[3] = new Option(thisYear+1 + '',thisYear+1);
+    year.options[2].selected = true;
     for (var i=0;i<12;i++) {
 	month.options[i] = new Option(monthName[i],i+1);
 	if(i==thisMonth) {
