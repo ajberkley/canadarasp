@@ -247,3 +247,4 @@ Montana, East Ridge, 46.00394166666667, -112.444172
 Montana, Red Mountain, 45.764522, -112.482308
 Mexico, La Cumbre Colima, 19.181164, -103.692158, gdps
 North Okanagan, Blue Grouse Launch, 49.951528, -119.515583
+South Okanagan, Hawthorne, 49.328078, -119.589577
