@@ -248,3 +248,4 @@ Montana, Red Mountain, 45.764522, -112.482308
 Mexico, La Cumbre Colima, 19.181164, -103.692158, gdps
 North Okanagan, Blue Grouse Launch, 49.951528, -119.515583
 South Okanagan, Hawthorne, 49.328078, -119.589577
+Northern BC, Hasler Bluffs, 55.633383, -121.865433
