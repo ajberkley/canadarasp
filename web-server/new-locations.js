@@ -252,3 +252,7 @@ locations[244]=["Montana","East Ridge",46.00394166666667,-112.444172];
 locations[245]=["Montana","Red Mountain",45.764522,-112.482308];
 locations[246]=["Mexico","La Cumbre Colima",19.181164,-103.692158];
 locations[247]=["North Okanagan","Blue Grouse Launch",49.951528,-119.515583];
+locations[248]=["South Okanagan","Hawthorne",49.328078,-119.589577];
+locations[249]=["Northern BC","Hasler Bluffs",55.633383,-121.865433];
+locations[250]=["Yukon","Paint Mountain",60.826,-137.510];
+locations[251]=["Yukon","White Mountain",60.302,-133.947];

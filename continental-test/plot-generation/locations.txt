@@ -252,7 +252,7 @@ Northern BC, Hasler Bluffs, 55.633383, -121.865433
 Yukon, Paint Mountain, 60.826, -137.510
 Yukon, White Mountain, 60.302, -133.947
 Yukon, Jakes Corner, 60.361 -133.920
-Yukon, Haekal Hill, 60.748, 135.233
+Yukon, Haeckal Hill, 60.748, 135.233
 Yukon, Mt. Sima, 60.605, -135.062
 Yukon, Vista Mountain, 60.932, -135.222
 Yukon, Little Fox Lake, 61.347, -135.637
