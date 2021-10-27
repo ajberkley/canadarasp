@@ -259,3 +259,4 @@ Yukon, Little Fox Lake, 61.347, -135.637
 Yukon, Dawson Dome, 64.068, -139.396
 Yukon, Top of World 01, 64.200, -140.352
 Yukon, Tombstone Campground, 64.521, -138.230
+Sea to Sky, Demon, 49.736149, -122.916248
