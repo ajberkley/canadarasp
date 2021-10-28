@@ -136,7 +136,7 @@ Lower Mainland, Horsefly,        49.281587,-121.981430
 Lower Mainland, Fraser Heritage Pk, 49.1413184, -122.2885180
 Vancouver Island, Youbou, 48.891747, -124.215391
 Kootenays, Nelson,          49.512855, -117.309464
-Sea to Sky, Mamquam,            49.00296944,-122.01226666
+Sea to Sky, Mamquam,           49.7808394, -122.85060681
 North Okanagan, Mt Baldy,       50.201778,-119.1520278
 North Okanagan, The Deep,       50.187375,-119.204083
 South Okanagan, Wolf Creek,     49.1954, -119.4545
