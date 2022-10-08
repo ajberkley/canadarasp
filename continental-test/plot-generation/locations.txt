@@ -261,3 +261,8 @@ Yukon, Top of World 01, 64.200, -140.352
 Yukon, Tombstone Campground, 64.521, -138.230
 Sea to Sky, Demon, 49.730691,-122.920730
 Vancouver Island, Misty Valley Farm, 49.033838795, -123.8495537
+Kamloops Area, Burton, 51.123889, -119.984722
+Kamloops Area, Burton LZ, 51.108056, -119.951389
+Kamloops Area, Lunatic, 51.501667, -119.931667
+Kamloops Area, Lunatic LZ, 51.607222, -119.914444
+Kamloops Area, Moon, 51.726111, -119.87222

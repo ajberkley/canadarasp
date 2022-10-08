@@ -265,3 +265,4 @@ locations[257]=["Yukon","Dawson Dome",64.068,-139.396];
 locations[258]=["Yukon","Top of World 01",64.200,-140.352];
 locations[259]=["Yukon","Tombstone Campground",64.521,-138.230];
 locations[260]=["Sea to Sky","Demon",49.730691,-122.920730];
+locations[261]=["Vancouver Island","Misty Valley Farm",49.033838795,-123.8495537];
