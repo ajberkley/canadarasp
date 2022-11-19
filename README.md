@@ -19,6 +19,12 @@ and it also hangs out on the web server machine (but takes very little
 processing --- it just archives some data from the forecasts to S3 and
 processes it on demand when requested through a simple web service).
 
+# Critical TODO
+ECCC is deprecating the HRDPS data source I am using in Feb 2023.  They
+changed the data format to a lat/lon grid which should mean that I can avoid the
+gdalwarp step on wind decoding, but I have to make sure the new files work
+with my pipeline.
+
 # System generalities
 
 This runs in the Amazon cloud in ca-central-1a, which is Montreal.
