@@ -71,7 +71,13 @@
 #
 # The accept serialization lock file MUST BE STORED ON A LOCAL DISK.
 #
-Mutex file:${APACHE_LOCK_DIR} default
+#Mutex file:${APACHE_LOCK_DIR} default
+
+#
+# The directory where shm and other runtime files will be stored.
+#
+
+DefaultRuntimeDir ${APACHE_RUN_DIR}
 
 #
 # PidFile: The file in which the server should record its process
@@ -162,20 +168,21 @@ Include ports.conf
 	Require all granted
 </Directory>
 
-ProxyPass /windgram http://127.0.0.1:8080/windgram
-ProxyPassReverse /windgram http://127.0.0.1:8080/windgram
+<Directory /home/airspace/html/>
+	Options Indexes FollowSymLinks
+	AllowOverride All
+	Require all granted
+</Directory>
+
+
+
+ProxyPass /data http://127.0.0.1:8080/data
+ProxyPassReverse /data http://127.0.0.1:8080/data
+ProxyPass /windgram http://127.0.0.1:8090/windgram
+ProxyPassReverse /windgram http://127.0.0.1:8090/windgram
 SSLProxyEngine on
-ProxyPass /timezone https://maps.googleapis.com/maps/api/timezone/json
-ProxyPassReverse /timezone https://maps.googleapis.com/maps/api/timezone/json
-
-#<Directory /srv/>
-#	Options Indexes FollowSymLinks
-#	AllowOverride None
-#	Require all granted
-#</Directory>
-
-
-
+ProxyPass /timezone2 http://127.0.0.1:8082/timezone2
+ProxyPassReverse /timezone2 http://127.0.0.1:8082/timezone2
 
 # AccessFileName: The name of the file to look for in each directory
 # for additional configuration directives.  See also the AllowOverride
