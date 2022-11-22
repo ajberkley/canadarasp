@@ -45,40 +45,56 @@
 
 (hunchentoot:define-easy-handler (timezone :uri "/timezone2") (location timestamp)
   (setf (hunchentoot:content-type*) "application/json")
-  (handler-case
-      (progn
-	(cond
-	  ((> (length location) 100) "{\"status\":\"INVALID_REQUEST\", \"errorMessage\":\"Invalid location\"}")
-	  ((> (length timestamp) 100) "{\"status\":\"INVALID_REQUEST\", \"errorMessage\":\"Invalid timestring\"}")
-	  (t
-	   ;; (hunchentoot:log-message* :info (format nil "~A" location))
-	   ;; (hunchentoot:log-message* :info (format nil "~A" timestamp))
-	   (sb-ext:with-timeout 2.0
-	     (let* ((timestamp (if timestamp (local-time:universal-to-timestamp (parse-integer timestamp)) (local-time:now)))
-		    (timezone (apply #'lookup (mapcar #'parse-float:parse-float (cl-ppcre:split "," location))))
-		    (timezone-parsed (local-time:find-timezone-by-location-name timezone)))
-	       (multiple-value-bind
-		     (offset dst)
-		   (local-time:timestamp-subtimezone timestamp timezone-parsed)
-		 (when dst
-		   (incf offset 3600))
-		 (if (string= timezone "null")
-		     (format nil "{\"status\":\"ZERO_RESULTS\"}")
-		     (format nil "{\"status\":\"OK\",\"rawOffset\":~d,\"dstOffset\":~d,\"timeZoneId\":\"~A\" }"
-			     offset (if dst -3600 0) timezone))))))))
-    (timeout ()
-      (hunchentoot:log-message* :error "Timeout~%")
-      (kill-timezone-process)
-      (initialize-timezone-process)
-      (format nil "{\"status\":\"INVALID_REQUEST\"}"))
-    (error (e)
-      (prog1
-	  (format nil "{\"status\":\"INVALID_REQUEST\"}")
-	(hunchentoot:log-message* :error (format nil "~A" e))
-	(ignore-errors
-	  (when (not (string= (lookup 49.0 -123.0) "America/Vancouver"))
-	    (kill-timezone-process)
-	    (initialize-timezone-process)))))))
+  (let ((retries 10))
+    (block ret
+      (tagbody
+       try
+         (handler-case
+             (progn
+               (return-from ret
+                 (cond
+                   ((> (length location) 100) "{\"status\":\"INVALID_REQUEST\", \"errorMessage\":\"Invalid location\"}")
+                   ((> (length timestamp) 100) "{\"status\":\"INVALID_REQUEST\", \"errorMessage\":\"Invalid timestring\"}")
+                   (t
+                    ;;(hunchentoot:log-message* :info (format nil "~A" location))
+                    ;;(hunchentoot:log-message* :info (format nil "~A" timestamp))
+                    (sb-ext:with-timeout 2.0
+                      (let* ((timestamp (if timestamp (local-time:universal-to-timestamp (parse-integer timestamp)) (local-time:now)))
+                             (timezone (apply #'lookup (mapcar #'parse-float:parse-float (cl-ppcre:split "," location))))
+                             (timezone-parsed (local-time:find-timezone-by-location-name timezone)))
+                        (assert timezone-parsed)
+                        (hunchentoot:log-message* :info "blarg")
+                        (multiple-value-bind
+                              (offset dst)
+                            (local-time:timestamp-subtimezone timestamp timezone-parsed)
+                          (when dst
+                            (incf offset 3600))
+                          (if (string= timezone "null")
+                              (format nil "{\"status\":\"ZERO_RESULTS\"}")
+                              (format nil "{\"status\":\"OK\",\"rawOffset\":~d,\"dstOffset\":~d,\"timeZoneId\":\"~A\" }"
+                                      offset (if dst -3600 0) timezone)))))))))
+           (timeout ()
+             (hunchentoot:log-message* :error "Timeout~%")
+             (kill-timezone-process)
+             (initialize-timezone-process)
+             (decf retries)
+             (cond ((> retries 0) (go try))
+                   (t (return-from ret (format nil "{\"status\":\"INVALID_REQUEST\"}")))))
+           (error (e)
+             (decf retries)
+             (cond ((> retries 0)
+                    (sleep (random 1d0))
+                    (go try))
+                   (t
+                    (return-from ret
+                      (prog1
+                          (format nil "{\"status\":\"INVALID_REQUEST\"}")
+                        (hunchentoot:log-message* :error (format nil "~A" e))
+                        (ignore-errors
+                          (sleep (random 3d0))
+                          (when (not (ignore-errors (string= (lookup 49.0 -123.0) "America/Vancouver")))
+                            (kill-timezone-process)
+                            (initialize-timezone-process)))))))))))))
 
 (defvar *acceptor* nil)
 
