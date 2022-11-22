@@ -5,41 +5,48 @@
 (ql:quickload "local-time")
 
 (defvar *timezone-lookup-process* nil)
-
-(defun initialize-timezone-process ()
-  (let* ((process (sb-ext:run-program "/usr/bin/java" '("-cp" "/home/ubuntu/canadarasp/web-server/timezone/timezone-lookup/src/main/java/:/home/ubuntu/canadarasp/web-server/timezone" "timezone") :wait nil :input :stream :output :stream)))
-    (when process
-      (let ((in (sb-ext:process-output process))
-	    (out (sb-ext:process-input process)))
-	(read-line in)
-	(read-line in)
-	(format out "45.0 -123.0~%")
-	(finish-output out)
-	(read-line in)
-	(format t "Done initializing~%")
-	(setf *timezone-lookup-process* process)))))
+(defvar *process-lock* (sb-thread:make-mutex))
 
 (defun kill-timezone-process ()
-  (when *timezone-lookup-process*
-    (sb-ext:process-kill *timezone-lookup-process* 9)
-    (sb-ext:process-wait *timezone-lookup-process* t)
-    (sb-ext:process-exit-code *timezone-lookup-process*)
-    (sb-ext:process-close *timezone-lookup-process*)
-    (setf *timezone-lookup-process* nil)))
+  (sb-thread:with-recursive-lock (*process-lock*)
+    (when *timezone-lookup-process*
+      (sb-ext:process-kill *timezone-lookup-process* 9)
+      (sb-ext:process-wait *timezone-lookup-process* t)
+      (sb-ext:process-exit-code *timezone-lookup-process*)
+      (sb-ext:process-close *timezone-lookup-process*)
+      (setf *timezone-lookup-process* nil))))
+
+(defun initialize-timezone-process ()
+  (sb-thread:with-recursive-lock (*process-lock*)
+    (when *timezone-lookup-process*
+      (kill-timezone-process))
+    (let* ((process (sb-ext:run-program "/usr/bin/java" '("-cp" "/home/ubuntu/canadarasp/web-server/timezone/timezone-lookup/src/main/java/:/home/ubuntu/canadarasp/web-server/timezone" "timezone") :wait nil :input :stream :output :stream)))
+      (when process
+        (let ((in (sb-ext:process-output process))
+              (out (sb-ext:process-input process)))
+          (read-line in)
+          (read-line in)
+          (format out "45.0 -123.0~%")
+          (finish-output out)
+          (read-line in)
+          (format t "Done initializing~%")
+          (setf *timezone-lookup-process* process))))))
 
 (defun lookup (lat lon)
-  (let ((in (sb-ext:process-output *timezone-lookup-process*))
-	(out (sb-ext:process-input *timezone-lookup-process*)))
-    (format out "~f~%~f~%" lat lon)
-    (finish-output out)
-    (read-line in)))
+  (sb-thread:with-recursive-lock (*process-lock*)
+    (let ((in (sb-ext:process-output *timezone-lookup-process*))
+          (out (sb-ext:process-input *timezone-lookup-process*)))
+      (format out "~f~%~f~%" lat lon)
+      (finish-output out)
+      (read-line in))))
 
 (defun lookup-string (string)
-  (let ((in (sb-ext:process-output *timezone-lookup-process*))
-	(out (sb-ext:process-input *timezone-lookup-process*)))
-    (write-line string)
-    (finish-output out)
-    (read-line in)))
+  (sb-thread:with-recursive-lock (*process-lock*)
+    (let ((in (sb-ext:process-output *timezone-lookup-process*))
+          (out (sb-ext:process-input *timezone-lookup-process*)))
+      (write-line string)
+      (finish-output out)
+      (read-line in))))
 
 ;;For now we use hunchentoot.  Probably want to upgrade to woo / clack
 
@@ -105,6 +112,5 @@
   (setf *acceptor* (hunchentoot:start (make-instance 'hunchentoot:easy-acceptor :port 8082 :access-log-destination nil))))
 
 (start-web-server)
-(loop :while (or t (string= (lookup 49.0 -123.0) "America/Vancouver"))
-   :do (sleep 5))
 
+(loop :while t :do (sleep 5))
