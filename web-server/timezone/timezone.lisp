@@ -63,7 +63,6 @@
                              (timezone (apply #'lookup (mapcar #'parse-float:parse-float (cl-ppcre:split "," location))))
                              (timezone-parsed (local-time:find-timezone-by-location-name timezone)))
                         (assert timezone-parsed)
-                        (hunchentoot:log-message* :info "blarg")
                         (multiple-value-bind
                               (offset dst)
                             (local-time:timestamp-subtimezone timestamp timezone-parsed)
@@ -106,6 +105,6 @@
   (setf *acceptor* (hunchentoot:start (make-instance 'hunchentoot:easy-acceptor :port 8082 :access-log-destination nil))))
 
 (start-web-server)
-(loop :while (string= (lookup 49.0 -123.0) "America/Vancouver")
+(loop :while (or t (string= (lookup 49.0 -123.0) "America/Vancouver"))
    :do (sleep 5))
 
