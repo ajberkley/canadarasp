@@ -194,10 +194,10 @@ begin
     load_variables_one_point(a,locY,locX)
     outputfiletemplate = str_get_field(output_files,site_idx+1,";")
   ; FIGURE OUT WHAT DAYS AND HOURS WILL BE USED IN THE PLOT
-    curlcommand = "curl -s 'http://canadarasp.com/timezone2?location=" + site_lat + "," + site_lon + "&timestamp=" + secondssinceepoch + "' | jq -c '.rawOffset + .dstOffset'"
-    print("curl command is " + curlcommand)
+    curlcommand = "curl --retry 10 --retry-delay 1 -s 'http://canadarasp.com/timezone2?location=" + site_lat + "," + site_lon + "&timestamp=" + secondssinceepoch + "' | jq -c '.rawOffset + .dstOffset'"
+    ; print("curl command is " + curlcommand)
     utcoffsetraw = systemfunc(curlcommand)
-    print("utcoffsetraw is " + utcoffsetraw)
+    ; print("utcoffsetraw is " + utcoffsetraw)
     utcoffset = stringtolong(utcoffsetraw)
    utcoffset = utcoffset / 3600
    print("UTC offset is " + utcoffset)
