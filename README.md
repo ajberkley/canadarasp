@@ -25,6 +25,10 @@ changed the data format to a lat/lon grid which should mean that I can avoid the
 gdalwarp step on wind decoding, but I have to make sure the new files work
 with my pipeline.
 
+Also I need to update the local-time package as it is using timezone data from
+2019.  Some users live in America/Creston which is a no DST zone and somehow that
+data is not in the older TZ data.  Right now I manually updated the package to
+make it the same as America/Phoenix.
 # System generalities
 
 This runs in the Amazon cloud in ca-central-1a, which is Montreal.
