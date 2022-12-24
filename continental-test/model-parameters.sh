@@ -1,13 +1,14 @@
 #!/bin/bash
-# usage: source model-parameters.sh [ rdps | hrdps | gdps ]
+# usage: source model-parameters.sh [ rdps | hrdps | gdps | hrdps_rot]
 MODEL=${1:-$MODEL} # Use parameter or environment variable MODEL
 MODEL=${MODEL:-"hrdps"}
 case $MODEL in
-    rdps|hrdps|gdps|hrdps_west) echo Setting configuration parameters for MODEL $MODEL ;;
+    rdps|hrdps|gdps|hrdps_west|hrdps_rot) echo Setting configuration parameters for MODEL $MODEL ;;
     *) echo MODEL $MODEL is not one of rdps hrdps gdps or hrdps_west; exit -1 ;;
 esac
 
 export MODEL=$MODEL
+export FILETOPROBE="PRES_SFC_0" # how to tell if data is good at last hour
 
 if [ $MODEL = "rdps" ]; then
   export WEBSERVER="dd.weather.gc.ca"
@@ -57,6 +58,38 @@ filename () {
 }
 
 fi
+
+if [ $MODEL = "hrdps_rot" ]; then
+#   export WEBSERVER="hpfx.collab.science.gc.ca"
+#   export DIRECTORY="$YEAR$MONTH$DAY/WXO-DD/model_hrdps/continental/grib2"
+   export WEBSERVER="dd.weather.gc.ca"
+   export DIRECTORY="model_hrdps/continental/2.5km/grib2"
+   export FILEHEADER="$YEAR$MONTH$DAY"T"$HOUR""Z_MSC_HRDPS"
+   export TIMESTART="1" # no prate data for zero
+   export TIMESTEP="1"
+   export TIMESTOP="10" #"48"
+   export RESOLUTION=""
+   export TAIL=".grib2"
+   export FILE="HRDPS-ROT-files.txt"
+   export OUTPUTDIR="/mnt/input/hrdps"
+   export TILEDIR="/mnt/windgram-tiles/hrdps"
+   export PNGDIR="/mnt/map-pngs/hrdps"
+   export XMIN=-152
+   export XMAX=-42
+   export XSTEP=2
+   export YMIN=26
+   export YSTEP=2
+   export YMAX=70
+   export FILETOPROBE="PRES_SFC" # how to tell if data is good at last hour
+filename () {
+ FILELABEL=$1;
+ H=$2;
+ echo $FILEHEADER"_$FILELABEL""_RLatLon0.0225_P0"$H$TAIL 
+}
+
+fi
+
+
 if [ $MODEL = "gdps" ]; then
    # export WEBSERVER="hpfx.collab.science.gc.ca"
    # export DIRECTORY="$YEAR$MONTH$DAY/WXO-DD/model_gem_global/15km/grib2/lat_lon"
