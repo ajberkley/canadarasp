@@ -1,7 +1,7 @@
 #!/bin/bash
 # Usage ./download-data.sh model directory
 MODEL=${1:-$MODEL}
-DOWNLOADDIRECTORY=$2
+DOWNLOADDIRECTORY=${2:-/tmp}
 echo Downloading $MODEL data to $DOWNLOADDIRECTORY
 export RASPBASEDIR=`pwd`
 source ./guess-time.sh $MODEL
