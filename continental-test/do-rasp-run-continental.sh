@@ -21,6 +21,10 @@ if [ $MODEL == "none" ]; then
  echo No model specified, debugging mode enabled
  exit 1;
 fi
+if [ $MODEL == "hrdps_rot" ]; then
+    echo Running HRDPS from rotated latlon grid renaming back to hrdps
+    MODEL="hrdps"
+fi
 export MODEL=${MODEL:-"gdps"}
 echo Running RASP for model $MODEL, SHUTDOWN=$SHUTDOWN
 source ./model-parameters.sh $MODEL
