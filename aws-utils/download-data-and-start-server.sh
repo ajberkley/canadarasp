@@ -3,7 +3,11 @@ MODEL=${1:-"gdps"}
 SERVER=${2:"HRDPS PROD V8"}
 TRY=${3:-0}
 echo Downloading data for $MODEL
-DBOXNAME=download-box-$MODEL
+if [ $MODEL == hrdps_rot ]; then
+    DBOXNAME=download-box-hrdps
+else
+    DBOXNAME=download-box-$MODEL
+fi
 cd /home/ubuntu/canadarasp/aws-utils
 source ./create-download-box.sh /$DBOXNAME
 COMPUTEID=`./get-compute-server-id.sh "$SERVER"`
