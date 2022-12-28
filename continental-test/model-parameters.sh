@@ -28,6 +28,9 @@ filename () {
  H=$2;
  echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL 
 }
+downloadfilename () {
+    $( filename $1 $2 )
+}
 
 fi
 if [ $MODEL = "hrdps" ]; then
@@ -55,6 +58,9 @@ filename () {
  FILELABEL=$1;
  H=$2;
  echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL 
+}
+downloadfilename () {
+    $( filename $1 $2 )
 }
 
 fi
@@ -84,9 +90,13 @@ if [ $MODEL = "hrdps_rot" ]; then
 filename () {
  FILELABEL=$1;
  H=$2;
+ echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL 
+}
+downloadfilename () {
+ FILELABEL=$1;
+ H=$2;
  echo $FILEHEADER"_$FILELABEL""_RLatLon0.0225_P0"$H$TAIL 
 }
-
 fi
 
 
@@ -141,6 +151,9 @@ filename () {
  FILELABEL=$1;
  H=$2;
  echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY"T"$HOUR"Z_P0"$H$TAIL 
+}
+downloadfilename () {
+    $( filename $1 $2 )
 }
 
 fi

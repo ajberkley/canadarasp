@@ -34,7 +34,6 @@ if [ $MODEL == hrdps_rot ]; then
     # 20221227T06Z_MSC_HRDPS_DEPR_ISBL_0950_RLatLon0.0225_P010.grib2
 
     for FILE in $DOWNLOADDIRECTORY/*; do
-        #echo $FILE | sed -r 's/([[:digit:]])T([[:digit:]])Z_MSC_HRDPS_((.))RLatLon0.0225_P([[:digit:]])\.grib2/CMC_hrdps_continental_\2_ps2.5km_\1\2_P\3-00.grib2/g'
         JUSTNAME=`echo $FILE | sed -r 's/.+Z_MSC_HRDPS_((.+))_RLatLon0.0225_P.+/\1/'`
         # echo $JUSTNAME to ${rewrite[$JUSTNAME]:-$JUSTNAME}
         BLARG=`echo $FILE | sed -r 's/(\/.+\/)([[:digit:]]+)T([[:digit:]]+)Z_MSC_HRDPS_(.+)_RLatLon0.0225_P([[:digit:]]+).grib2/\1\CMC_hrdps_continental_\4_ps2.5km_\2\3_P\5-00.grib2/'`
