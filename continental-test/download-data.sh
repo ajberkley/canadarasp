@@ -52,6 +52,6 @@ echo "Fourth time"
 parallel --gnu -n 8 -j 4 wget --timeout=60 -c -nc -nv {} < /tmp/wget.jobs
 cd $RASPBASEDIR
 source ./clean-up-hgt-sfc.sh $MODEL $DOWNLOADDIRECTORY
-if [[ $model == hrdps_rot ]]; then
+if [ $MODEL == hrdps_rot ]; then
     ./rename-hrdps-rot.sh $MODEL $DOWNLOADDIRECTORY
 fi
