@@ -1,7 +1,7 @@
 #!/bin/bash
 # Attach our download box
 export -n VOL_ID=
-export DBOXNAME="download-box-$MODEL"
+export DBOXNAME=${1:-"download-box-$MODEL"}
 echo Going to get a $DBOXNAME
 export VOL_ID=`aws ec2 describe-volumes --filters Name=tag:Name,Values=$DBOXNAME Name=status,Values=available | head -1 | awk '{ print $8 }'`
 export MY_INSTANCE_ID=`curl -s http://169.254.169.254/latest/meta-data/instance-id`
