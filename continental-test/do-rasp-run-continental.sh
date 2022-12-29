@@ -4,7 +4,7 @@
 # If you have already downloaded some data this will not re-download it.
 # You can export NODOWNLOAD=1 to not re-download data, make sure to mount /mnt first
 git pull  # this works because I did git config credential.helper store
-git checkout stable
+git checkout stable-branch
 PATH=$PATH:/home/ubuntu/canadarasp/aws-utils:/home/ubuntu/.local/bin
 MY_INSTANCE_ID=`get-my-instance-id.sh`
 SHUTDOWN=`aws-read-tag.sh $MY_INSTANCE_ID shutdown`
