@@ -228,7 +228,7 @@
 	(sb-ext::with-pinned-objects (result)
 	  (codes_check (codes_get_double_array
 			codes_handle key
-			(sb-kernel::vector-sap (sb-kernel:%array-data-vector result))
+			(sb-kernel::vector-sap (sb-kernel:%array-data result))
 			len)))
 	(assert (= (mem-ref len :unsigned-int) size))
 	result))))
@@ -244,7 +244,7 @@
 	(sb-ext::with-pinned-objects (result)
 	  (codes_check (codes_get_double_array
 			codes_handle key
-			(sb-kernel::vector-sap (sb-kernel:%array-data-vector result))
+			(sb-kernel::vector-sap (sb-kernel:%array-data result))
 			len)))
 	(assert (= (mem-ref len :unsigned-int) size))
 	result))))
@@ -287,7 +287,7 @@
       (let ((result
 	     (codes_set_bytes
 	      codes_handle key
-	      (sb-kernel::vector-sap (sb-kernel:%array-data-vector new-data))
+	      (sb-kernel::vector-sap (sb-kernel:%array-data new-data))
 	      len)))
 	(format t "Initial length was ~A packed length is ~A~%" size (mem-ref len :unsigned-int))
 	(assert (= result 0))))))
@@ -312,7 +312,7 @@
 	  (let ((result
 		 (codes_set_long_array
 		  codes_handle key
-		  (sb-kernel::vector-sap (sb-kernel:%array-data-vector new-data))
+		  (sb-kernel::vector-sap (sb-kernel:%array-data new-data))
 		  len)))
 	    (assert (= result 0))))))))
 
@@ -326,7 +326,7 @@
     (sb-ext::with-pinned-objects (new-data)
       (codes_check (codes_set_double_array
 		    codes_handle key
-		    (sb-kernel::vector-sap (sb-kernel:%array-data-vector new-data))
+		    (sb-kernel::vector-sap (sb-kernel:%array-data new-data))
 		    size)))))
 
 
