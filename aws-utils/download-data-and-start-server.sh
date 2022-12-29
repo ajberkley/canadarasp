@@ -3,13 +3,14 @@ MODEL=${1:-"gdps"}
 SERVER=${2:-"HRDPS PROD V8"}
 TRY=${3:-0}
 echo Downloading data for $MODEL
+MODEL_ORIG=$MODEL
 if [ $MODEL == hrdps_rot ]; then
     DBOXNAME=download-box-hrdps
 else
     DBOXNAME=download-box-$MODEL
 fi
 cd /home/ubuntu/canadarasp/aws-utils
-source ./create-download-box.sh /$DBOXNAME
+source ./create-download-box.sh $DBOXNAME
 COMPUTEID=`./get-compute-server-id.sh "$SERVER"`
 echo Server id is $COMPUTEID
 source ./aws-write-tag.sh $COMPUTEID model $MODEL
@@ -29,6 +30,6 @@ else
  df
  if [ $TRY -lt 3 ] ; then
   echo Trying again for try $TRY $(( TRY + 1 ))
-  /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh $MODEL "$SERVER" $(( TRY + 1 ))
+  /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh $MODEL_ORIG "$SERVER" $(( TRY + 1 ))
  fi
 fi
