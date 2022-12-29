@@ -1,8 +1,8 @@
 #!/bin/bash
-# Create and mount a standard volume on EC2 on $1
+# Create and mount a standard volume on EC2 on $1 or download-box-$MODEL
 # First check to make sure a download-box does not exist already
 export -n VOL_ID=
-export DBOXNAME="download-box-$MODEL"
+export DBOXNAME=${1:-"download-box-$MODEL"}
 export MNT="/$DBOXNAME"
 echo Going to get a $DBOXNAME and mount it at /$DBOXNAME
 export VOL_ID=`aws ec2 describe-volumes --filters Name=tag:Name,Values=$DBOXNAME Name=status,Values=available | head -1 | awk '{ print $8 }'`
