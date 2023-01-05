@@ -23,7 +23,10 @@ processes it on demand when requested through a simple web service).
 ECCC is deprecating the HRDPS data source I am using in Feb 2023.  They
 changed the data format to a lat/lon grid which should mean that I can avoid the
 gdalwarp step on wind decoding, but I have to make sure the new files work
-with my pipeline.
+with my pipeline.  I am partially through this upgrade, but ran into a problem
+with WGRIB2 not extracting small_grib files from the input data.  The WGRIB2
+developers quickly fixed it and a version that development that works is now
+available.  I have not finished the rest of the work.  It lives in a branch.
 
 Also I need to update the local-time package as it is using timezone data from
 2019.  Some users live in America/Creston which is a no DST zone and somehow that
