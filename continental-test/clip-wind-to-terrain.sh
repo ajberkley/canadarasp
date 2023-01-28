@@ -10,7 +10,7 @@ if [ -z $NOCLIP ]; then     # if string is NULL
     rm -f /mnt/paralleljobs
     for H in ${TIMES[*]}
     do
-        TOPO=`ls $DIRECTORYNAME"/$( filename HGT_SFC_0 00 )"`
+        TOPO=`ls $DIRECTORYNAME"/$( filename HGT_SFC_0 01 )"`
         if [ -z ${TOPO:-""} ]; then
             echo TOPO undefined, exiting
             break

@@ -16,7 +16,8 @@ if [ $MODEL == gdps ]; then # GDPS
   ln $DOWNLOADDIRECTORY/$HGT_SFC_ZERO $DOWNLOADDIRECTORY/$( filename HGT_SFC_0 $H )
  done
 elif [ $MODEL == hrdps_rot ]; then
- echo HRDPS_ROT has HGT_SFC all the time
+ echo Fixing HRDPS HGT_SFC to exist always
+ ln $DOWNLOADDIRECTORY/$HGT_SFC_END $DOWNLOADDIRECTORY/$HGT_SFC_ZERO
 else
  echo Fixing HRDPS HGT_SFC to exist always
  ln $DOWNLOADDIRECTORY/$HGT_SFC_END $DOWNLOADDIRECTORY/$HGT_SFC_ZERO

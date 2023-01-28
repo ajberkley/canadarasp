@@ -67,6 +67,8 @@ END
     scp -i ~/.ssh/montreal.pem locations.js new-locations.js ubuntu@$WEBSERVERIP:html/
 fi
 echo "Uploading windgram tiles"
-cd ..
-./upload-windgram-tiles.sh
+if [ -z $NOUPLOAD ]; then
+  cd ..
+  ./upload-windgram-tiles.sh
+fi
 echo `date` > /mnt/windgrams-done
