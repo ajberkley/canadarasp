@@ -14,23 +14,40 @@ end
 
 function ij_from_lat_lon_generic (a, site_lat, site_lon)
 begin
-   XLAT=a[0]->gridlat_0
-   XLONG=a[0]->gridlon_0
-      locij:=wrf_latlon_to_ij(XLAT,XLONG,site_lat, site_lon)
-      locY=locij(0)
-      locX=locij(1)
-      print(site_lon + " gives locX = "+locX  + " and actual lon = " + XLONG(locY,locX))
-      print(site_lat + " gives locY = "+locY  + " and actual lat = " + XLAT(locY,locX))
-
- return((/locY, locX/))
+ blarg=getind_latlon2d(a[0]->gridlat_0,a[0]->gridlon_0,site_lat,site_lon)
+ return(/blarg(0,0), blarg(0,1)/)
 end
+
+;TMP_P0_L100_GST0 TMP_P0_L100_GRLL0
+;TMP_P0_L103_GRLL0
+;DEPR_P0_L100_GRLL0
+;DEPR_P0_L103_GRLL0
+;LHTFL_P0_L1_GRLL0
+;SHTFL_P0_L1_GRLL0
+;PRATE_P0_L1_GRLL0
+;UGRD_P0_L100_GRLL0
+;UGRD_P0_L103_GRLL0
+;VGRD_P0_L100_GRLL0
+;VGRD_P0_L103_GRLL0
+;PRMSL_P0_L101_GRLL0
+; HGT_P0_L1_GST0 HGT_P0_L1_GRLL0
+; HGT_P0_L100_GST0 HGT_P0_L100_GRLL0
+;TCDC_P0_L1_GRLL0
+;GUST_P8_L103_GRLL0_max0min
+;lv_HTGL2
+;lv_HTGL1
+;gridrot_0
+;gridlat_0
+;gridlon_0
+;lv_ISBL0
 
 procedure get_initial_info (a)
 local ter, timesinfiles
 begin
     ListSetType(a,"cat")
-   ter := a[:]->HGT_P0_L1_GST0
-   timesinfiles:=a[:]->HGT_P0_L1_GST0!0
+   ; print(getfilevarnames(a[0]))
+   ter := a[:]->HGT_P0_L1_GRLL0
+   timesinfiles:=a[:]->HGT_P0_L1_GRLL0!0
       ;; WHAT TIMES ARE AVAILABLE?
    numtimes=dimsizes(timesinfiles)
    print("numtimes " + numtimes)
@@ -47,21 +64,22 @@ end
 procedure load_variables_one_point (a, locY, locX)
 local lasthour, windUr, windVr, windUrSfc, windVrSfc, numlevels
 begin
-    radian_rot=a[0]->gridrot_0(locY,locX)
+    radian_rot=0 ; you would think we need to apply this, but no... a[0]->gridrot_0(locY,locX)
     ListSetType(a,"cat")
     lasthour = ListCount(a)-1
     print("Last hour index is " + lasthour)
-    h := a[lasthour]->HGT_P0_L1_GST0(locY,locX);
+    h := a[lasthour]->HGT_P0_L1_GRLL0(locY,locX);
+    ; print("Height is " + h + "m asl")
     ListSetType(a,"join")
-    zloc := a[:]->HGT_P0_L100_GST0(:,::-1,locY,locX) ;; height at various ISBL versus time
+    zloc := a[:]->HGT_P0_L100_GRLL0(:,::-1,locY,locX) ;; height at various ISBL versus time
     zloc@units = "m"
     zloc!0 = "Time"
     zloc!1 = "levels"
     agl := zloc ; copy metadata too
     agl = agl - h
     numlevels = dimsizes(pmb)
-    windUr = a[:]->UGRD_P0_L100_GST0(:,::-1,locY,locX)  ; reverse vertical coordinate
-    windVr = a[:]->VGRD_P0_L100_GST0(:,::-1,locY,locX)
+    windUr = a[:]->UGRD_P0_L100_GRLL0(:,::-1,locY,locX)  ; reverse vertical coordinate
+    windVr = a[:]->VGRD_P0_L100_GRLL0(:,::-1,locY,locX)
     uloc:=new((/numtimes,numlevels/) ,float)
     vloc:=new((/numtimes,numlevels/) ,float)
     uloc = (sin(radian_rot)*windVr + cos(radian_rot)*windUr)*3.6  ; convert from m/s to km/h
@@ -71,8 +89,8 @@ begin
     vloc!0 = "Time"
     vloc!1 = "levels"
     
-    windUrSfc = a[:]->UGRD_P0_L103_GST0(:,0,locY,locX) ; this is the lowest level... 10 m above the ground
-    windVrSfc = a[:]->VGRD_P0_L103_GST0(:,0,locY,locX)
+    windUrSfc = a[:]->UGRD_P0_L103_GRLL0(:,0,locY,locX) ; this is the lowest level... 10 m above the ground
+    windVrSfc = a[:]->VGRD_P0_L103_GRLL0(:,0,locY,locX)
 
     ulocSfc:=new((/numtimes/) ,float)
     vlocSfc:=new((/numtimes/) ,float)
@@ -81,8 +99,8 @@ begin
     ulocSfc!0 = "Time"
     vlocSfc!0 = "Time"
 
-    tkloc := a[:]->TMP_P0_L100_GST0(:,::-1,locY,locX)      ; temperature (K)
-    tdloc := a[:]->DEPR_P0_L100_GST0(:,::-1,locY,locX)      ; dew point depression temperature (K)
+    tkloc := a[:]->TMP_P0_L100_GRLL0(:,::-1,locY,locX)      ; temperature (K)
+    tdloc := a[:]->DEPR_P0_L100_GRLL0(:,::-1,locY,locX)      ; dew point depression temperature (K)
 
     tkloc@_FillValue = defaultFillValue
     tkloc@units = "K"
@@ -94,13 +112,13 @@ begin
     tdloc!0 = "Time"
     tdloc!1 = "levels"
 
-      tSfc     := a[:]->TMP_P0_L103_GST0(:,0,locY,locX)  ; sfc temperature in K (2m elevation)
-      dpSfc    := a[:]->DEPR_P0_L103_GST0(:,0,locY,locX) ; sfc dew point temperature in K (2m elevation)
-      mslp     := a[:]->PRMSL_P0_L101_GST0(:,locY,locX)/1000       ; Sea Level Pressure
-      shf      := a[:]->SHTFL_P0_L1_GST0(:,locY,locX)                ; sfc sensible heat flux
-      lhf      := a[:]->LHTFL_P0_L1_GST0(:,locY,locX)                ; sfc latent heat flux
-      rainloc  := a[:]->PRATE_P0_L1_GST0(:,locY,locX) * 3600.  ; precipitation rate mm/hour
-      cloudloc := a[:]->TCDC_P0_L1_GST0(:,locY,locX)   ; cloud cover in %
+      tSfc     := a[:]->TMP_P0_L103_GRLL0(:,0,locY,locX)  ; sfc temperature in K (2m elevation)
+      dpSfc    := a[:]->DEPR_P0_L103_GRLL0(:,0,locY,locX) ; sfc dew point temperature in K (2m elevation)
+      mslp     := a[:]->PRMSL_P0_L101_GRLL0(:,locY,locX)/1000       ; Sea Level Pressure
+      shf      := a[:]->SHTFL_P0_L1_GRLL0(:,locY,locX)                ; sfc sensible heat flux
+      lhf      := a[:]->LHTFL_P0_L1_GRLL0(:,locY,locX)                ; sfc latent heat flux
+      rainloc  := a[:]->PRATE_P0_L1_GRLL0(:,locY,locX) * 3600.  ; precipitation rate mm/hour
+      cloudloc := a[:]->TCDC_P0_L1_GRLL0(:,locY,locX)   ; cloud cover in %
     lclloc  := dpSfc*121. + h  ; quick and dirty cloud base calculation - result in meters
     tSfc!0 = "Time"
     dpSfc!0 = "Time"
