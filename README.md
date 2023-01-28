@@ -61,6 +61,10 @@ system currently in use.
 
 It costs roughly $1300 CAD / year to run the system.
 
+# Other TODO
+We rely on libgdal.so.2, which is now old, so have to update cl-gdal to use
+libgdal.so.3. Probably a few hours of work.
+
 # ECCC
 
 We rely on the freely available data from Environment and Climate
