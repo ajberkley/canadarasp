@@ -363,7 +363,7 @@ Here is how the time is spent:
  2. Generating new variables (3 minutes)
  3. Clipping wind to terrain (currently does not happen)
  4. Fixing TGL grib files (1 minute)
- 5. Generate the sub tiles for the windgrams (14 minutes)
+ 5. Generate the sub tiles for the windgrams (14 minutes; now it is 24 minutes with new wgrib2... boo)
  6. Concatenating the sub tiles into single grib files (2.25 minutes)
  7. Generating and uploading windgrams (3.5 minutes)
  8. Generate the map pngs (14 minutes)
