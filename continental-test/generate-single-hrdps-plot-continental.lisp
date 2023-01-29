@@ -1,4 +1,4 @@
-;#!/usr/local/bin/sbcl --script
+#!/usr/local/bin/sbcl --script
 
 ;; TODO: clean up float-nan-p and +dst-no-data-single+ +dst-no-data-double+
 ;; TODO: regenerate real tile boundaries
@@ -344,7 +344,7 @@
 
 (defun warp-to-google-map-tif (filename-unwarped filename-warped)
   ;; Data is stored at doubles, so I should be able to recognize this
-  (print/run-program "/usr/local/bin/gdalwarp" ;; 100 ms
+  (print/run-program "/usr/bin/gdalwarp" ;; 100 ms
                      (list "-overwrite" "-dstnodata" (format nil "~A" +dst-no-data-double+)
                            "-t_srs" "EPSG:3857" "-of" "GTiff"
                            filename-unwarped filename-warped)))
@@ -373,9 +373,9 @@
              (loop :for tile = (funcall tile-iterator)
                 :while tile
                 :do
-                (destructuring-bind (a b) (apply pixel-to-lon-lat (funcall lon-lat-to-pixel (first tile) (second tile)))
-                  (destructuring-bind (c d) (apply pixel-to-lon-lat (funcall lon-lat-to-pixel (third tile) (fourth tile)))
-                    (format t "~A:~A ~A:~A -> ~A:~A ~A:~A~%" (first tile) (second tile) (third tile) (fourth tile)  a b c d)
+                   (destructuring-bind (a b) (multiple-value-call pixel-to-lon-lat (funcall lon-lat-to-pixel (first tile) (second tile)))
+                     (destructuring-bind (c d) (multiple-value-call pixel-to-lon-lat (funcall lon-lat-to-pixel (third tile) (fourth tile)))
+                    (format t "~A:~A ~A:~A -> ~,4f:~,4f ~,4f:~,4f~%" (first tile) (second tile) (third tile) (fourth tile)  a b c d)
                     (set-lon (first tile) a)
                     (set-lat (second tile) b)
                     (set-lon (third tile) c)
@@ -386,8 +386,7 @@
                    (iter (for (k v) in-hashtable hash)
                          (when (not (first-time-p)) (format output-stream ",~%"))
                          (format output-stream "\"~,d\" : ~,8f" k v))
- 
-                   (format output-stream "};~%")))))))))
+                    (format output-stream "};~%")))))))))
 
 (defun draw-magnitude-chunked-nn (file color-scale output-directory filename &optional (scale #'identity))
   (declare (optimize (speed 3) (safety 0)))
@@ -473,10 +472,8 @@
 	(declare (type (simple-array double-float (* *)) data))
         (cached-transforms:with-cached-transform (xpixelref ypixelref anglepixelref ulx uly dlon dlat x-size y-size data-xsize data-ysize source-spatial-reference source-geo-transform)
           (with-drawable-image (draw image y-size x-size)
-            (format t "Converting lon lat pairs to pixels~%")
-              ;; can make these loops a bit easier by not doing 2d loops...
-            (format t "Drawing big image~%")
-            (time
+            (format t "Converting lon lat pairs to pixels for full image~%")
+            (let ((total-points 0))
              (loop
                for x fixnum below x-size
                do (loop
@@ -488,12 +485,16 @@
                          (declare (type (unsigned-byte 16) xpixel ypixel data-xsize data-ysize))
                          (unless (or (= cl-gdal::+out-of-source-range+ xpixel) (= cl-gdal::+out-of-source-range+ ypixel))
                            (let ((d (aref data ypixel xpixel)))
+			     (incf total-points)
+			     ;;(format t "idx ~A: x,y = (~A,~A)~%" idx xpixel ypixel)
                              (unless (= d 9999d0))
                                (let ((color (lookup-in-color-scale (funcall scale (coerce d 'single-float)) color-scale)))
                                  (declare (type (simple-array (unsigned-byte 8) (3)) color))
                                  (destructuring-vector-bind (red green blue)
                                      color
-                                   (draw y x red green blue)))))))))
+                                   (draw y x red green blue))))))))
+	      (format t "Had ~A valid points out of ~A possible~%" total-points (* x-size y-size))
+	      )
             (png::encode-file image "/tmp/new.png")
             (cl-gd:with-image-from-file* ("/tmp/new.png" :png)
               (cl-gd:with-default-color ((cl-gd:allocate-color 100 0 0))
@@ -505,7 +506,7 @@
                                    (lat (coerce lat 'double-float))
                                    (res (list (round (the (double-float -1d9 1d9) (/ (- lon ulx) dlon))) (round (the (double-float -1d9 1d9) (/ (- uly lat) dlat))))))
                                (declare (type double-float lon lat))
-                               (format t "~,3f ~,3f -> ~A~%" lon lat res)
+                               ;; (format t "~,3f ~,3f -> ~A~%" lon lat res)
                                res))
                            (mean (a b)
                              (/ (+ a b) 2)))
@@ -527,7 +528,7 @@
                              (angle-idx (+ mean-x-target (* mean-y-target x-size))))
                         (when (and (>= angle-idx 0) (< angle-idx (* x-size y-size)))
                              (let ((angle (anglepixelref angle-idx)))
-                               (format t "box (~A ~A ~A ~A) is pixel (~A ~A): angle at idx ~A is ~A~%" x-pixel-min x-pixel-max y-pixel-min y-pixel-max mean-x-target mean-y-target angle-idx angle)
+                               ;;(format t "box (~A ~A ~A ~A) is pixel (~A ~A): angle at idx ~A is ~A~%" x-pixel-min x-pixel-max y-pixel-min y-pixel-max mean-x-target mean-y-target angle-idx angle)
                                (cl-gd:draw-line mean-x-target mean-y-target (round (+ mean-x-target (* 0.5 width-target (cos angle)))) (round (+ mean-y-target (* 0.5 height-target (sin angle)))))))))))))
               (cl-gd:write-image-to-file "/tmp/new-annotated.png" :compression-level 6 :if-exists :supersede))))))
     t))
@@ -557,7 +558,7 @@
       +dst-no-data-single+
       (* 3.6f0 (coerce (sqrt (+ (* u u) (* v v))) 'single-float))))
 
-(defun draw-winds-nn (ufile vfile output-directory filename vector-output-filename &key (color-scale *wind-color-scale*) (scale #'identity))
+(defun draw-winds-nn (ufile vfile &key (color-scale *wind-color-scale*) (scale #'identity))
   (declare (optimize (speed 3)) (type function scale))
   (cl-gdal::maybe-initialize-gdal-ogr)
   (let (uband vband source-spatial-reference source-geo-transform
