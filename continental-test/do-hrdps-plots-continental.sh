@@ -30,25 +30,25 @@ source ./model-parameters.sh $MODEL
 echo "do-hrdps-plots.sh $YEAR-$MONTH-$DAY $HOUR for ${#TIMES[@]} hours, local UTC offset is $Z"
 
 echo "Generating new variables like HCRIT"
-./do-generate-new-variables.sh # takes 3 minutes or so (2:40)
+./do-generate-new-variables.sh # takes 2 minutes
 echo "Done generating new variables"
 
 if [ $MODEL == "hrdps" ]; then
   if [ -z $NOCLIP ]; then
     echo "Starting clipping wind to terrain at `date`"
-    ./clip-wind-to-terrain.sh
+    ./clip-wind-to-terrain.sh # 4:45 !
     echo "Done clipping wind to terrain at `date`"
   fi
 fi
 
 if [ -z $NOTILES ]; then
     echo "Generating tiles at `date`"
-    ./do-tile-generation.sh $YEAR $MONTH $DAY $HOUR # takes 
+    ./do-tile-generation.sh $YEAR $MONTH $DAY $HOUR # takes 27 minutes with new wgrib2
     echo "Done generating tiles at `date`"
 fi
 if [ -z $NOWINDGRAMS ]; then
     echo "Generating windgrams at `date`"
-    ./do-windgrams-continental.sh $YEAR $MONTH $DAY $HOUR
+    ./do-windgrams-continental.sh $YEAR $MONTH $DAY $HOUR # 3 minutes
     echo "Done generating windgrams `date`"
 fi
 if [ -z $NOMAP ]; then     # if string is NULL
