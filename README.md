@@ -26,7 +26,11 @@ gdalwarp step on wind decoding, but I have to make sure the new files work
 with my pipeline.  I am partially through this upgrade, but ran into a problem
 with WGRIB2 not extracting small_grib files from the input data.  The WGRIB2
 developers quickly fixed it and a version that development that works is now
-available.  I have not finished the rest of the work.  It lives in a branch.
+available.  This is almost done in the master branch.  Things take a very long
+time to run now though... I recompiled wgrib2 with OpenJPEG for a small speed-up,
+but its still way slow.  Most of the time is in generating the windgram tile gribs.
+The lisp code I have runs faster than wgrib2 for the map graphics, but I don't have
+a way to output grib2 that ncl can read..
 
 Also I need to update the local-time package as it is using timezone data from
 2019.  Some users live in America/Creston which is a no DST zone and somehow that
