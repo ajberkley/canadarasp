@@ -32,6 +32,8 @@ but its still way slow.  Most of the time is in generating the windgram tile gri
 The lisp code I have runs faster than wgrib2 for the map graphics, but I don't have
 a way to output grib2 that ncl can read..
 
+CAPE not working (renaming files wrong?)
+
 Also I need to update the local-time package as it is using timezone data from
 2019.  Some users live in America/Creston which is a no DST zone and somehow that
 data is not in the older TZ data.  Right now I manually updated the package to
