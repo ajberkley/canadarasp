@@ -19,15 +19,15 @@ if [ $MODEL == "none" ]; then
  echo No model specified, debugging mode enabled
  exit 1;
 fi
-echo Attaching and mounting download-box-$MODEL
-source /home/ubuntu/canadarasp/aws-utils/attach-download-box.sh
-source /home/ubuntu/canadarasp/aws-utils/mount-download-box.sh /download-box
-echo Moving downloaded data to local disk starting at `date`
 if [ $MODEL == "hrdps_rot" ]; then
     echo Running HRDPS from rotated latlon grid renaming back to hrdps
     MODEL="hrdps"
 fi
 export MODEL=${MODEL:-"gdps"}
+echo Attaching and mounting download-box-$MODEL
+source /home/ubuntu/canadarasp/aws-utils/attach-download-box.sh
+source /home/ubuntu/canadarasp/aws-utils/mount-download-box.sh /download-box
+echo Moving downloaded data to local disk starting at `date`
 echo Running RASP for model $MODEL, SHUTDOWN=$SHUTDOWN
 source ./model-parameters.sh $MODEL
 source ./guess-time.sh $MODEL
