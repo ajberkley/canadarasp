@@ -273,4 +273,3 @@ locations[265]=["Kamloops Area","Birch Island LZ"];
 locations[266]=["Kamloops Area","Moon"];
 locations[267]=["Kamloops Area","Mt. Baldy Lookout"];
 locations[268]=["Kamloops Area","Dunn Lake South LZ"];
-locations[269]=["Vancouver Island","Island View Beach"];

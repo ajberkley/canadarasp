@@ -125,8 +125,6 @@ function callWithTimeZone(callback) {
     var pos = map.getCenter();
     var timestamp = Math.round(Date.now()/1000);
     var request = "/timezone2?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp;
-    var offset = 60*Math.round(pos.lng() * 24 / 360) + 60; //dst hardcoded
-    // callback(offset);
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 1000; // 1 second before timeout
     xhttp.onreadystatechange = function() {

@@ -23,6 +23,10 @@ var OPACITY_MAX_PIXELS = 57; // Width of opacity control image
 var windgrammarkers = Array();
 var windgramsinitialized = false;
 
+var HRDPS_ARCHIVE = "hrdps_archive"
+var HRDPS = "hrdps"
+var GDPS = "gdps"
+
 function displayWindgrams() {
     if(windgramsinitialized) {
 	for(i = 0 ; i < windgrammarkers.length ; i++ ) { windgrammarkers[i].setVisible(true); }
@@ -88,7 +92,7 @@ function setSize() {
 }
 
 function model_is_hrdps() {
-    return(model() == "hrdps" || model() == "hrdps archive")
+    return(model() == HRDPS || model() == HRDPS_ARCHIVE)
 }
 
 function setupParamset () {
@@ -134,7 +138,7 @@ function step () {
 function callWithTimeZone(callback) {
     var pos = map.getCenter();
     var timestamp = Math.round(Date.now()/1000);
-    var request = "/timezone?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp+"&key=AIzaSyAEkxYNkm8Vjuw0HguSNMn4j39QoI8-rks";
+    var request = "/timezone2?location="+pos.lat()+","+pos.lng()+"&timestamp="+timestamp;
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 1000; // 1 second before timeout
     xhttp.onreadystatechange = function() {
@@ -147,7 +151,7 @@ function callWithTimeZone(callback) {
 	    } else {
 		//console.log(this.responseText);
 		//console.log("Got an answer, rawOffset in minutes is + " + result.rawOffset/60 + " dstOffset is " + result.dstOffset/60 );
-		callback(result.rawOffset/60 + result.dstOffset/60);
+		callback(result.rawOffset/60 + result.dstOffset/60, result.timeZoneId);
 	    }
 	}
     };
@@ -275,19 +279,19 @@ function set_archive_hours(offset_in) {
 
 }
 
-function set_datetime_and_load_images (offset) {
-    if(model()=="hrdps archive"){
+function set_datetime_and_load_images (offset, timezone) {
+    if(model()==HRDPS_ARCHIVE){
 	document.getElementById("archivetimepicker").style.height = ""
 	document.getElementById("archivetimepicker").style.visibility = "visible"
 	document.getElementById("normaltimepicker").style.height = "0px"
 	document.getElementById("normaltimepicker").style.visibility = "hidden"
-	set_archive_hours(offset)
+	set_archive_hours(offset, timezone)
     } else {
 	document.getElementById("archivetimepicker").style.height = "0px"
 	document.getElementById("normaltimepicker").style.height = ""
 	document.getElementById("normaltimepicker").style.visibility = "visible"
 	document.getElementById("archivetimepicker").style.visibility = "hidden"
-	set_datetime_options(offset);
+	set_datetime_options(offset, timezone);
     }
     doChange();
 }
@@ -514,7 +518,7 @@ function getTimeZoneOffset() {
 
 function getBasedir()
 {
-    if(model()=="hrdps archive") {
+    if(model()==HRDPS_ARCHIVE) {
         return("hrdps-map-archive/")
     } else {
         return("map-pngs/" + model() + "/latest/")
@@ -588,13 +592,13 @@ function getImage(filename) {
 }
 
 function lat_in_bounds (lat) {
-    if(model() == "hrdps") {
+    if(model() == HRDPS) {
 	if(lat > 29 && lat < 70) {
 	    return true;
 	} else {
 	    return false;
 	}
-    } else if(model() == "hrdps archive") {
+    } else if(model() == HRDPS_ARCHIVE) {
         if(lat >= 48 && lat < 52) {
             return true;
         } else {
@@ -606,13 +610,13 @@ function lat_in_bounds (lat) {
 }
 
 function lng_in_bounds (lng) {
-    if(model() == "hrdps") {
+    if(model() == HRDPS) {
 	if(lng>= -153 && lng < -43) {
 	    return true;
 	} else {
 	    return false;
 	}
-    } else if(model() == "hrdps archive") {
+    } else if(model() == HRDPS_ARCHIVE) {
         if(lng>=-124 && lng < -118) {
             return true;
         } else {
@@ -676,9 +680,9 @@ function clearOverlaysnotIn (tiles) {
 function model_parent() {
    var model;
    if(model_is_hrdps()) {
-       model = "hrdps"
+       model = HRDPS
    } else {
-       model = "gdps"
+       model = GDPS
    }
    return model;
 }
@@ -727,7 +731,7 @@ function getSelectedValue(el) {
 
 function getSplitTime() {
     // returns ["yyyy-mm-dd" "0800"] in UTC
-    if(model()=="hrdps archive") {
+    if(model()==HRDPS_ARCHIVE) {
 	var offset = getTimeZoneOffset();
 	var year = getSelectedValue("yearpicker")
 	var month = getSelectedValue("monthpicker")
