@@ -1,6 +1,6 @@
 #!/bin/bash
 MODEL=${1:-"gdps"}
-SERVER=${2:-"HRDPS PROD V8"}
+SERVER=${2:-"HRDPS PROD V9"}
 TRY=${3:-0}
 echo Downloading data for $MODEL
 MODEL_ORIG=$MODEL
