@@ -13,7 +13,7 @@ echo MY_ZONE is $MY_ZONE
 echo VOL_ID is $VOL_ID
 if [ -z $VOL_ID ]; then
   echo No $DBOXNAME available, creating one
-  export VOL_ID=`aws ec2 create-volume --no-encrypted --availability-zone $MY_ZONE --size 30 --volume-type gp3 --tag-specifications 'ResourceType=volume,Tags=[{Key=Name,Value='$DBOXNAME'}]' | head -1 | awk '{ print $7 }'`
+  export VOL_ID=`aws ec2 create-volume --no-encrypted --availability-zone $MY_ZONE --size 30 --volume-type gp3 --tag-specifications 'ResourceType=volume,Tags=[{Key=Name,Value='$DBOXNAME'}]' | head -1 | awk '{ print $8 }'`
   if [ -z $VOL_ID ]; then
     echo Failed creating one.  Aborting
     exit 1
