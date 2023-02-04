@@ -42,7 +42,7 @@ fi
 if [ -z $NOUPLOAD ]; then
     ./make-new-locations.sh
     
-    python - <<END
+    python3 - <<END
 fn = 'locations.txt'
 fout = 'locations.js'
 f = open(fn)
@@ -58,9 +58,9 @@ for i in range(0, len(lines)-1):
     if len(split_line) >= 2 :
         js.write('locations[' + str(i) + ']=["' + split_line[0].strip() + '","' + split_line[1].strip() + '"];\n')
     else:
-        print "error on line " + str(i) + " of " + fn + ". Found " + str(len(split_line)) + " fields. Expected 2 or more"
+	print("error on line " + str(i) + " of " + fn + ". Found " + str(len(split_line)) + " fields. Expected 2 or more")
 js.close()
-print "Converted " + fn + " to a javascript format file, " + fout
+print("Converted " + fn + " to a javascript format file, " + fout)
 END
     echo "scp -i ~/.ssh/montreal.pem locations.js new-locations.js ubuntu@$WEBSERVERIP:html/windgrams-continental-new"
     scp -i ~/.ssh/montreal.pem locations.js new-locations.js ubuntu@$WEBSERVERIP:html/windgrams

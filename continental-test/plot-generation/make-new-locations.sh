@@ -1,5 +1,5 @@
 #!/bin/sh
-python - <<END
+python3 - <<END
 fn = 'locations.txt'
 fout = 'new-locations.js'
 f = open(fn)
@@ -13,11 +13,11 @@ js.write('var locations=new Array();\n')
 for i in range(0, len(lines)-1):
     split_line = lines[i+1].split(',')
     if len(split_line) >= 2 :
-        js.write('locations[' + str(i) + ']=["' + split_line[0].strip() + '","' + split_line[1].strip() + '",' + split_line[2].strip() + ',' + split_line[3].strip() + '];\n')
+       js.write('locations[' + str(i) + ']=["' + split_line[0].strip() + '","' + split_line[1].strip() + '",' + split_line[2].strip() + ',' + split_line[3].strip() + '];\n')
     else:
-        print "error on line " + str(i) + " of " + fn + ". Found " + str(len(split_line)) + " fields. Expected 2 or more"
+       print("error on line " + str(i) + " of " + fn + ". Found " + str(len(split_line)) + " fields. Expected 2 or more")
 js.close()
-print "Converted " + fn + " to a javascript format file, " + fout
+print("Converted " + fn + " to a javascript format file, " + fout)
 END
 
 
