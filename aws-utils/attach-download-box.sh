@@ -3,7 +3,7 @@
 export -n VOL_ID=
 export DBOXNAME=${1:-"download-box-$MODEL"}
 echo Going to get a $DBOXNAME
-export VOL_ID=`aws ec2 describe-volumes --filters Name=tag:Name,Values=$DBOXNAME Name=status,Values=available | head -1 | awk '{ print $8 }'`
+export VOL_ID=`aws ec2 describe-volumes --filters Name=tag:Name,Values=$DBOXNAME Name=status,Values=available | head -1 | awk '{ print $9 }'`
 export MY_INSTANCE_ID=`curl -s http://169.254.169.254/latest/meta-data/instance-id`
 export MY_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
 aws ec2 wait volume-available --volume-ids $VOL_ID
