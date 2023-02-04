@@ -23,13 +23,16 @@
 	    <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 	  </form>
 <p>
-  This site is supported by donations from users.  Please consider donating if you use this for fun or for work.
+<b>Update 2023:</b> This site is supported by donations from users.  Please consider donating if you use this for fun or for work by clicking the donate button above.  Since this site went online, I have always received less donations each year than the costs of running the site on AWS (about $1500/year), not to mention my time in developing and maintaining this site.  I am not an active paraglider pilot anymore so my motivation to pay out of pocket and to support this is also gradually waning.  So consider this an honest assessment of how I feel: <font color="red">this site is in danger of going away</font>.  I know first hand that good weather visualization improves safety for paraglider pilots and I'd hate to just stop running this site and have someone get hurt because of it, but I can't keep paying out of pocket every year to run this and throwing away weekends keeping it going.
 <p>
-  This page is developed and maintained
+  This page was initially developed
   by <a href="mailto:ajberkley@gmail.com">Andrew Berkley</a> and Peter
-  Spear.  Our main motivation is as paraglider pilots: we like to know
+  Spear.  Our main motivation was as paraglider pilots: we wanted to know
   what the weather is going to do so we can go flying more often.
-  Thus, this page is a result of unflyable weather.<p>
+  Thus, this page is a result of unflyable weather.
+  
+  Upgrades to support the full HRDPS continental model and GDPS model
+  and maintainance since then is by Andrew Berkley.<p>
 
   Canada RASP (Regional Atmospheric Soaring Predictor) uses data from the Environment and Climate Change Canada <a href="http://www.weatheroffice.gc.ca/grib/grib2_HRDPS_HR_e.html">HRDPS</a> model, made available freely by the Government of Canada.<p>
 
@@ -43,6 +46,7 @@
     
   </ul>
   <h2>Changelog/updates</h2>
+  <b>Jan/Feb 2023 ajb</b> ECCC deprecated the HRDPS data source we were using (data on a polar stereographic grid).  I spent about a week of work updating things to work with the new data (the main problem was that wgrib2 small_grib option did not work with the new data format but their developers quickly fixed the problem (but things run slowly now, for reasons I have not had time to dig into but will increase costs significantly until I do).  Then I had to upgrade some libraries including libgdal to support the new format, which had a breaking change between 2 and 3 which took some time to discover.  I took the time to upgrade the system software on the processing machine too.  There should be no user visible changes except there is slightly more coverage for Alaska and northern Yukon.  If something does not work, please <a href="mailto:ajberkley@gmail.com">email me</a>.  I also added a new donate button on the main page because this site is in danger of going away.  I am not an active paraglider pilot, and the donations I receive do not cover the costs of running this site not to mention cover my time in keeping it working (for example this week of work).  Please consider donating. --Andrew<p>
   <b>23 Nov 2022 ajb</b> Put source code for Canadarasp online at <a href="https://github.com/ajberkley/canadarasp">github</a>.  To do so required some fiddling with the backend so I didn't expose some non-restricted API keys which broke windgram generation for a couple days.  Fixed.  Anyhow, in case I get hit by a bus there it is.  ECCC is changing their data location / grid format in Feb 2023 so I have to fix that before then. --Andrew<p>
   <b>23 June 2021 ajb</b> AWS services are not working problem so system is not updating... hoping AWS fixes this soon.  I paid some money to get some support and they are working on fixing this.  Should be working soon. It took them all morning but they fixed it. --Andrew<p>
   <b>8 September 2020 ajb</b> Fixed bug in map windgram selector where links to windgrams would not work --Andrew<p>
@@ -153,33 +157,32 @@
   EC2), so I am hoping my viewers consider donating.  The processing back
   end costs $1200 CAD/year, so $5/user/year would easily cover that.  It would also be nice to cover some of the development costs and be able to expand the system to handle a couple of the global models and the NAM3 for high resolution for the rest of the USA so you can have windgrams for sites you travel to.
 <p>
-  From Sept through Nov 2018, I worked on adding a global model (the GDPS) to the map and windgram system.  The windgrams are not as useful as I hoped for, but the wind / parameters maps are useful.  I'll see how there are when I travel south for the winter.  It should be easier to integrate the GFS (which I will do after they upgrade the GFS forecasting system in January 2019) and the NAM3 now (which I will start at some point soon).
+  From Sept through Nov 2018, I worked on adding a global model (the GDPS) to the map and windgram system.  The windgrams are not as useful as I hoped for, but the wind / parameters maps are useful.  I'll see how there are when I travel south for the winter.  It should be easier to integrate the GFS (which I could do after they upgrade the GFS forecasting system in January 2019) and the NAM3 now (which I could start anytime).
+<p>
+  Early 2023 I had to get on the hamster wheel and change the data source and upgrade the processing pipeline because ECCC deprecated the data source I was using.
 <p>
   Also, if you would like any windgram locations added (or you want to generate windgrams for an area that is not currently covered), please
   email <a href="mailto:ajberkley@gmail.com">me</a>.<p>
 
-  <h2>Planned Changes</h2>
+  <h2>Some possible changes</h2>
   <ol>
     <li>Add a jetstream map</li>
-    <li>Add surface wind gust map</li>
 <li>
 Add a map of cumulus cloud base (lifting condensation level).
 <li>
 Move away from google maps to something like Leaflet.
 <li>
-Add some more weather models: GFS for another global model and NAM3 to cover with high resolution the rest of the United States of America.
+Add some more weather models: GFS for another global model and NAM3 and HRRR to cover with high resolution the rest of the United States of America.
 <li>
 Add more complete on-demand windgram generation (there is a limited implementation available off the main map page).  Add a better interface to this (context menu to select days, model, etc).
 <li>
 Maybe change to a prettier javascript front-end viewer like windy or ventusky.
 If you are a web developer with a talent for making nice interfaces, I could sure use some help.
-
 <li>
 Also look more closely at better ways to present estimated top of lift with sensitivity information.
 <li>
-  More compact output files for the map page and a smoother interface.
+More compact output files for the map page and a smoother interface.
 <li> Fix some minor bugs in the windgram generator (numbers in the wrong spot on the time axis and the color legend bar is a bit messed up sometimes).
 <li> Add the PBL map that is now exposed directly from the HRDPS model
-  <li><s> For dynamic windgrams allow user to select single day</s> Done Oct 4-5 2019
 </ol>
 </body>
