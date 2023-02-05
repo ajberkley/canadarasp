@@ -126,6 +126,12 @@ filename () {
  H=$2;
  echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL 
 }
+downloadfilename () {
+ FILELABEL=$1;
+ H=$2;
+ echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL
+}
+
 
 fi
 if [ $MODEL = "hrdps_west" ]; then
