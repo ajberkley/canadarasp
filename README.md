@@ -20,19 +20,14 @@ processing --- it just archives some data from the forecasts to S3 and
 processes it on demand when requested through a simple web service).
 
 # Critical TODO
-ECCC is deprecating the HRDPS data source I am using in Feb 2023.  They
-changed the data format to a lat/lon grid which should mean that I can avoid the
-gdalwarp step on wind decoding, but I have to make sure the new files work
-with my pipeline.  I am partially through this upgrade, but ran into a problem
-with WGRIB2 not extracting small_grib files from the input data.  The WGRIB2
-developers quickly fixed it and a version that development that works is now
-available.  This is almost done in the master branch.  Things take a very long
-time to run now though... I recompiled wgrib2 with OpenJPEG for a small speed-up,
-but its still way slow.  Most of the time is in generating the windgram tile gribs.
-The lisp code I have runs faster than wgrib2 for the map graphics, but I don't have
-a way to output grib2 that ncl can read..
-
-CAPE not working (renaming files wrong?)
+ECCC changed the HRDPS data source to a rotated lat/lon grid which required
+some changes to the processing pipeline.  An upgraded wgrib2 (development
+version--- had to get the devs to fix -small_grib bug with rotated lat/lon grids).
+Also had to upgrade libgdal-2 to libgdal-3.  There were some breaking changes
+(order or coordinates flipped, forced them back...).  Also it seems not to
+support the old GDPS grid properly anymore, or at least I'm not computing
+something right so I have a kludge workaround using the cached transformation
+file generated from GDAL2.
 
 Also I need to update the local-time package as it is using timezone data from
 2019.  Some users live in America/Creston which is a no DST zone and somehow that
