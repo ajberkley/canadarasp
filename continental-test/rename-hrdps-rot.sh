@@ -2,9 +2,9 @@
 MODEL=${1:-$MODEL}
 DOWNLOADDIRECTORY=${2:-/tmp}
 if [ $MODEL == hrdps_rot ]; then
-    echo Renaming HRDPS ROT files
+    echo Starting renaming HRDPS ROT files at `date`
     declare -A rewrite
-    rewrite[CAPE_SFC CAPE]=ETAL_10000
+    rewrite[CAPE_SFC]=CAPE_ETAL_10000
     rewrite[DEPR_AGL-2m]=DEPR_TGL_2
     rewrite[DEPR_AGL-40m]=DEPR_TGL_40
     rewrite[DEPR_AGL-80m]=DEPR_TGL_80
@@ -41,5 +41,6 @@ if [ $MODEL == hrdps_rot ]; then
         TARGET=`echo $BLARG | sed -r "s/$JUSTNAME/${rewrite[$JUSTNAME]:-$JUSTNAME}/"`
         mv $FILE $TARGET
     done
+    echo Done renaming HRDPS rot files at `date`
 fi
 
