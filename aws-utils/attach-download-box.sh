@@ -6,11 +6,12 @@ echo Going to get a $DBOXNAME
 export VOL_ID=`aws --output json ec2 describe-volumes --filters Name=tag:Name,Values=$DBOXNAME | jq .Volumes[0]."VolumeId" | tr -d '"'`
 export MY_INSTANCE_ID=`curl -s http://169.254.169.254/latest/meta-data/instance-id`
 export MY_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
-if [ $VOL_ID == "null" ]; then
+while [ $VOL_ID == "null" ]; do
   echo VOL_ID not correct, trying again...
   sleep 10 # sometimes things just go badly
   export VOL_ID=`aws --output json ec2 describe-volumes --filters Name=tag:Name,Values=$DBOXNAME | jq .Volumes[0]."VolumeId" | tr -d '"'`
-fi
+  echo VOL_ID is $VOL_ID
+done
 echo Trying to use $VOL_ID
 aws ec2 wait volume-available --volume-ids $VOL_ID
 echo $VOL_ID available
