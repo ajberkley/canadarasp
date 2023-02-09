@@ -13,7 +13,6 @@ export MY_INSTANCE_ID=`curl -s http://169.254.169.254/latest/meta-data/instance-
 export MY_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
 echo MY_INSTANCE_ID is $MY_INSTANCE_ID
 echo MY_ZONE is $MY_ZONE
-echo VOL_ID is $VOL_ID
 if [ -z $VOL_ID ]; then
   echo No $DBOXNAME available, creating one
   export VOL_ID=`aws ec2 create-volume --no-encrypted --availability-zone $MY_ZONE --size 30 --volume-type gp3 --tag-specifications 'ResourceType=volume,Tags=[{Key=Name,Value='$DBOXNAME'}]' | head -1 | awk '{ print $8 }'`
@@ -26,6 +25,11 @@ else
   echo Volume $VOL_ID already available, using it
 fi
 aws ec2 wait volume-available --volume-ids $VOL_ID
+while [ $? == 255 ]; do
+  echo $VOL_ID not created yet...
+  sleep 5
+  aws ec2 wait volume-available --volume-ids $VOL_ID
+done
 echo $VOL_ID available
 sleep 15
 source ./attach-download-box.sh $DBOXNAME
