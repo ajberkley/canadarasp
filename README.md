@@ -90,8 +90,7 @@ There are many libraries and command line tools to handle these sort of files.
 For some basic data handling and for cutting out the dynamic windgram tiles, we use
 [WGRIB2](https://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/)
 
-For handling the map pngs we use [GDALWARP](https://gdal.org/programs/gdalwarp.html) and the GDAL
-library from the Common Lisp code.
+For handling the map pngs we use the GDAL library from the Common Lisp code.
 
 ### Data details
 
