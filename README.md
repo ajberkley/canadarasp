@@ -27,7 +27,7 @@ Also had to upgrade libgdal-2 to libgdal-3.  There were some breaking changes
 (order or coordinates flipped, forced them back...).  Also it seems not to
 support the old GDPS grid properly anymore, or at least I'm not computing
 something right so I have a kludge workaround using the cached transformation
-file generated from GDAL2.
+file generated from GDAL2.  GDPS is currently broken probably for this reason.
 
 Also I need to update the local-time package as it is using timezone data from
 2019.  Some users live in America/Creston which is a no DST zone and somehow that
@@ -61,10 +61,6 @@ find any benefit in computation times or flexibility over the bespoke
 system currently in use.
 
 It costs roughly $1300 CAD / year to run the system.
-
-# Other TODO
-We rely on libgdal.so.2, which is now old, so have to update cl-gdal to use
-libgdal.so.3. Probably a few hours of work.
 
 # ECCC
 
