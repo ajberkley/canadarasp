@@ -42,7 +42,7 @@ refer to as the web server and intermittently a c5d.4xlarge EC2
 instance called the compute server.
 
 The compute stack is hideous, a mix of bash scripts, common lisp for
-data processing, wgrib2 and gdalwarp for data processing, and NCL for
+data processing, and some wgrib2 for data processing, and NCL for
 drawing the windgrams.  Historically NCL used to be used for almost
 all of the data handling when we were just visualizing the area around
 BC off the HRDPS-WEST model, but once we moved to the continental
