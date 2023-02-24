@@ -35,13 +35,12 @@ if [ $MODEL == hrdps_rot ]; then
     # 20221227T06Z_MSC_HRDPS_DEPR_ISBL_0950_RLatLon0.0225_P010.grib2
     # {YYYYMMDD}T{HH}Z_MSC_HRDPS_{VAR}_{LVLTYPE-LVL}_{Grid}{resolution}_PT{hhh}H.grib2
 
-
-
-    for FILE in $DOWNLOADDIRECTORY/*.grib2; do
+    for FILE in $DOWNLOADDIRECTORY/20*.grib2; do
         JUSTNAME=`echo $FILE | sed -r 's/.+Z_MSC_HRDPS_((.+))_RLatLon0.0225_P.+/\1/'`
-        # echo $JUSTNAME to ${rewrite[$JUSTNAME]:-$JUSTNAME}
+        #echo $JUSTNAME to ${rewrite[$JUSTNAME]:-$JUSTNAME}
         BLARG=`echo $FILE | sed -r 's/(\/.+\/)([[:digit:]]+)T([[:digit:]]+)Z_MSC_HRDPS_(.+)_RLatLon0.0225_PT([[:digit:]]+)H.grib2/\1\CMC_hrdps_continental_\4_ps2.5km_\2\3_P\5-00.grib2/'`
         TARGET=`echo $BLARG | sed -r "s/$JUSTNAME/${rewrite[$JUSTNAME]:-$JUSTNAME}/"`
+        #echo mv $FILE $TARGET
         mv $FILE $TARGET
     done
     echo Done renaming HRDPS rot files at `date`
