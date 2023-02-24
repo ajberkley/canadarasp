@@ -69,7 +69,7 @@ if [ $MODEL = "hrdps_rot" ]; then
 #   export WEBSERVER="hpfx.collab.science.gc.ca"
 #   export DIRECTORY="$YEAR$MONTH$DAY/WXO-DD/model_hrdps/continental/grib2"
    export WEBSERVER="dd.weather.gc.ca"
-   export DIRECTORY="model_hrdps/continental/2.5km/grib2"
+   export DIRECTORY="model_hrdps/continental/2.5km"
    export FILEHEADER="$YEAR$MONTH$DAY"T"$HOUR""Z_MSC_HRDPS"
    export TIMESTART="1" # no prate data for zero
    export TIMESTEP="1"
@@ -86,19 +86,18 @@ if [ $MODEL = "hrdps_rot" ]; then
    export YMIN=26
    export YSTEP=2
    export YMAX=70
-   export FILETOPROBE="PRES_SFC" # how to tell if data is good at last hour
+   export FILETOPROBE="PRES_Sfc" # how to tell if data is good at last hour
 filename () {
  FILELABEL=$1;
  H=$2;
- echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL 
+ echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_PT0"$H"H"$TAIL
 }
 downloadfilename () {
  FILELABEL=$1;
  H=$2;
- echo $FILEHEADER"_$FILELABEL""_RLatLon0.0225_P0"$H$TAIL 
+ echo $FILEHEADER"_$FILELABEL""_RLatLon0.0225_PT0"$H"H"$TAIL
 }
 fi
-
 
 if [ $MODEL = "gdps" ]; then
    # export WEBSERVER="hpfx.collab.science.gc.ca"
