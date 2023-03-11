@@ -19,20 +19,6 @@ and it also hangs out on the web server machine (but takes very little
 processing --- it just archives some data from the forecasts to S3 and
 processes it on demand when requested through a simple web service).
 
-# Critical TODO
-ECCC changed the HRDPS data source to a rotated lat/lon grid which required
-some changes to the processing pipeline.  An upgraded wgrib2 (development
-version--- had to get the devs to fix -small_grib bug with rotated lat/lon grids).
-Also had to upgrade libgdal-2 to libgdal-3.  There were some breaking changes
-(order or coordinates flipped, forced them back...).  Also it seems not to
-support the old GDPS grid properly anymore, or at least I'm not computing
-something right so I have a kludge workaround using the cached transformation
-file generated from GDAL2.  GDPS is currently broken probably for this reason.
-
-Also I need to update the local-time package as it is using timezone data from
-2019.  Some users live in America/Creston which is a no DST zone and somehow that
-data is not in the older TZ data.  Right now I manually updated the package to
-make it the same as America/Phoenix.
 # System generalities
 
 This runs in the Amazon cloud in ca-central-1a, which is Montreal.
