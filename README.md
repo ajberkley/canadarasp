@@ -275,6 +275,26 @@ NCL is a deprecated scripting language (seems they have a python based
 replacement for it?).  We could move to that, or we could do the above
 two tasks and rewrite the drawing code in javascript.
 
+## Support for 1 km Western HRDPS
+
+This is pretty straightforward, but costly to run.  With the recent
+(March 2023) increase in donations, this is the obvious first choice
+of project to work on as it will likely improve prediction in most of
+the BC mountains.
+
+## A few more map layers
+
+I think we could add a couple more thunderstorm related layers and
+I think there exists a de-biased surface wind layer for the HRDPS which
+might be nice, but I haven't looked closely.
+
+## Fix GDPS libgdal2 issues
+
+The GDPS grid transformations to WGS84 goes wonky with the newer libgdal
+and so I am using an old pre-computed transformation for it.  This is
+nominally just due to the coordinate ordering that changed between libgdal
+and libgdal2.
+
 ## Support for GFS and NAM
 
 I'd like to support the NAM and GFS models.  The GFS model would cost
