@@ -288,12 +288,12 @@ I think we could add a couple more thunderstorm related layers and
 I think there exists a de-biased surface wind layer for the HRDPS which
 might be nice, but I haven't looked closely.
 
-## Fix GDPS libgdal2 issues
+## Fix GDPS libgdal3 issues
 
-The GDPS grid transformations to WGS84 goes wonky with the newer libgdal
+The GDPS grid transformations to WGS84 goes wonky with the newer libgdal3
 and so I am using an old pre-computed transformation for it.  This is
-nominally just due to the coordinate ordering that changed between libgdal
-and libgdal2.
+nominally just due to the coordinate ordering that changed between libgdal2
+and libgdal3.
 
 ## Support for GFS and NAM
 
