@@ -313,6 +313,12 @@ wgrib2 step.  My attempts to reproduce this chunking step have failed because of
 the complexity of writing out non-cloned grib2 files with either eccodes
 or libgdal. 
 
+## Switch to AMQP downloading of data
+
+ECCC prefers users to use their AMQP driven downloading chain for data.
+I gave it a couple tries over the years, but never finished switching to
+it.
+
 # Some experiments
 ## Playing with WCS/WMS
 
