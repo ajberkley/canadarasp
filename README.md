@@ -304,6 +304,15 @@ dollars a year to process and I'm not sure I'd get enough increase in
 users to cover the cost.  Mainly the development time is what's
 stopping me though.  I just don't have the motivation right now.
 
+## Remove WGRIB2 dependency?
+
+Right now most of the processing time is chunking up the data so we can
+do windgram generation and dynamic windgram generation (the Lisp map generation code which nominally does exactly
+the same work is much faster)... this is a
+wgrib2 step.  My attempts to reproduce this chunking step have failed because of
+the complexity of writing out non-cloned grib2 files with either eccodes
+or libgdal. 
+
 # Some experiments
 ## Playing with WCS/WMS
 
