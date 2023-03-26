@@ -38,6 +38,10 @@ sudo a2enmod proxy proxy_http ssl
 sudo systemctl restart apache2
 ```
 
+To get our certificates we will want certbot installed.
+```
+sudo apt install certbot python3-certbot-apache
+```
 ### Other
 
 You need to share a key between the compute server and the webserver so the compute server can upload data.
