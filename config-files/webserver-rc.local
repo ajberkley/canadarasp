@@ -1,0 +1,8 @@
+#!/bin/sh -e
+cd /home/ubuntu/hrdps-coastal-info ; sudo -u ubuntu nohup ./serve-winds.sh &
+sudo mount /dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_vol03398320cc683bcbe /mnt
+sudo chown ubuntu.ubuntu /mnt
+sudo swapon /mnt/swapfile
+sudo -u ubuntu nohup /home/ubuntu/continental-test/plot-generation/start-webserver.sh &
+sudo -u ubuntu nohup /home/ubuntu/canadarasp/web-server/timezone/run-timezone-server.sh &
+exit 0

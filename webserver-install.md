@@ -29,7 +29,7 @@ sudo apt install apache2
 ```
 
 The main configuration file is in canadarasp/config-files/webserver-apache2.conf.txt.  Copy that to /etc/apache2/apache2.conf
-Enable proxy and proxy_http and ssl (we will install certificates later)
+Enable proxy and proxy\_http and ssl:
 ```
 sudo cp ~/canadarasp/config-files/webserver-apache2.conf.txt /etc/apache2/apache2.conf
 sudo cp ~/canadarasp/config-files/000*.conf /etc/apache2/sites-enabled/
@@ -37,11 +37,26 @@ sudo cp ~/canadarasp/config-files/001*.conf /etc/apache2/sites-enabled/
 sudo a2enmod proxy proxy_http ssl
 sudo systemctl restart apache2
 ```
-
 To get our certificates we will want certbot installed.
 ```
 sudo apt install certbot python3-certbot-apache
+sudo certbot --apache
 ```
+
+We need some swap space on the web server because of dynamic windgram generation.  6 GB is more than enough.
+```
+sudo dd if=/dev/zero of=/mnt/swapfile bs=65536 count=100000
+sudo chmod 0600 /mnt/swapfile
+sudo mkswap /mnt/swapfile
+sudo swapon /mnt/swapfile
+```
+
+Copy the start-up files (THIS IS NOT COMPLETE, NEED PERMS)
+```
+sudo cp ~/canadarasp/config-files/webserver-rc.local /etc/rc.local
+```
+
 ### Other
 
+Finish certbot install instructions
 You need to share a key between the compute server and the webserver so the compute server can upload data.
