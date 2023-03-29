@@ -56,7 +56,29 @@ Copy the start-up files (THIS IS NOT COMPLETE, NEED PERMS)
 sudo cp ~/canadarasp/config-files/webserver-rc.local /etc/rc.local
 ```
 
+Install some libraries... not necessary except for debugging
+```
+sudo apt install libgdal-dev
+sudo apt install gdal-bin
+sudo ln -s /usr/bin/gdalwarp /usr/local/bin/gdalwarp
+sudo ln -s /usr/bin/gdal_translate /usr/local/bin/gdal_translate
+# NEED WGRIB2 ALSO ... 
+```
+
+Install all our lisp stuff
+```
+sudo apt install sbcl
+curl -O https://beta.quicklisp.org/quicklisp.lisp
+sbcl --load quicklisp.lisp
+(quicklisp-quickstart:install)
+(ql:add-to-init-file)
+(quit)
+canadarasp/setup-lisp.sh
+sudo apt install emacs
+sudo apt install slime
+```
 ### Other
 
 Finish certbot install instructions
 You need to share a key between the compute server and the webserver so the compute server can upload data.
+
