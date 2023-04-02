@@ -107,7 +107,9 @@ canadarasp/config-files/webserver-crontab.txt we find:
 /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh gdps
 ```
 
-This will not upload the files back to this test webserver as it is set by name to talk back to the original webserver (see canadrasp/continental-test/webserver-ip.sh)
+This will not upload the files back to this test webserver as it is set by name to talk back to the original webserver (see canadrasp/continental-test/webserver-ip.sh).
+Keep in mind the compute server and the webserver have to live in the same sub-region (eg. ca-central-1a)
+
 ### Other
 
 Finish certbot install instructions
