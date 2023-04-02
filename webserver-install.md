@@ -99,6 +99,8 @@ Copy canadarasp/config-files/webserver-rc.local to /etc/rc.local and modify the 
 
 Install wgrib2 (just copy it from the old webserver or the computer server, or compile it with openjpeg or jasper).  Put in /usr/bin (only needed if serving surface-winds)
 
+Also you want to setup git so you can easily push / pull from the repo
+
 Now you want to test and see if it can download data from ECCC.  We will use the GDPS because it's the smallest data set for testing.  Looking at
 canadarasp/config-files/webserver-crontab.txt we find:
 ```

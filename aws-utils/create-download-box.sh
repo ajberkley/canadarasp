@@ -15,7 +15,7 @@ echo MY_INSTANCE_ID is $MY_INSTANCE_ID
 echo MY_ZONE is $MY_ZONE
 if [ -z $VOL_ID ]; then
   echo No $DBOXNAME available, creating one
-  export VOL_ID=`aws ec2 create-volume --no-encrypted --availability-zone $MY_ZONE --size 30 --volume-type gp3 --tag-specifications 'ResourceType=volume,Tags=[{Key=Name,Value='$DBOXNAME'}]' | jq .VolumeId | tr -d '"'
+  export VOL_ID=`aws ec2 create-volume --no-encrypted --availability-zone $MY_ZONE --size 30 --volume-type gp3 --tag-specifications 'ResourceType=volume,Tags=[{Key=Name,Value='$DBOXNAME'}]' | jq .VolumeId | tr -d '"'`
   if [ -z $VOL_ID ]; then
     echo Failed creating one.  Aborting
     exit 1
