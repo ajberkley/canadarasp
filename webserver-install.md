@@ -77,8 +77,38 @@ canadarasp/setup-lisp.sh
 sudo apt install emacs
 sudo apt install slime
 ```
+
+```
+sudo apt install parallel # used by our shell scripts a lot
+sudo apt install default-jre # used by our timezone server
+cd ~; ln -s canadarasp/continental-test .
+sudo apt install unzip
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+sudo apt install jq
+```
+You should now be able to run canadarasp/continental-test/run-timezone-server.sh and continental-test/plot-generation/start-webserver.sh
+You need to configure AWS credentials for the AWS command line tool
+```
+aws configure # I use a user with EC2 full access, obviously it would be nice to trim this, but...
+```
+You should now be able to run canadarasp/continental-test/webserver-ip.sh
+
+Copy canadarasp/config-files/webserver-rc.local to /etc/rc.local and modify the disk (120G or so) you want to put on /mnt
+
+Install wgrib2 (just copy it from the old webserver or the computer server, or compile it with openjpeg or jasper).  Put in /usr/bin (only needed if serving surface-winds)
+
+Now you want to test and see if it can download data from ECCC.  We will use the GDPS because it's the smallest data set for testing.  Looking at
+canadarasp/config-files/webserver-crontab.txt we find:
+```
+/home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh gdps
+```
+
+This will not upload the files back to this test webserver as it is set by name to talk back to the original webserver (see canadrasp/continental-test/webserver-ip.sh)
 ### Other
 
 Finish certbot install instructions
 You need to share a key between the compute server and the webserver so the compute server can upload data.
+You need to setup the airspace user and viewer for Peter Spear and get a let's encrypt key for airspace.canadarasp.com
 
