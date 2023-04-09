@@ -1,8 +1,10 @@
 #!/bin/bash
+# download-data-and-start-server.sh MODEL COMPUTESERVER TRY
+MYINSTANCEID=`get-my-instance-id.sh`
 MODEL=${1:-"gdps"}
-SERVER=${2:-"HRDPS PROD V9"}
+SERVER=${2:-"`aws-read-tag.sh $MYINSTANCEID computename`"}
 TRY=${3:-0}
-echo Downloading data for $MODEL
+echo I am $MYINSTANCEID downloading data for $MODEL and triggering $SERVER try $TRY
 MODEL_ORIG=$MODEL
 if [ $MODEL == hrdps_rot ]; then
     DBOXNAME=download-box-hrdps
