@@ -1,6 +1,6 @@
 #!/bin/bash
 source ./model-parameters.sh $MODEL
-WEBSERVERIP=`./webserver-ip.sh`
+WEBSERVERIP=`./webserver-ip.sh "$WEBSERVER"`
 BASEDIR=`echo $PNGDIR | sed s/[/]mnt/html/g`
 echo "Deleting old files"
 ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd canadarasp ; ./delete-old-map-pngs.sh)"

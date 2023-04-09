@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Removing unused files"
 (cd /mnt/windgram-tiles ; find . -name "*CMC*" -exec rm {} \;)
-WEBSERVERIP=`./webserver-ip.sh`
+WEBSERVERIP=`./webserver-ip.sh "$WEBSERVER"`
 DIRSTOCREATE="mkdir -p html/windgram-tiles "
 DIRSTOCREATE+=`find /mnt/windgram-tiles -type d | sed s/[/]mnt/'html'/g`
 

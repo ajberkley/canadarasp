@@ -7,6 +7,9 @@ MY_INSTANCE_ID=`get-my-instance-id.sh`
 SHUTDOWN=`aws-read-tag.sh $MY_INSTANCE_ID shutdown`
 SHUTDOWN=${SHUTDOWN:-true}
 MODEL=`aws-read-tag.sh $MY_INSTANCE_ID model`
+WEBSERVER=`aws-read-tag.sh $MY_INSTANCE_ID webserver`
+export WEBSERVER=${WEBSERVER:-"WEB PROD V9"}
+echo Will upload data to $WEBSERVER
 
 /home/ubuntu/canadarasp/setup-lisp.sh
 

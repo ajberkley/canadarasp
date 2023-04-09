@@ -20,7 +20,7 @@ for i in `seq 0 1 5`;
 done
 echo UTC starting time $UTCYEAR-$UTCMONTH-$UTCDAY $HOUR
 
-WEBSERVERIP=`./webserver-ip.sh`
+WEBSERVERIP=`./webserver-ip.sh "$WEBSERVER"`
 
 cd plot-generation
 
