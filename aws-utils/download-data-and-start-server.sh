@@ -16,6 +16,7 @@ source ./create-download-box.sh $DBOXNAME
 COMPUTEID=`./get-compute-server-id.sh "$SERVER"`
 echo Server id is $COMPUTEID writing model tag $MODEL
 source ./aws-write-tag.sh $COMPUTEID model $MODEL
+source ./aws-write-tag.sh $COMPUTEID webserver "`./aws-read-tag.sh $MYINSTANCEID Name`"
 echo model tag is `./aws-read-tag.sh $COMPUTEID model`
 cd /home/ubuntu/canadarasp/continental-test
 source ./guess-time.sh $MODEL
