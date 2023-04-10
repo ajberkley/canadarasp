@@ -274,3 +274,6 @@ locations[266]=["Kamloops Area","Moon",51.726111,-119.87222];
 locations[267]=["Kamloops Area","Mt. Baldy Lookout",51.455000,-120.051944];
 locations[268]=["Kamloops Area","Dunn Lake South LZ",51.406667,-120.123611];
 locations[269]=["Vancouver Island","Island View Beach",48.561483,-123.367216];
+locations[270]=["Vancouver Island","Mt Kitchener",50.260410,-125.718593];
+locations[271]=["South Okanagan","Parker Mtn",49.329744,-119.6836897];
+locations[272]=["Alberta","Roche Miette",53.161674,-117.937125];
