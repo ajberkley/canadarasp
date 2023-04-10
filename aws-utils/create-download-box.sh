@@ -9,7 +9,7 @@ export VOL_ID=`aws --output json ec2 describe-volumes --filters Name=tag:Name,Va
 if [ $VOL_ID == null ]; then
 	VOL_ID=""
 fi
-export MY_INSTANCE_ID=`get-my-instance-id.sh`
+export MY_INSTANCE_ID=`./get-my-instance-id.sh`
 export MY_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
 echo MY_INSTANCE_ID is $MY_INSTANCE_ID
 echo MY_ZONE is $MY_ZONE

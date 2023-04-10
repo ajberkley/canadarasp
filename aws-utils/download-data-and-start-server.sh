@@ -1,8 +1,9 @@
 #!/bin/bash
 # download-data-and-start-server.sh MODEL COMPUTESERVER TRY
-MYINSTANCEID=`get-my-instance-id.sh`
+cd /home/ubuntu/canadarasp/aws-utils
+MYINSTANCEID=`./get-my-instance-id.sh`
 MODEL=${1:-"gdps"}
-SERVER=${2:-"`aws-read-tag.sh $MYINSTANCEID computename`"}
+SERVER=${2:-"`./aws-read-tag.sh $MYINSTANCEID computename`"}
 TRY=${3:-0}
 echo I am $MYINSTANCEID downloading data for $MODEL and triggering $SERVER try $TRY
 MODEL_ORIG=$MODEL
@@ -11,7 +12,6 @@ if [ $MODEL == hrdps_rot ]; then
 else
     DBOXNAME=download-box-$MODEL
 fi
-cd /home/ubuntu/canadarasp/aws-utils
 source ./create-download-box.sh $DBOXNAME
 COMPUTEID=`./get-compute-server-id.sh "$SERVER"`
 echo Server id is $COMPUTEID writing model tag $MODEL
