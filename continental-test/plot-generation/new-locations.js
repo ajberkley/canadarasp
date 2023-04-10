@@ -277,3 +277,6 @@ locations[269]=["Vancouver Island","Island View Beach",48.561483,-123.367216];
 locations[270]=["Vancouver Island","Mt Kitchener",50.260410,-125.718593];
 locations[271]=["South Okanagan","Parker Mtn",49.329744,-119.6836897];
 locations[272]=["Alberta","Roche Miette",53.161674,-117.937125];
+locations[273]=["Kootenays","Canal Flats",50.17595,-115.79194];
+locations[274]=["Alberta","Frank",49.62841,-114.35438];
+locations[275]=["Alberta","Lethbridge",49.63983,-112.88884];
