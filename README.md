@@ -63,6 +63,13 @@ a year more and I don't know the uptake in the east yet.  Not so much
 terrain on the Canadian side of the border so they are probably well
 served by the general weather and aviation forecasts.
 
+## GDAL
+
+Some of the software uses libGDAL.  Anything before 3.6.1 does not
+work with the latest ECCC files, so make sure this is installed.  3.4.1,
+for example, will fail with the GDPS files, and 2.4.0 will fail with the
+newer HRDPS files.
+
 ## Data
 
 The data comes in the form of GRIB2 files.  These are compressed files
@@ -130,7 +137,7 @@ The general scheme of this is:
  ** This fails semi regularly, maybe once every few month due to what look like AWS failures.  I have not managed to pin it down or make a reliable workaround.  If this happens, reboot the web-server (it is un-recoverable without a reboot --- force unmounting makes it fail again later) and delete the old volume and manually retrigger the run that died if you want.
  * Download data to the download-box.  This script is reasonably robust and will wait for up to 3 hours for data to be available.
  * Unmount / detach the download-box
- * Start the EC2 compute-server with the name HRDPS PROD V7 (see default at top of this script).  This machine is very expensive to run, which is why we do the downloading on the web-server.  When ECCC is flaky sometimes the download can take a significant amount of time (usually it's done in less than 10 minutes for the 10GB of data or so for the HRDPS).  We also set a tag on the compute server telling it which model we are giving it data for (just so it knows which download-box / ec2 volume to mount).  There is another tag on the compute server called shutdown.  If it is true the machine shuts down when finished.  If false, it doesn't.  This is just convenient for debugging the system.  Don't forget to set it back to true when done fiddling.
+ * Start the EC2 compute-server with the name HRDPS PROD V9 (see default at top of this script).  This machine is very expensive to run, which is why we do the downloading on the web-server.  When ECCC is flaky sometimes the download can take a significant amount of time (usually it's done in less than 10 minutes for the 10GB of data or so for the HRDPS).  We also set a tag on the compute server telling it which model we are giving it data for (just so it knows which download-box / ec2 volume to mount).  There is another tag on the compute server called shutdown.  If it is true the machine shuts down when finished.  If false, it doesn't.  This is just convenient for debugging the system.  Don't forget to set it back to true when done fiddling.
  * Wait three hours and kill the compute server just in case something goes wonky.  Avoids unnecessary costs when things go wrong.
 
 we download 48 hours for the HRDPS (it outputs data every hour) and 99
