@@ -1,6 +1,6 @@
 #!/bin/bash
-INSTANCE_NAME=${1:-"HRDPS PROD V8"}
-INSTANCE_ID=`aws ec2 describe-instances --filters Name=tag:Name,Values="$INSTANCE_NAME" | grep INSTANCES | awk '{ print $9 }'`
+INSTANCE_NAME=${1:-"HRDPS PROD V9"}
+INSTANCE_ID=`aws --output json ec2 describe-instances --filters Name=tag:Name,Values="HRDPS PROD V9" | jq .Reservations[0].Instances[0].InstanceId | tr -d \"`
 if [ -z $INSTANCE_ID ]; then
     echo Could not find $INSTANCE_NAME
 else
