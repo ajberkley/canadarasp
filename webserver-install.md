@@ -10,6 +10,12 @@ sudo mkfs.xfs /dev/`lsblk | grep 140G | awk '{print $1}'`
 sudo mount /dev/nvme1n1 /mnt
 ```
 
+add a line like
+```
+sudo mount /dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_vol08852e6f4295be9e1 /mnt
+```
+to /etc/rc.local
+
 Grab the canadarasp repo
 
 ```
@@ -39,8 +45,12 @@ sudo a2ensite 000-default.conf
 sudo a2ensite 001-airspace.conf
 ln -s /home/ubuntu/canadarasp/web-server /home/ubuntu/html
 ln -s /home/ubuntu/canadarasp/web-server/RASPtable.html /home/ubuntu/html/RASP.html
+mkdir /mnt/map-pngs
+mkdir /mnt/windgram-tiles
+mkdir /mnt/windgrams-data
 ln -s /mnt/windgram-tiles /home/ubuntu/canadarasp/web-server/windgram-tiles
 ln -s /mnt/windgrams-data /home/ubuntu/canadarasp/web-server/windgrams-data
+ln -s /mnt/map-pngs /home/ubuntu/canadarasp/web-server/map-pngs
 ln -s /home/ubuntu/canadarasp/web-server/RASPtable.html /home/ubuntu/html/RASP.html
 sudo chmod o+x /home/ubuntu
 sudo systemctl restart apache2
