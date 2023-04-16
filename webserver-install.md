@@ -34,7 +34,15 @@ Enable proxy and proxy\_http and ssl:
 sudo cp ~/canadarasp/config-files/webserver-apache2.conf.txt /etc/apache2/apache2.conf
 sudo cp ~/canadarasp/config-files/000*.conf /etc/apache2/sites-enabled/
 sudo cp ~/canadarasp/config-files/001*.conf /etc/apache2/sites-enabled/
-sudo a2enmod proxy proxy_http ssl
+sudo a2enmod proxy proxy_http ssl header
+sudo a2ensite 000-default.conf
+sudo a2ensite 001-airspace.conf
+ln -s /home/ubuntu/canadarasp/web-server /home/ubuntu/html
+ln -s /home/ubuntu/canadarasp/web-server/RASPtable.html /home/ubuntu/html/RASP.html
+ln -s /mnt/windgram-tiles /home/ubuntu/canadarasp/web-server/windgram-tiles
+ln -s /mnt/windgrams-data /home/ubuntu/canadarasp/web-server/windgrams-data
+ln -s /home/ubuntu/canadarasp/web-server/RASPtable.html /home/ubuntu/html/RASP.html
+sudo chmod o+x /home/ubuntu
 sudo systemctl restart apache2
 ```
 To get our certificates we will want certbot installed.
