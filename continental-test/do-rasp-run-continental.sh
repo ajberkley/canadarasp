@@ -8,8 +8,8 @@ SHUTDOWN=`aws-read-tag.sh $MY_INSTANCE_ID shutdown`
 SHUTDOWN=${SHUTDOWN:-true}
 MODEL=`aws-read-tag.sh $MY_INSTANCE_ID model`
 WEBSERVERNAME=`aws-read-tag.sh $MY_INSTANCE_ID webserver`
-export WEBSERVERNAME=${WEBSERVER:-"WEB PROD V9"}
-echo Will upload data to $WEBSERVER
+export WEBSERVERNAME=${WEBSERVERNAME:-"WEB PROD V9"}
+echo Will upload data to $WEBSERVERNAME
 
 /home/ubuntu/canadarasp/setup-lisp.sh
 
