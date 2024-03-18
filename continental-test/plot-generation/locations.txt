@@ -276,3 +276,5 @@ Kootenays, Canal Flats,   50.17595, -115.79194
 Alberta, Frank, 49.62841, -114.35438
 Alberta, Lethbridge, 49.63983, -112.88884
 Alberta, Mesa Butte, 50.779411, -114.560297
+Alaska, Mt. Roberts, 58.2950, -134.377778
+Alaska, Thunder Mountain, 58.385556, -134.529722
