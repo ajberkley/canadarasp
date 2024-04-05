@@ -281,3 +281,5 @@ locations[273]=["Kootenays","Canal Flats",50.17595,-115.79194];
 locations[274]=["Alberta","Frank",49.62841,-114.35438];
 locations[275]=["Alberta","Lethbridge",49.63983,-112.88884];
 locations[276]=["Alberta","Mesa Butte",50.779411,-114.560297];
+locations[277]=["Alaska","Mt. Roberts",58.2950,-134.377778];
+locations[278]=["Alaska","Thunder Mountain",58.385556,-134.529722];
