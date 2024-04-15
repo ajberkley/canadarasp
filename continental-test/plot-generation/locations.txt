@@ -279,3 +279,7 @@ Alberta, Mesa Butte, 50.779411, -114.560297
 Alaska, Mt. Roberts, 58.2950, -134.377778
 Alaska, Thunder Mountain, 58.385556, -134.529722
 Vancouver Island, Stinky Fish, 48.7345, -124.1414
+Montana, Mt Aeneas, 48.16011, -113.95603
+Montana, Marcum Mtn, 46.95850, -112.95242
+Montana, Mt Martsen, 48.76419, -114.79017
+Montana, Greenhorns, 45.18778, -111.96169
