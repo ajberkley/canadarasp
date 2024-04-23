@@ -1,6 +1,7 @@
 #!/bin/bash
 # ajb June 2018 main driver script for running a continental HRDPS or GDPS visualization run
 # Call this as do-rasp-run-continental.sh
+git stash # store any local changes
 git pull  # this works because I did git config credential.helper store
 PATH=$PATH:/home/ubuntu/canadarasp/aws-utils:/home/ubuntu/.local/bin
 MY_INSTANCE_ID=`get-my-instance-id.sh`
