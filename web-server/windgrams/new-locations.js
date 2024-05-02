@@ -288,3 +288,4 @@ locations[280]=["Montana","Mt Aeneas",48.16011,-113.95603];
 locations[281]=["Montana","Marcum Mtn",46.95850,-112.95242];
 locations[282]=["Montana","Mt Martsen",48.76419,-114.79017];
 locations[283]=["Montana","Greenhorns",45.18778,-111.96169];
+locations[284]=["Sea to Sky","Brunswick",49.49054,-123.19211];
