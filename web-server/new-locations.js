@@ -289,3 +289,7 @@ locations[281]=["Montana","Marcum Mtn",46.95850,-112.95242];
 locations[282]=["Montana","Mt Martsen",48.76419,-114.79017];
 locations[283]=["Montana","Greenhorns",45.18778,-111.96169];
 locations[284]=["Sea to Sky","Brunswick",49.49054,-123.19211];
+locations[285]=["Ottawa","CNV4 Hawkesbury",45.61717,-74.64444];
+locations[286]=["Ottawa","CNF3 Pendleton",45.48668,-75.09592];
+locations[287]=["Ottawa","CPL3 Kars",45.11265,-75.62662];
+locations[288]=["Ottawa","CAA2 St. Andre Avellin",45.74403,-75.07049];
