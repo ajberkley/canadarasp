@@ -6,8 +6,19 @@ if grep -qs '/mnt' /proc/mounts; then
     rm -f tiles
 else 
     echo Setting up drives and deleting all content
-    sudo mkfs.xfs -f -K /dev/nvme1n1
-    sudo mount /dev/nvme1n1 /mnt
+    sudo rm -rf /mnt
+    sudo mkdir /mnt
+    count=0
+    until grep -qs '/mnt' /proc/mounts;
+   	 do
+	    sudo mkfs.xfs -f -K /dev/nvme1n1
+	    sudo mount /dev/nvme1n1 /mnt
+	    if grep -qs '/mnt' /proc/mounts; then echo good; else sleep 1; fi;
+	    if (( count++ >= 10 )); then
+	      echo having trouble mounting drives
+	      echo sudo shutdown -h now
+	    fi
+	done
     rm -rf input
     rm -rf tiles
     sudo chown ubuntu.ubuntu /mnt
