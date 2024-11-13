@@ -8,11 +8,12 @@ else
     echo Setting up drives and deleting all content
     sudo rm -rf /mnt
     sudo mkdir /mnt
+    if ( df | grep nvme0n1 ); then DRIVE=/dev/nvme1n1; else DRIVE=/dev/nvme0n1; fi;
     count=0
     until grep -qs '/mnt' /proc/mounts;
    	 do
-	    sudo mkfs.xfs -f -K /dev/nvme1n1
-	    sudo mount /dev/nvme1n1 /mnt
+	    sudo mkfs.xfs -f -K $DRIVE
+	    sudo mount $DRIVE /mnt
 	    if grep -qs '/mnt' /proc/mounts; then echo good; else sleep 1; fi;
 	    if (( count++ >= 10 )); then
 	      echo having trouble mounting drives
