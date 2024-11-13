@@ -17,7 +17,7 @@ else
 	    if grep -qs '/mnt' /proc/mounts; then echo good; else sleep 1; fi;
 	    if (( count++ >= 10 )); then
 	      echo having trouble mounting drives
-	      echo sudo shutdown -h now
+	      sudo shutdown -h now
 	    fi
 	done
     rm -rf input
