@@ -13,6 +13,7 @@ echo $DIRSTOCREATE | xargs -n 200 ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP
 echo "Done making directories"
 cd $PNGDIR
 echo "Uploading files"
+echo "There are `ls -1 | wc | awk '{print $1}'` files in `pwd`"
 tar cf - * | ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd $BASEDIR; tar xf -)"
 echo "Done uploading files, updating latest link"
 ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd $BASEDIR; rm -f latest ; ln -s `ls -1rt | tail -1` latest )"
