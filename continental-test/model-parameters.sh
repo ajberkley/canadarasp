@@ -67,9 +67,9 @@ fi
 
 if [ $MODEL = "hrdps_rot" ]; then
 #   export WEBSERVER="hpfx.collab.science.gc.ca"
-#   export DIRECTORY="$YEAR$MONTH$DAY/WXO-DD/model_hrdps/continental/grib2"
    export WEBSERVER="dd.weather.gc.ca"
-   export DIRECTORY="model_hrdps/continental/2.5km"
+   export DIRECTORY="$YEAR$MONTH$DAY/WXO-DD/model_hrdps/continental/2.5km"
+#   export DIRECTORY="model_hrdps/continental/2.5km"
    export FILEHEADER="$YEAR$MONTH$DAY"T"$HOUR""Z_MSC_HRDPS"
    export TIMESTART="1" # no prate data for zero
    export TIMESTEP="1"
@@ -101,9 +101,9 @@ fi
 
 if [ $MODEL = "gdps" ]; then
    # export WEBSERVER="hpfx.collab.science.gc.ca"
-   # export DIRECTORY="$YEAR$MONTH$DAY/WXO-DD/model_gem_global/15km/grib2/lat_lon"
+   export DIRECTORY="$YEAR$MONTH$DAY/WXO-DD/model_gem_global/15km/grib2/lat_lon"
    export WEBSERVER="dd.weather.gc.ca"
-   export DIRECTORY="model_gem_global/15km/grib2/lat_lon"
+   # export DIRECTORY="model_gem_global/15km/grib2/lat_lon"
    export FILEHEADER="CMC_glb"
    export TIMESTART="0"
    export TIMESTEP="3"
