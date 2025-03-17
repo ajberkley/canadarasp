@@ -294,3 +294,4 @@ locations[286]=["Ottawa","CNF3 Pendleton",45.48668,-75.09592];
 locations[287]=["Ottawa","CPL3 Kars",45.11265,-75.62662];
 locations[288]=["Ottawa","CAA2 St. Andre Avellin",45.74403,-75.07049];
 locations[289]=["Sunshine Coast","Gower Point",49.384446,-123.536571];
+locations[290]=["South Okanagan","Summerland",49.590630,-119.669188];
