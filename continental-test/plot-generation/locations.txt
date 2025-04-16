@@ -291,3 +291,5 @@ Ottawa, CAA2 St. Andre Avellin, 45.74403, -75.07049
 Sunshine Coast, Gower Point, 49.384446, -123.536571
 South Okanagan, Summerland, 49.590630, -119.669188
 Kamloops Area, Firewatch, 50.4900, -119.8065
+Montana, Sula Peak, 45.860194, -113.999750
+Montana, Wagonhammer, 45.334278, -113.805000
