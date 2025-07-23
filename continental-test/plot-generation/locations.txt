@@ -293,3 +293,4 @@ South Okanagan, Summerland, 49.590630, -119.669188
 Kamloops Area, Firewatch, 50.4900, -119.8065
 Montana, Sula Peak, 45.860194, -113.999750
 Montana, Wagonhammer, 45.334278, -113.805000
+Montana, Blue Mountain, 46.835556, -114.133611

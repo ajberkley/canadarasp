@@ -296,3 +296,5 @@ locations[288]=["Ottawa","CAA2 St. Andre Avellin",45.74403,-75.07049];
 locations[289]=["Sunshine Coast","Gower Point",49.384446,-123.536571];
 locations[290]=["South Okanagan","Summerland",49.590630,-119.669188];
 locations[291]=["Kamloops Area","Firewatch",50.4900,-119.8065];
+locations[292]=["Montana","Sula Peak",45.860194,-113.999750];
+locations[293]=["Montana","Wagonhammer",45.334278,-113.805000];
