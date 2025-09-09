@@ -294,3 +294,4 @@ Kamloops Area, Firewatch, 50.4900, -119.8065
 Montana, Sula Peak, 45.860194, -113.999750
 Montana, Wagonhammer, 45.334278, -113.805000
 Montana, Blue Mountain, 46.835556, -114.133611
+Vancouver Island, Mt Porter, 49.298802, -125.23013

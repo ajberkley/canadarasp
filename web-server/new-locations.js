@@ -298,3 +298,4 @@ locations[290]=["South Okanagan","Summerland",49.590630,-119.669188];
 locations[291]=["Kamloops Area","Firewatch",50.4900,-119.8065];
 locations[292]=["Montana","Sula Peak",45.860194,-113.999750];
 locations[293]=["Montana","Wagonhammer",45.334278,-113.805000];
+locations[294]=["Montana","Blue Mountain",46.835556,-114.133611];
