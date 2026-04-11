@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 5.0 FINAL//EN">
+<html>
+<head>
+<link rel="shortcut icon" href="favicon.ico" >
+
+<title>Canada Rasp Windgrams</title>
+<meta http-equiv="KEYWORDS" content="RASP, hrdps,canadarasp, forecast, soaring, predictions, northwest,WA,BC,Alberta,weather,wind,speed,paragliding,launch,paraglide,paraglider,hang,fly,kite,surf,windsurf,olney,TJ,windgram,windgrams">
+<meta name="description" content="Windgram diagrams for soaring forecasts for paragliders, hang gliders and sailplanes by Peter Spear and Andrew Berkley using CMC HRDPS Continental model data">
+<meta http-equiv="Content-Type" content="text/html;charset=US-ASCII" >
+<meta name="viewport" content="width=device-width, initial-scale=0.6">
+
+
+<script type="text/javascript" src="/regions.js?v=3"></script>
+<script type="text/javascript" src="new-locations.js?v=2"></script>
+<script type="text/javascript" src="windgram.js?v=3"></script>
+
+<style type="text/css">
+#imageDiv {
+ position: absolute;
+ left: 260px;
+ top: 0px;
+ height: 100vh;
+ padding: 4px ;
+}
+#title{
+  font-size: 1.5em;
+  }
+#selDiv {
+  width: 250px;
+  padding: 4px ;
+}
+#selectorDiv  { padding:10px; margin:-5px -20px -5px -5px; }
+</style>
+</head>
+
+<body>
+  <div id="selDiv">
+    <div id="title">Windgrams for Canada</div>
+    	<div id="selectorDiv">
+    	      <select title="Year" id="Year" size="8" onchange='javascript:updateDate(false);showWindgram(false)'>
+    		<option>2013</option>
+    	      </select>
+    	      <select title="Month" id="Month" size="8" onchange='javascript:updateDate(false);showWindgram(false)'>
+    		<option>Jan</option>
+    	      </select>
+    	      <select title="Select Day" id="Day" size="8" onchange='javascript:clearLoadedCache();showWindgram(false);'>
+    		<option>23</option>
+    	      </select>
+    	    </div>
+    <table>
+    <tr><td>Duration</td><td>Model</td></tr>
+    <tr><td>
+    <select id="plotType" size="2" onchange='javascript:clearLoadedCache();showWindgram(false);'>
+      <option value="twoDay" selected>Multi-day</option>
+      <option value="oneDay" >One day</option>
+    </select> </td> <td>
+    <select id="Model" size="2" onchange='javascript:clearLoadedCache();showWindgram(false);'>
+      <option value="hrdps" selected>HRDPS</option>
+      <option value="gdps">GDPS</option>
+    </select> </td></tr>
+    </table>
+    Region<br>
+    <select id="region" size="8" onchange='javascript:updateRegion()';>
+    </select><br>
+    Location<br>
+    <select id="location" size="8" onchange='javascript:showWindgram(false)';>
+      <option value="dummy" selected > dummy</option>
+    </select>
+    <br><br><br>
+    <small><a href="/aboutcanadarasp.html">Canada RASP</a> by <a href="mailto:ajberkley@gmail.com">Andrew Berkley</a> & Peter Spear</small><br>
+    <a href="/windgrams/select-windgram.htm">Windgram selector</a><br>
+    <div id="currentsettings"> </div>
+    <a href="/RASPtable.html">Map overlay plots</a><br/>
+    <small> <a href="https://eccc-msc.github.io/open-data/msc-data/nwp_hrdps/readme_hrdps_en/">HRDPS model</a> data
+    from <a href="https://www.ec.gc.ca/">Environment and Climate Change Canada</a></small><br>
+<!--    <small>Partially funded by the membership of <a href="http://bchpa.ca">BCHPA</a>
+	and <a href="http://avsa.ca">AVSA</a>.<br> -->
+      <!-- <br><b>Currently experiencing delays on data coming from ECCC<br> <a href="/data-issues.html">(Mar-Apr 2019)</a></b><br> -->
+      <center> Please consider donating </center> </small>
+    <center>
+      <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="R3QEBDRXCZNUW">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+		</center>
+ 
+  </div>
+  <div id="imageDiv">
+    <img id="wframe" onError="badImage(this);" ></img>
+<script> init(); </script>
+</body>
+</html>

@@ -1,94 +1,912 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 5.0 FINAL//EN">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<link rel="shortcut icon" href="favicon.ico" >
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canada RASP — Windgrams for Canada</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --rasp-dark: #1a527d;
+            --rasp-mid: #2468a0;
+            --rasp-light: #3a7fc4;
+            --rasp-bg: #eef2f7;
+            --rasp-donate: #e8a317;
+            --rasp-donate-hover: #d4940f;
+        }
+        body { background-color: var(--rasp-bg); margin: 0; }
 
-<title>Canada Rasp Windgrams</title>
-<meta http-equiv="KEYWORDS" content="RASP, hrdps,canadarasp, forecast, soaring, predictions, northwest,WA,BC,Alberta,weather,wind,speed,paragliding,launch,paraglide,paraglider,hang,fly,kite,surf,windsurf,olney,TJ,windgram,windgrams">
-<meta name="description" content="Windgram diagrams for soaring forecasts for paragliders, hang gliders and sailplanes by Peter Spear and Andrew Berkley using CMC HRDPS Continental model data">
-<meta http-equiv="Content-Type" content="text/html;charset=US-ASCII" >
-<meta name="viewport" content="width=device-width, initial-scale=0.6">
+        /* ---------- NAVBAR ---------- */
+        .top-bar {
+            background: linear-gradient(135deg, var(--rasp-dark), var(--rasp-mid));
+            position: sticky; top: 0; z-index: 1030;
+            padding: 0.35rem 0.75rem;
+        }
+        .top-bar .brand {
+            color: #fff; font-weight: 700; font-size: 1rem;
+            text-decoration: none; white-space: nowrap;
+        }
+        .top-bar .brand-sub {
+            font-weight: 400; color: #c8dff0; font-size: 0.85rem;
+        }
+        .day-toggle .btn { min-width: 72px; font-weight: 600; font-size: 0.82rem; }
+        .day-active  { background: #fff !important; color: var(--rasp-dark) !important; border-color: #fff !important; }
+        .day-inactive { background: transparent; color: #fff; border-color: rgba(255,255,255,0.45); font-size: 0.82rem; }
+        .day-inactive:hover { background: rgba(255,255,255,0.15); color: #fff; border-color: #fff; }
+        .opts-panel { background: rgba(0,0,0,0.18); }
+        .opts-panel label { color: #c8dff0; font-size: 0.78rem; }
 
+        /* ---------- DONATE BUTTON ---------- */
+        .donate-btn {
+            background: var(--rasp-donate); border-color: var(--rasp-donate-hover);
+            color: #fff; font-weight: 700; font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        .donate-btn:hover, .donate-btn:focus {
+            background: var(--rasp-donate-hover); border-color: #c08a0e; color: #fff;
+        }
 
-<script type="text/javascript" src="/regions.js?v=3"></script>
-<script type="text/javascript" src="new-locations.js?v=2"></script>
-<script type="text/javascript" src="windgram.js?v=3"></script>
+        /* ---------- WINDGRAM SECTIONS ---------- */
+        .windgram-section {
+            margin-bottom: 0;
+        }
+        .location-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.55rem 0.75rem;
+            background: linear-gradient(135deg, var(--rasp-dark), var(--rasp-light));
+            color: #fff;
+            border-radius: 8px 8px 0 0;
+        }
+        .location-name { font-weight: 700; font-size: 1.05rem; }
+        .region-name   { margin-left: 0.5rem; color: #c8dff0; font-size: 0.85rem; }
+        .classic-link  { color: #fff; text-decoration: none; font-size: 0.78rem; white-space: nowrap; opacity: 0.85; }
+        .classic-link:hover { opacity: 1; }
+        .windgram-img {
+            width: 100%; height: auto; display: block;
+            border: 1px solid #d0d8e2; border-top: none;
+            border-radius: 0 0 8px 8px;
+            image-rendering: auto;
+        }
+        .img-error-msg {
+            padding: 3rem 1rem; text-align: center; color: #6c757d;
+            background: #f8f9fa; border: 1px solid #d0d8e2; border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
 
-<style type="text/css">
-#imageDiv {
- position: absolute;
- left: 260px;
- top: 0px;
- height: 100vh;
- padding: 4px ;
-}
-#title{
-  font-size: 1.5em;
-  }
-#selDiv {
-  width: 250px;
-  padding: 4px ;
-}
-#selectorDiv  { padding:10px; margin:-5px -20px -5px -5px; }
-</style>
+        /* ---------- EDIT VIEW ---------- */
+        #editView .accordion-button { padding: 0.55rem 0.85rem; font-size: 0.95rem; }
+        #editView .list-group-item  { padding: 0.45rem 0.75rem; }
+        .fav-item {
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .fav-item .fav-label { min-width: 0; overflow: hidden; }
+        .preset-desc { font-size: 0.82rem; color: #6c757d; }
+
+        /* ---------- FOOTER ---------- */
+        footer a       { text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        /* ---------- WINDGRAM GRID ---------- */
+        .windgrams-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 767.98px) {
+            /* Stack header into three rows on mobile */
+            .top-bar-inner {
+                flex-direction: column !important;
+                gap: 0.2rem !important;
+            }
+            .top-bar-inner > * { flex: 0 0 auto !important; }
+        }
+        @media (max-width: 575.98px) {
+            .hide-xs { display: none !important; }
+            .location-name { font-size: 0.95rem; }
+            .region-name   { font-size: 0.78rem; }
+        }
+    </style>
 </head>
-
 <body>
-  <div id="selDiv">
-    <div id="title">Windgrams for Canada</div>
-    	<div id="selectorDiv">
-    	      <select title="Year" id="Year" size="8" onchange='javascript:updateDate(false);showWindgram(false)'>
-    		<option>2013</option>
-    	      </select>
-    	      <select title="Month" id="Month" size="8" onchange='javascript:updateDate(false);showWindgram(false)'>
-    		<option>Jan</option>
-    	      </select>
-    	      <select title="Select Day" id="Day" size="8" onchange='javascript:clearLoadedCache();showWindgram(false);'>
-    		<option>23</option>
-    	      </select>
-    	    </div>
-    <table>
-    <tr><td>Duration</td><td>Model</td></tr>
-    <tr><td>
-    <select id="plotType" size="2" onchange='javascript:clearLoadedCache();showWindgram(false);'>
-      <option value="twoDay" selected>Multi-day</option>
-      <option value="oneDay" >One day</option>
-    </select> </td> <td>
-    <select id="Model" size="2" onchange='javascript:clearLoadedCache();showWindgram(false);'>
-      <option value="hrdps" selected>HRDPS</option>
-      <option value="gdps">GDPS</option>
-    </select> </td></tr>
-    </table>
-    Region<br>
-    <select id="region" size="8" onchange='javascript:updateRegion()';>
-    </select><br>
-    Location<br>
-    <select id="location" size="8" onchange='javascript:showWindgram(false)';>
-      <option value="dummy" selected > dummy</option>
-    </select>
-    <br><br><br>
-    <small><a href="/aboutcanadarasp.html">Canada RASP</a> by <a href="mailto:ajberkley@gmail.com">Andrew Berkley</a> & Peter Spear</small><br>
-    <a href="/windgrams/select-windgram.htm">Windgram selector</a><br>
-    <div id="currentsettings"> </div>
-    <a href="/RASPtable.html">Map overlay plots</a><br/>
-    <small> <a href="https://eccc-msc.github.io/open-data/msc-data/nwp_hrdps/readme_hrdps_en/">HRDPS model</a> data
-    from <a href="https://www.ec.gc.ca/">Environment and Climate Change Canada</a></small><br>
-<!--    <small>Partially funded by the membership of <a href="http://bchpa.ca">BCHPA</a>
-	and <a href="http://avsa.ca">AVSA</a>.<br> -->
-      <!-- <br><b>Currently experiencing delays on data coming from ECCC<br> <a href="/data-issues.html">(Mar-Apr 2019)</a></b><br> -->
-      <center> Please consider donating </center> </small>
-    <center>
-      <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-<input type="hidden" name="cmd" value="_s-xclick">
-<input type="hidden" name="hosted_button_id" value="R3QEBDRXCZNUW">
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-</form>
-		</center>
- 
-  </div>
-  <div id="imageDiv">
-    <img id="wframe" onError="badImage(this);" ></img>
-<script> init(); </script>
+
+<!-- ===== STICKY TOP BAR ===== -->
+<header class="top-bar" id="topBar">
+    <!-- Three sections: brand (left) | controls (center) | donate (right) -->
+    <!-- On mobile (< 768px) these stack vertically via .top-bar-inner -->
+    <div class="d-flex align-items-center w-100 top-bar-inner">
+        <!-- Left: brand -->
+        <span class="brand" style="flex:0 0 auto;">
+            <i class="bi bi-wind"></i> Canada RASP
+            <span class="brand-sub hide-xs">— Windgrams for Canada</span>
+        </span>
+        <!-- Center: day controls + edit button -->
+        <div class="d-flex align-items-center justify-content-center gap-1 flex-grow-1 flex-wrap">
+            <div class="d-flex align-items-center gap-1" id="dayControls">
+                <div class="btn-group btn-group-sm day-toggle" role="group">
+                    <button type="button" class="btn day-active" id="todayBtn" onclick="setDay('today')">Today</button>
+                    <button type="button" class="btn day-inactive" id="tomorrowBtn" onclick="setDay('tomorrow')">Tomorrow</button>
+                </div>
+                <span class="small hide-xs" style="color:#fff;" id="dateDisplay"></span>
+                <button class="btn btn-sm day-inactive" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#advancedOpts">
+                    <i class="bi bi-sliders"></i><span class="hide-xs"> Options</span>
+                </button>
+            </div>
+            <button class="btn btn-outline-light btn-sm" style="font-size:.82rem;" id="editBtn" onclick="toggleView()">
+                <i class="bi bi-pencil-square"></i> <span class="hide-xs">Edit Favorites</span>
+            </button>
+        </div>
+        <!-- Right: donate -->
+        <div style="flex:0 0 auto;">
+            <button class="donate-btn btn btn-sm" onclick="showDonate()">
+                <i class="bi bi-heart-fill"></i> <span class="hide-xs">Please</span> Donate
+            </button>
+        </div>
+    </div>
+    <!-- Collapsible options -->
+    <div class="collapse w-100" id="advancedOpts">
+        <div class="opts-panel py-2 px-2 mt-1 rounded-bottom">
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <div>
+                    <label class="form-label mb-0">Date</label>
+                    <input type="date" class="form-control form-control-sm" id="datePicker"
+                           onchange="setCustomDate(this.value)">
+                </div>
+                <div>
+                    <label class="form-label mb-0">Model</label>
+                    <select class="form-select form-select-sm" id="modelSelect" onchange="setModel(this.value)">
+                        <option value="hrdps">HRDPS</option>
+                        <option value="gdps">GDPS</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label mb-0">Duration</label>
+                    <select class="form-select form-select-sm" id="durationSelect" onchange="setDuration(this.value)">
+                        <option value="oneDay">One day</option>
+                        <option value="twoDay">Multi-day</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ===== MAIN VIEW ===== -->
+<div id="mainView">
+    <!-- Windgrams -->
+    <div class="px-2 pt-3 pb-1" id="windgramsContainer"></div>
+
+    <!-- Empty state -->
+    <div id="emptyState" class="text-center py-5 px-3" style="display:none;">
+        <h4 class="mb-2" style="color:var(--rasp-dark);">Welcome to Canada RASP Windgrams</h4>
+        <p class="text-muted mb-1">Pick your favorite flying sites and see all their forecasts on one scrollable page.</p>
+        <p class="text-muted small mb-4">Windgrams show wind, thermals, lapse rate, and cloud cover by altitude and time of day.</p>
+        <button class="btn btn-primary btn-lg mb-4" style="background:var(--rasp-mid);border-color:var(--rasp-dark);" onclick="toggleView()">
+            <i class="bi bi-plus-lg"></i> Choose My Favorites
+        </button>
+        <hr class="my-3" style="max-width:400px; margin:0 auto;">
+        <p class="text-muted small mt-3 mb-2">Or start quickly with a regional preset:</p>
+        <div class="d-flex flex-wrap justify-content-center gap-2" id="presetsMain"></div>
+    </div>
+</div>
+
+<!-- ===== EDIT VIEW ===== -->
+<div id="editView" style="display:none;">
+    <div class="container py-3" style="max-width:700px;">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0" style="color:var(--rasp-dark);"><i class="bi bi-pencil-square"></i> Edit My Favorites</h5>
+            <button class="btn btn-primary" style="background:var(--rasp-mid);border-color:var(--rasp-dark);" onclick="toggleView()">
+                <i class="bi bi-check-lg"></i> Done
+            </button>
+        </div>
+
+        <!-- Share -->
+        <div class="mb-3">
+            <button class="btn btn-sm btn-outline-secondary" onclick="generateShareLink()">
+                <i class="bi bi-link-45deg"></i> Share my favorites list
+            </button>
+            <div id="shareLinkBox" class="mt-2" style="display:none;">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" id="shareLinkInput" readonly>
+                    <button class="btn btn-outline-secondary" onclick="copyShareLink()">
+                        <i class="bi bi-clipboard"></i> Copy
+                    </button>
+                </div>
+                <small class="text-muted">Share this link with other pilots or open it on another device.</small>
+            </div>
+        </div>
+
+        <!-- Current favorites -->
+        <div class="card mb-3" style="border-color:#bcc8d6;">
+            <div class="card-header py-2" style="background:var(--rasp-bg); border-bottom-color:#bcc8d6;">
+                <strong style="color:var(--rasp-dark);">My Favorites</strong>
+                <small class="text-muted"> — use arrows to reorder</small>
+            </div>
+            <div class="list-group list-group-flush" id="favListEdit"></div>
+            <div class="card-body text-center text-muted py-3" id="noFavsMsg">
+                <small>No favorites yet — add locations below or choose a preset.</small>
+            </div>
+        </div>
+
+        <!-- Presets -->
+        <div class="card mb-3" style="border-color:#bcc8d6;">
+            <div class="card-header py-2" style="background:var(--rasp-bg); border-bottom-color:#bcc8d6;">
+                <strong style="color:var(--rasp-dark);">Quick Presets</strong>
+            </div>
+            <div class="card-body py-2">
+                <p class="preset-desc mb-2">Load a starter set of popular sites. Your current list is saved and can be restored.</p>
+                <div class="d-flex flex-wrap gap-2" id="presetsEdit"></div>
+            </div>
+        </div>
+
+        <!-- Add by region -->
+        <div class="card mb-3" style="border-color:#bcc8d6;">
+            <div class="card-header py-2" style="background:var(--rasp-bg); border-bottom-color:#bcc8d6;">
+                <strong style="color:var(--rasp-dark);">Add Locations by Region</strong>
+            </div>
+            <div class="accordion accordion-flush" id="regionAccordion"></div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ===== DONATE MODAL ===== -->
+<div class="modal fade" id="donateModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header py-2" style="background:var(--rasp-bg);">
+                <h6 class="modal-title" style="color:var(--rasp-dark);">Support Canada RASP</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="small">Canada RASP is maintained by
+                    <a href="mailto:ajberkley@gmail.com">Andrew Berkley</a>
+                    and costs about <strong>$1,500 CAD/year</strong> to operate on AWS.</p>
+                <p class="small">If these forecasts help you fly, please chip in!</p>
+                <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+                    <input type="hidden" name="cmd" value="_donations">
+                    <input type="hidden" name="business" value="ajberkley@gmail.com">
+                    <input type="hidden" name="item_name" value="Canada RASP">
+                    <input type="hidden" name="currency_code" value="CAD">
+                    <button type="submit" class="donate-btn btn btn-lg w-100">
+                        <i class="bi bi-heart-fill"></i> Donate via PayPal
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SHARED-FAVORITES TOAST ===== -->
+<div class="position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index:1080;">
+    <div id="sharedToast" class="toast" role="alert" data-bs-autohide="false">
+        <div class="toast-body d-flex align-items-center gap-2 flex-wrap">
+            <span>You're viewing a shared favorites list.</span>
+            <button class="btn btn-sm btn-primary" style="background:var(--rasp-mid);" onclick="saveSharedFavs()">Save as mine</button>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="text-light py-4 mt-2" style="background:#1c2e3f;">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-sm-6 col-md-4">
+                <h6 class="mb-2" style="color:var(--rasp-light);">Canada RASP</h6>
+                <ul class="list-unstyled small mb-0">
+                    <li><a href="https://canadarasp.com/aboutcanadarasp.html" class="text-light" target="_blank">About &amp; Changelog</a></li>
+                    <li><a href="mailto:ajberkley@gmail.com" class="text-light">Contact Andrew Berkley</a></li>
+                    <li><a href="https://canadarasp.com/" class="text-light" target="_blank">Canada RASP Home</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <h6 class="mb-2" style="color:var(--rasp-light);">Tools</h6>
+                <ul class="list-unstyled small mb-0">
+                    <li><a href="https://canadarasp.com/windgrams/select-windgram.htm" class="text-light" target="_blank">Windgram Selector (Map)</a></li>
+                    <li><a href="https://canadarasp.com/RASPtable.html" class="text-light" target="_blank">Map Overlay Plots</a></li>
+                    <li><a href="https://canadarasp.com/windgrams/" class="text-light" target="_blank">Classic Windgrams Page</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-12 col-md-4">
+                <h6 class="mb-2" style="color:var(--rasp-light);">Data Sources</h6>
+                <ul class="list-unstyled small mb-2">
+                    <li><a href="https://eccc-msc.github.io/open-data/msc-data/nwp_hrdps/readme_hrdps_en/" class="text-light" target="_blank">HRDPS Model Docs</a></li>
+                    <li><a href="https://www.ec.gc.ca/" class="text-light" target="_blank">Environment and Climate Change Canada</a></li>
+                </ul>
+                <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" class="mt-2">
+                    <input type="hidden" name="cmd" value="_donations">
+                    <input type="hidden" name="business" value="ajberkley@gmail.com">
+                    <input type="hidden" name="item_name" value="Canada RASP">
+                    <input type="hidden" name="currency_code" value="CAD">
+                    <button type="submit" class="donate-btn btn btn-sm">
+                        <i class="bi bi-heart-fill"></i> Donate — helps cover $1,500/yr hosting
+                    </button>
+                </form>
+            </div>
+        </div>
+        <hr class="border-secondary mt-3 mb-2">
+        <p class="text-center small mb-0" style="color:#7a8fa1;">
+            Weather data from
+            <a href="https://www.ec.gc.ca/" style="color:#7a8fa1;" target="_blank">Environment and Climate Change Canada</a>.
+            Built by Andrew Berkley.
+        </p>
+    </div>
+</footer>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Andrew's location data — loaded from canadarasp.com so the favorites picker
+     always reflects his latest additions. When deployed on canadarasp.com,
+     change to relative paths:  /regions.js?v=3  and  new-locations.js?v=2  -->
+<script src="https://canadarasp.com/regions.js?v=3"></script>
+<script src="https://canadarasp.com/windgrams/new-locations.js?v=2"></script>
+
+<script>
+(function () {
+    'use strict';
+
+    // =====================================================================
+    //  CONFIGURATION
+    // =====================================================================
+
+    var BASE_URL  = (window.location.hostname === 'canadarasp.com') ? '' : 'https://canadarasp.com';
+    var FAV_KEY   = 'myWindgramsFavorites';
+    var PREFS_KEY = 'myWindgramsPrefs';      // model + duration preference
+    // no SAVED_KEY needed — presets are temporary views, never overwrite favorites
+
+    // Curated presets — indices verified against live new-locations.js 2026-04-07.
+    // The file is append-only so these indices are stable.
+    var PRESETS = {
+        'Lower Mainland':   { locs: [0, 1, 2, 5],                                  desc: 'Woodside, Bridal, Elk, Benny' },
+        'Sea to Sky':       { locs: [15, 189, 17, 20, 16],                         desc: 'McKenzie, Miller, Hurley, Squamish, Whistler' },
+        'Vancouver Island': { locs: [62, 56, 59, 135, 57, 279, 154, 295, 270],     desc: 'Malahat, Prevost, Bruce, Youbou, Hill 60, Stinky Fish, Joan, Porter, Kitchener' },
+        'Sunshine Coast':   { locs: [160, 159],                                     desc: 'Mt Elphinstone, Sechelt Dump' },
+        'Kamloops Area':    { locs: [267, 48, 47],                                  desc: 'Mt Baldy Lookout, Sun Peaks, Oscars' },
+        'North Okanagan':   { locs: [29, 30, 32, 36, 138, 31],                     desc: 'Coopers, King Eddy, Vernon Mt, Fly Hills, Mt Baldy, Mara Lake' },
+        'South Okanagan':   { locs: [41, 42, 44, 141],                             desc: 'Anarchist, Ripley, Cawston, South Kobau' },
+        'Kootenays':        { locs: [64, 66, 68, 72, 73],                          desc: 'Mt7 Golden, Revelstoke, Swansea, Fernie Mic Towers, Elko' }
+    };
+    var CURATED_REGIONS = {
+        'Lower Mainland':1, 'Sea to Sky':1, 'Vancouver Island':1, 'Sunshine Coast':1,
+        'Kamloops Area':1, 'North Okanagan':1, 'South Okanagan':1, 'Kootenays':1
+    };
+
+    // =====================================================================
+    //  STATE
+    // =====================================================================
+
+    var favorites    = [];
+    var activePreset = null;       // name of preset being viewed, or null for favorites
+    var curDay       = 'today';    // 'today' | 'tomorrow' | 'custom'
+    var curModel     = 'hrdps';
+    var curDuration  = 'oneDay';
+    var customDate   = null;
+    var isShared     = false;
+    var openAccId    = null;       // tracks which accordion panel is open in edit view
+
+    // What to display: the active preset if set, otherwise saved favorites
+    function displayedLocs () {
+        if (activePreset && PRESETS[activePreset]) return PRESETS[activePreset].locs;
+        return favorites;
+    }
+
+    // =====================================================================
+    //  DATE HELPERS
+    // =====================================================================
+
+    function pad (n) { return n < 10 ? '0' + n : '' + n; }
+
+    function todayStr () {
+        var d = new Date();
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    }
+    function tomorrowStr () {
+        var d = new Date(); d.setDate(d.getDate() + 1);
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    }
+    function activeDateStr () {
+        if (curDay === 'tomorrow') return tomorrowStr();
+        if (curDay === 'custom' && customDate) return customDate;
+        return todayStr();
+    }
+    function formatDateNice (str) {
+        var d = new Date(str + 'T12:00:00');
+        var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        var mons = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return days[d.getDay()] + ', ' + mons[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    }
+
+    // =====================================================================
+    //  IMAGE URL
+    // =====================================================================
+
+    // Cache buster: images are regenerated at ~6am and ~6pm Pacific but keep
+    // the same URL. We use a 5-minute rotating timestamp so:
+    //  - switching Today/Tomorrow within 5 min uses browser cache (fast)
+    //  - after 5 min, the next click fetches fresh images
+    //  - works even if the page stays open all day without reload
+    function cacheBuster () {
+        return '?_=' + Math.floor(Date.now() / 300000); // rotates every 5 min
+    }
+
+    function imageUrl (locIdx) {
+        var cb = cacheBuster();
+        if (curDuration === 'twoDay')
+            return BASE_URL + '/windgrams-data/twoDay/' + curModel + 'windgram' + locIdx + '.png' + cb;
+        return BASE_URL + '/windgrams-data/oneDay/' + activeDateStr() + '/' + curModel + 'windgram' + locIdx + '.png' + cb;
+    }
+
+    function classicUrl (locIdx) {
+        var loc = locations[locIdx];
+        if (!loc) return '#';
+        var regionIdx = regions.indexOf(loc[0]);
+        var dropIdx = 0;
+        for (var i = 0; i < locations.length; i++) {
+            if (i === locIdx) break;
+            if (locations[i][0] === loc[0]) dropIdx++;
+        }
+        var ds = activeDateStr().split('-');
+        return BASE_URL + '/windgrams/?region=' + regionIdx +
+            '&location=' + dropIdx +
+            '&plotType=' + (curDuration === 'oneDay' ? 1 : 0) +
+            '&Year=' + ds[0] + '&Month=' + parseInt(ds[1], 10) +
+            '&Day=' + parseInt(ds[2], 10) + '&Model=' + curModel;
+    }
+
+    // =====================================================================
+    //  PERSISTENCE
+    // =====================================================================
+
+    function loadFavorites () {
+        var hash = window.location.hash;
+        if (hash && hash.indexOf('#fav=') === 0) {
+            var parsed = [];
+            hash.substring(5).split(',').forEach(function (s) {
+                var n = parseInt(s, 10);
+                if (!isNaN(n) && n >= 0 && n < locations.length) parsed.push(n);
+            });
+            if (parsed.length) { favorites = parsed; isShared = true; return; }
+        }
+        try {
+            var raw = localStorage.getItem(FAV_KEY);
+            if (raw) {
+                favorites = JSON.parse(raw).filter(function (n) {
+                    return !isNaN(n) && n >= 0 && n < locations.length;
+                });
+            }
+        } catch (e) { /* ignore */ }
+    }
+
+    function saveFavorites () {
+        try { localStorage.setItem(FAV_KEY, JSON.stringify(favorites)); } catch (e) {}
+    }
+
+    function loadPrefs () {
+        try {
+            var p = JSON.parse(localStorage.getItem(PREFS_KEY));
+            if (p) {
+                if (p.model === 'hrdps' || p.model === 'gdps') curModel = p.model;
+                if (p.duration === 'oneDay' || p.duration === 'twoDay') curDuration = p.duration;
+            }
+        } catch (e) {}
+    }
+
+    function savePrefs () {
+        try { localStorage.setItem(PREFS_KEY, JSON.stringify({ model: curModel, duration: curDuration })); } catch (e) {}
+    }
+
+
+    // =====================================================================
+    //  RENDER — MAIN VIEW
+    // =====================================================================
+
+    function updateDayButtons () {
+        var tb  = document.getElementById('todayBtn');
+        var tmb = document.getElementById('tomorrowBtn');
+        tb.className  = 'btn ' + (curDay === 'today'    ? 'day-active' : 'day-inactive');
+        tmb.className = 'btn ' + (curDay === 'tomorrow' ? 'day-active' : 'day-inactive');
+        document.getElementById('dateDisplay').textContent = formatDateNice(activeDateStr());
+    }
+
+    function renderMain () {
+        updateDayButtons();
+        var container = document.getElementById('windgramsContainer');
+        var empty     = document.getElementById('emptyState');
+        var locs      = displayedLocs();
+
+        if (locs.length === 0 && !activePreset) {
+            container.style.display = 'none';
+            empty.style.display = 'block';
+            renderPresetButtons('presetsMain');
+            return;
+        }
+        empty.style.display = 'none';
+        container.style.display = 'block';
+
+        var html = '';
+
+        // Show a banner when viewing a preset (not your saved favorites)
+        if (activePreset) {
+            html += '<div class="d-flex align-items-center justify-content-center gap-2 mb-2 flex-wrap" ' +
+                    'style="background:#fff;border:1px solid #d0d8e2;border-radius:6px;padding:0.4rem 0.75rem;">' +
+                    '<span class="small"><strong>Viewing preset:</strong> ' + esc(activePreset) + '</span>' +
+                    '<button class="btn btn-sm btn-outline-primary" onclick="showMyFavs()" style="font-size:.8rem;">' +
+                    '<i class="bi bi-arrow-left"></i> Back to My Favorites</button></div>';
+        }
+
+        // Responsive grid: 1 col on mobile, 2 on desktop (lg+)
+        html += '<div class="windgrams-grid"><div class="row g-3">';
+        for (var i = 0; i < locs.length; i++) {
+            var idx = locs[i];
+            var loc = locations[idx];
+            if (!loc) continue;
+            var src = imageUrl(idx);
+            var cls = classicUrl(idx);
+            html +=
+                '<div class="col-12 col-lg-6">' +
+                '<div class="windgram-section">' +
+                  '<div class="location-bar">' +
+                    '<div>' +
+                      '<span class="location-name">' + esc(loc[1]) + '</span>' +
+                      '<span class="region-name hide-xs">— ' + esc(loc[0]) + '</span>' +
+                    '</div>' +
+                    '<a href="' + cls + '" target="_blank" class="classic-link">' +
+                      'Classic <i class="bi bi-box-arrow-up-right" style="font-size:.65rem"></i></a>' +
+                  '</div>' +
+                  '<img src="' + src + '" alt="Windgram for ' + esc(loc[1]) + '" class="windgram-img" ' +
+                       (i < 3 ? '' : 'loading="lazy" ') +
+                       'onerror="handleImgError(this)">' +
+                '</div></div>';
+        }
+        html += '</div></div>';
+        container.innerHTML = html;
+    }
+
+    // =====================================================================
+    //  RENDER — EDIT VIEW
+    // =====================================================================
+
+    function renderEdit () {
+        renderFavList();
+        renderPresetButtons('presetsEdit');
+        renderRegionAccordion();
+    }
+
+    // Only re-render after add/remove inside the accordion — keeps panel open
+    function refreshEditView () {
+        var openEl = document.querySelector('#regionAccordion .accordion-collapse.show');
+        openAccId = openEl ? openEl.id : openAccId;
+
+        renderFavList();
+        renderPresetButtons('presetsEdit');
+        renderRegionAccordion();
+
+        if (openAccId) {
+            var panel = document.getElementById(openAccId);
+            if (panel) {
+                panel.classList.add('show');
+                var btn = panel.previousElementSibling
+                    ? panel.previousElementSibling.querySelector('.accordion-button')
+                    : null;
+                if (btn) btn.classList.remove('collapsed');
+            }
+        }
+    }
+
+    function renderFavList () {
+        var list  = document.getElementById('favListEdit');
+        var noMsg = document.getElementById('noFavsMsg');
+
+        if (favorites.length === 0) {
+            list.innerHTML = '';
+            noMsg.style.display = 'block';
+            return;
+        }
+        noMsg.style.display = 'none';
+
+        var html = '';
+        for (var i = 0; i < favorites.length; i++) {
+            var idx = favorites[i];
+            var loc = locations[idx];
+            if (!loc) continue;
+            html +=
+                '<div class="list-group-item fav-item">' +
+                  '<div class="fav-label">' +
+                    '<strong>' + esc(loc[1]) + '</strong>' +
+                    '<small class="text-muted d-block">' + esc(loc[0]) + '</small>' +
+                  '</div>' +
+                  '<div class="btn-group btn-group-sm flex-nowrap ms-2">' +
+                    '<button class="btn btn-outline-secondary" title="Move up" onclick="moveFav(' + i + ',' + (i-1) + ')"' +
+                        (i === 0 ? ' disabled' : '') + '><i class="bi bi-chevron-up"></i></button>' +
+                    '<button class="btn btn-outline-secondary" title="Move down" onclick="moveFav(' + i + ',' + (i+1) + ')"' +
+                        (i === favorites.length-1 ? ' disabled' : '') + '><i class="bi bi-chevron-down"></i></button>' +
+                    '<button class="btn btn-outline-danger" title="Remove" onclick="removeFav(' + idx + ')">' +
+                        '<i class="bi bi-x-lg"></i></button>' +
+                  '</div>' +
+                '</div>';
+        }
+        list.innerHTML = html;
+    }
+
+    function renderPresetButtons (containerId) {
+        var el = document.getElementById(containerId);
+        if (!el) return;
+        var html = '';
+        // "My Favorites" button when a preset is active
+        if (activePreset && favorites.length > 0) {
+            html += '<button class="btn btn-sm btn-primary fw-semibold" ' +
+                    'onclick="showMyFavs()" title="Return to your saved favorites">' +
+                    '<i class="bi bi-star-fill"></i> My Favorites</button>';
+        }
+        for (var name in PRESETS) {
+            if (!PRESETS.hasOwnProperty(name)) continue;
+            var isActive = (activePreset === name);
+            html += '<button class="btn btn-sm ' + (isActive ? 'btn-primary' : 'btn-outline-primary') + '" ' +
+                    'onclick="loadPreset(\'' + esc(name) + '\')" ' +
+                    'title="' + esc(PRESETS[name].desc) + '">' + esc(name) + '</button>';
+        }
+        el.innerHTML = html;
+    }
+
+    function renderRegionAccordion () {
+        var acc = document.getElementById('regionAccordion');
+        var html = '';
+        for (var r = 0; r < regions.length; r++) {
+            var region = regions[r];
+            var rLocs = [];
+            for (var i = 0; i < locations.length; i++) {
+                if (locations[i] && locations[i][0] === region) rLocs.push(i);
+            }
+            if (rLocs.length === 0) continue;
+
+            var favCount = 0;
+            for (var j = 0; j < rLocs.length; j++) {
+                if (favorites.indexOf(rLocs[j]) !== -1) favCount++;
+            }
+
+            html +=
+                '<div class="accordion-item">' +
+                  '<h2 class="accordion-header">' +
+                    '<button class="accordion-button collapsed" type="button" ' +
+                            'data-bs-toggle="collapse" data-bs-target="#reg' + r + '">' +
+                      esc(region) +
+                      ' <span class="badge bg-secondary ms-2">' + rLocs.length + '</span>' +
+                      (favCount > 0 ? ' <span class="badge ms-1" style="background:var(--rasp-mid);">' + favCount + ' added</span>' : '') +
+                    '</button>' +
+                  '</h2>' +
+                  '<div id="reg' + r + '" class="accordion-collapse collapse" data-bs-parent="#regionAccordion">' +
+                    '<div class="list-group list-group-flush">';
+
+            for (var k = 0; k < rLocs.length; k++) {
+                var li = rLocs[k];
+                var isFav = favorites.indexOf(li) !== -1;
+                html +=
+                    '<div class="list-group-item d-flex justify-content-between align-items-center py-1 px-3">' +
+                      '<span class="small">' + esc(locations[li][1]) + '</span>' +
+                      (isFav
+                        ? '<button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="removeFav(' + li + ')"><i class="bi bi-x-lg"></i> Remove</button>'
+                        : '<button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="addFav(' + li + ')"><i class="bi bi-plus-lg"></i> Add</button>') +
+                    '</div>';
+            }
+            html += '</div></div></div>';
+        }
+        acc.innerHTML = html;
+    }
+
+    // =====================================================================
+    //  ACTIONS (global for onclick handlers)
+    // =====================================================================
+
+    window.setDay = function (day) {
+        curDay = day; customDate = null;
+        document.getElementById('datePicker').value = '';
+        renderMain();
+    };
+
+    function closeOptions () {
+        var el = document.getElementById('advancedOpts');
+        if (el.classList.contains('show')) bootstrap.Collapse.getInstance(el).hide();
+    }
+
+    window.setCustomDate = function (val) {
+        if (!val) return;
+        customDate = val; curDay = 'custom';
+        closeOptions(); renderMain();
+    };
+
+    window.setModel = function (m) {
+        curModel = m; savePrefs(); closeOptions(); renderMain();
+    };
+
+    window.setDuration = function (d) {
+        curDuration = d; savePrefs(); closeOptions(); renderMain();
+    };
+
+    window.addFav = function (idx) {
+        if (favorites.indexOf(idx) === -1) {
+            favorites.push(idx);
+            saveFavorites();
+            refreshEditView();
+        }
+    };
+
+    window.removeFav = function (idx) {
+        var pos = favorites.indexOf(idx);
+        if (pos !== -1) {
+            favorites.splice(pos, 1);
+            saveFavorites();
+            // If in edit view, do targeted refresh; if main view, re-render main
+            if (document.getElementById('editView').style.display !== 'none') {
+                refreshEditView();
+            } else {
+                renderMain();
+            }
+        }
+    };
+
+    window.moveFav = function (from, to) {
+        if (to < 0 || to >= favorites.length) return;
+        var item = favorites.splice(from, 1)[0];
+        favorites.splice(to, 0, item);
+        saveFavorites();
+        renderFavList();   // only the list needs updating, not the accordion
+    };
+
+    // Presets are temporary views — they never overwrite saved favorites
+    window.loadPreset = function (name) {
+        if (!PRESETS[name]) return;
+        activePreset = name;
+        // If in edit view, switch to main view to show the preset
+        var edit = document.getElementById('editView');
+        if (edit.style.display !== 'none') {
+            edit.style.display = 'none';
+            document.getElementById('mainView').style.display = 'block';
+            document.getElementById('dayControls').style.display = 'flex';
+            document.getElementById('editBtn').innerHTML =
+                '<i class="bi bi-pencil-square"></i> <span class="hide-xs">Edit Favorites</span>';
+        }
+        renderMain();
+        window.scrollTo(0, 0);
+    };
+
+    window.showMyFavs = function () {
+        activePreset = null;
+        renderMain();
+    };
+
+    window.toggleView = function () {
+        var main = document.getElementById('mainView');
+        var edit = document.getElementById('editView');
+        var btn  = document.getElementById('editBtn');
+        var dayC = document.getElementById('dayControls');
+
+        if (edit.style.display === 'none') {
+            // Switch to edit view
+            main.style.display = 'none';
+            edit.style.display = 'block';
+            dayC.style.display = 'none';
+            btn.innerHTML = '<i class="bi bi-check-lg"></i> <span class="hide-xs">Done</span>';
+            openAccId = null;
+            renderEdit();
+            window.scrollTo(0, 0);
+        } else {
+            // Switch to main view — always return to saved favorites
+            activePreset = null;
+            edit.style.display = 'none';
+            main.style.display = 'block';
+            dayC.style.display = 'flex';
+            btn.innerHTML = '<i class="bi bi-pencil-square"></i> <span class="hide-xs">Edit Favorites</span>';
+            renderMain();
+            window.scrollTo(0, 0);
+        }
+    };
+
+    window.showDonate = function () {
+        new bootstrap.Modal(document.getElementById('donateModal')).show();
+    };
+
+    window.generateShareLink = function () {
+        if (favorites.length === 0) { alert('Add some favorites first!'); return; }
+        var url = window.location.origin + window.location.pathname + '#fav=' + favorites.join(',');
+        document.getElementById('shareLinkInput').value = url;
+        document.getElementById('shareLinkBox').style.display = 'block';
+    };
+
+    window.copyShareLink = function () {
+        var input = document.getElementById('shareLinkInput');
+        input.select(); input.setSelectionRange(0, 99999);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(input.value);
+        } else {
+            document.execCommand('copy');
+        }
+    };
+
+    window.saveSharedFavs = function () {
+        isShared = false;
+        saveFavorites();
+        try { history.replaceState(null, '', window.location.pathname); } catch (e) {}
+        var t = bootstrap.Toast.getInstance(document.getElementById('sharedToast'));
+        if (t) t.hide();
+    };
+
+    window.handleImgError = function (img) {
+        img.onerror = null;
+        var div = document.createElement('div');
+        div.className = 'img-error-msg';
+        div.textContent = 'Image not available for this date';
+        img.parentElement.replaceChild(div, img);
+    };
+
+    // =====================================================================
+    //  UTILITIES
+    // =====================================================================
+
+    function esc (str) {
+        var d = document.createElement('div');
+        d.appendChild(document.createTextNode(str));
+        return d.innerHTML;
+    }
+
+    // =====================================================================
+    //  AUTO-GENERATE PRESETS for uncurated regions (first 5 locations)
+    // =====================================================================
+
+    // Auto-generate presets for regions not already curated (first 5 locations)
+    function buildAllPresets () {
+        for (var r = 0; r < regions.length; r++) {
+            var rName = regions[r];
+            if (CURATED_REGIONS[rName] || PRESETS[rName]) continue;
+            var rLocs = [];
+            for (var j = 0; j < locations.length && rLocs.length < 5; j++) {
+                if (locations[j] && locations[j][0] === rName) rLocs.push(j);
+            }
+            if (rLocs.length > 0) {
+                var rNames = rLocs.map(function (l) { return locations[l][1]; }).join(', ');
+                PRESETS[rName] = { locs: rLocs, desc: rNames };
+            }
+        }
+    }
+
+    // =====================================================================
+    //  INIT
+    // =====================================================================
+
+    function init () {
+        if (typeof regions === 'undefined' || typeof locations === 'undefined') {
+            document.getElementById('windgramsContainer').innerHTML =
+                '<div class="alert alert-danger m-3">' +
+                'Could not load location data from canadarasp.com. Check your internet connection and reload.</div>';
+            document.getElementById('windgramsContainer').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+            return;
+        }
+
+        buildAllPresets();
+        loadPrefs();
+        loadFavorites();
+
+        // Sync controls with loaded prefs
+        document.getElementById('modelSelect').value    = curModel;
+        document.getElementById('durationSelect').value = curDuration;
+        document.getElementById('datePicker').value     = todayStr();
+
+        renderMain();
+
+        if (isShared) {
+            var toast = new bootstrap.Toast(document.getElementById('sharedToast'));
+            toast.show();
+        }
+    }
+
+    init();
+})();
+</script>
+
 </body>
 </html>
