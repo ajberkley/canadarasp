@@ -66,7 +66,7 @@
                     ;;(hunchentoot:log-message* :info (format nil "~A" location))
                     ;;(hunchentoot:log-message* :info (format nil "~A" timestamp))
                     (sb-ext:with-timeout 2.0
-                      (let* ((timestamp (if timestamp (local-time:universal-to-timestamp (parse-integer timestamp)) (local-time:now)))
+                      (let* ((timestamp (if timestamp (local-time:unix-to-timestamp (parse-integer timestamp)) (local-time:now)))
                              (timezone (apply #'lookup (mapcar #'parse-float:parse-float (cl-ppcre:split "," location))))
                              (timezone-parsed (local-time:find-timezone-by-location-name timezone)))
                         (assert timezone-parsed)

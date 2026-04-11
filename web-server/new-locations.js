@@ -300,3 +300,4 @@ locations[292]=["Montana","Sula Peak",45.860194,-113.999750];
 locations[293]=["Montana","Wagonhammer",45.334278,-113.805000];
 locations[294]=["Montana","Blue Mountain",46.835556,-114.133611];
 locations[295]=["Vancouver Island","Mt Porter",49.298802,-125.23013];
+locations[296]=["Kootenays","Salmo",49.20958,-117.29154];
