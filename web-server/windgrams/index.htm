@@ -178,17 +178,13 @@
     <!-- Windgrams -->
     <div class="px-2 pt-3 pb-1" id="windgramsContainer"></div>
 
-    <!-- Empty state -->
-    <div id="emptyState" class="text-center py-5 px-3" style="display:none;">
-        <h4 class="mb-2" style="color:var(--rasp-dark);">Welcome to Canada RASP Windgrams</h4>
-        <p class="text-muted mb-1">Pick your favorite flying sites and see all their forecasts on one scrollable page.</p>
-        <p class="text-muted small mb-4">Windgrams show wind, thermals, lapse rate, and cloud cover by altitude and time of day.</p>
-        <button class="btn btn-primary btn-lg mb-4" style="background:var(--rasp-mid);border-color:var(--rasp-dark);" onclick="toggleView()">
-            <i class="bi bi-plus-lg"></i> Choose My Favorites
-        </button>
-        <hr class="my-3" style="max-width:400px; margin:0 auto;">
-        <p class="text-muted small mt-3 mb-2">Or start quickly with a regional preset:</p>
-        <div class="d-flex flex-wrap justify-content-center gap-2" id="presetsMain"></div>
+    <!-- Empty state — first-visit region picker -->
+    <div id="emptyState" class="text-center py-4 px-3" style="display:none;">
+        <h4 class="mb-2" style="color:var(--rasp-dark);">Canada RASP Windgrams</h4>
+        <p class="text-muted mb-3">Choose your flying region to get started:</p>
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-4" id="presetsMain"
+             style="max-width:600px; margin:0 auto;"></div>
+        <p class="text-muted small">You can customize your favorites anytime using <strong>Edit Favorites</strong> above.</p>
     </div>
 </div>
 
@@ -250,6 +246,38 @@
             <div class="accordion accordion-flush" id="regionAccordion"></div>
         </div>
 
+        <!-- Add custom location -->
+        <div class="card mb-3" style="border-color:#bcc8d6;">
+            <div class="card-header py-2" style="background:var(--rasp-bg); border-bottom-color:#bcc8d6;">
+                <strong style="color:var(--rasp-dark);">Add Custom Location</strong>
+            </div>
+            <div class="card-body py-2">
+                <p class="preset-desc mb-2">Save a windgram for any coordinates. Paste a windgram URL from the
+                    <a href="https://canadarasp.com/windgrams/select-windgram.htm" target="_blank">map selector</a>
+                    or enter lat/lon manually.</p>
+                <div class="mb-2">
+                    <input type="text" id="customName" class="form-control form-control-sm"
+                           placeholder="Name (e.g. My Secret Spot)">
+                </div>
+                <div class="mb-2">
+                    <input type="text" id="customCoords" class="form-control form-control-sm"
+                           placeholder="Paste URL or enter lat, lon (e.g. 49.437, -121.099)"
+                           oninput="parseCustomInput(this.value)">
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col">
+                        <input type="number" step="any" id="customLat" class="form-control form-control-sm" placeholder="Latitude">
+                    </div>
+                    <div class="col">
+                        <input type="number" step="any" id="customLon" class="form-control form-control-sm" placeholder="Longitude">
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-primary" onclick="addCustomLoc()">
+                    <i class="bi bi-plus-lg"></i> Add to Favorites
+                </button>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -280,6 +308,53 @@
     </div>
 </div>
 
+<!-- ===== FEATURES / CHANGELOG MODAL ===== -->
+<div class="modal fade" id="featuresModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header py-2" style="background:var(--rasp-bg);">
+                <h6 class="modal-title" style="color:var(--rasp-dark);">New Interface Features</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body small">
+                <p class="text-muted">This new windgrams interface was built to make checking conditions faster and easier, especially on mobile.</p>
+
+                <h6 style="color:var(--rasp-dark);">Favorites</h6>
+                <ul>
+                    <li><strong>Personal favorites list</strong> — pick the sites you check every day and see all their windgrams on one scrollable page.</li>
+                    <li><strong>Quick region presets</strong> — get started instantly by choosing your flying region. All sites in that region are included, with the most popular ones listed first.</li>
+                    <li><strong>Reorder, add, and remove</strong> — arrange your favorites however you like using the Edit Favorites screen.</li>
+                    <li><strong>Saved in your browser</strong> — your favorites persist between visits with no account required.</li>
+                    <li><strong>Shareable via link</strong> — generate a URL to share your favorites list with other pilots or across your own devices.</li>
+                    <li><strong>Explore without losing your list</strong> — browse other region presets temporarily; your saved favorites are untouched.</li>
+                </ul>
+
+                <h6 style="color:var(--rasp-dark);">Custom Locations</h6>
+                <ul>
+                    <li><strong>Save any lat/lon as a favorite</strong> — paste a windgram URL from the map selector or enter coordinates manually.</li>
+                    <li><strong>On-demand windgrams</strong> — custom locations generate a fresh windgram from the latest model data, just like clicking on the map.</li>
+                </ul>
+
+                <h6 style="color:var(--rasp-dark);">Viewing</h6>
+                <ul>
+                    <li><strong>Today / Tomorrow</strong> — one-tap switching between forecast days.</li>
+                    <li><strong>Responsive layout</strong> — two windgrams side-by-side on desktop, full-width on mobile. Pinch to zoom on the detail-rich images.</li>
+                    <li><strong>Always fresh images</strong> — automatic cache busting ensures you see the latest forecast after each 6am/6pm model run, even without reloading the page.</li>
+                    <li><strong>Model and duration options</strong> — switch between HRDPS/GDPS and one-day/multi-day via the Options menu. Your preference is remembered.</li>
+                    <li><strong>Any date</strong> — pick a specific past or future date from the Options menu.</li>
+                </ul>
+
+                <h6 style="color:var(--rasp-dark);">Compatibility</h6>
+                <ul>
+                    <li><strong>Map selector integration</strong> — links from the Windgram Selector map open the correct windgram here.</li>
+                    <li><strong>Classic view</strong> — every windgram has a link to the original interface if you prefer it.</li>
+                    <li><strong>All original links preserved</strong> — About page, Map Overlay Plots, HRDPS docs, and donate are all still accessible.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ===== SHARED-FAVORITES TOAST ===== -->
 <div class="position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index:1080;">
     <div id="sharedToast" class="toast" role="alert" data-bs-autohide="false">
@@ -299,7 +374,7 @@
                 <h6 class="mb-2" style="color:var(--rasp-light);">Canada RASP</h6>
                 <ul class="list-unstyled small mb-0">
                     <li><a href="https://canadarasp.com/aboutcanadarasp.html" class="text-light" target="_blank">About &amp; Changelog</a></li>
-                    <li><a href="mailto:ajberkley@gmail.com" class="text-light">Contact Andrew Berkley</a></li>
+                    <li><a href="mailto:ajberkley@gmail.com" class="text-light">Contact Andrew Berkley</a> <span style="color:#7a8fa1;">(forecasts &amp; data)</span></li>
                     <li><a href="https://canadarasp.com/" class="text-light" target="_blank">Canada RASP Home</a></li>
                 </ul>
             </div>
@@ -308,7 +383,7 @@
                 <ul class="list-unstyled small mb-0">
                     <li><a href="https://canadarasp.com/windgrams/select-windgram.htm" class="text-light" target="_blank">Windgram Selector (Map)</a></li>
                     <li><a href="https://canadarasp.com/RASPtable.html" class="text-light" target="_blank">Map Overlay Plots</a></li>
-                    <li><a href="https://canadarasp.com/windgrams/" class="text-light" target="_blank">Classic Windgrams Page</a></li>
+                    <li><a href="https://canadarasp.com/windgrams/old.html" class="text-light" target="_blank">Classic Windgrams Page</a></li>
                 </ul>
             </div>
             <div class="col-sm-12 col-md-4">
@@ -329,10 +404,14 @@
             </div>
         </div>
         <hr class="border-secondary mt-3 mb-2">
+        <p class="text-center small mb-1" style="color:#7a8fa1;">
+            New interface by <a href="mailto:david@touchthesky.ca" style="color:#9ab4c8;">david@touchthesky.ca</a>,
+            building on the hard work of Andrew Berkley and Peter Spear.
+            <a href="#" style="color:#9ab4c8;" onclick="new bootstrap.Modal(document.getElementById('featuresModal')).show(); return false;">What's new</a>
+        </p>
         <p class="text-center small mb-0" style="color:#7a8fa1;">
-            Weather data from
-            <a href="https://www.ec.gc.ca/" style="color:#7a8fa1;" target="_blank">Environment and Climate Change Canada</a>.
-            Built by Andrew Berkley.
+            Questions about this interface? Contact <a href="mailto:david@touchthesky.ca" style="color:#9ab4c8;">David</a>.
+            For forecast data and backend issues, contact <a href="mailto:ajberkley@gmail.com" style="color:#9ab4c8;">Andrew</a>.
         </p>
     </div>
 </footer>
@@ -382,6 +461,7 @@
 
     var favorites    = [];
     var activePreset = null;       // name of preset being viewed, or null for favorites
+    var linkedLoc    = -1;         // global index from ?region=&location= URL params, or -1
     var curDay       = 'today';    // 'today' | 'tomorrow' | 'custom'
     var curModel     = 'hrdps';
     var curDuration  = 'oneDay';
@@ -389,8 +469,9 @@
     var isShared     = false;
     var openAccId    = null;       // tracks which accordion panel is open in edit view
 
-    // What to display: the active preset if set, otherwise saved favorites
+    // What to display: linked location > active preset > saved favorites
     function displayedLocs () {
+        if (linkedLoc >= 0) return [linkedLoc];
         if (activePreset && PRESETS[activePreset]) return PRESETS[activePreset].locs;
         return favorites;
     }
@@ -431,14 +512,22 @@
     //  - after 5 min, the next click fetches fresh images
     //  - works even if the page stays open all day without reload
     function cacheBuster () {
-        return '?_=' + Math.floor(Date.now() / 300000); // rotates every 5 min
+        return '_=' + Math.floor(Date.now() / 300000); // rotates every 5 min
     }
 
     function imageUrl (locIdx) {
         var cb = cacheBuster();
         if (curDuration === 'twoDay')
-            return BASE_URL + '/windgrams-data/twoDay/' + curModel + 'windgram' + locIdx + '.png' + cb;
-        return BASE_URL + '/windgrams-data/oneDay/' + activeDateStr() + '/' + curModel + 'windgram' + locIdx + '.png' + cb;
+            return BASE_URL + '/windgrams-data/twoDay/' + curModel + 'windgram' + locIdx + '.png?' + cb;
+        return BASE_URL + '/windgrams-data/oneDay/' + activeDateStr() + '/' + curModel + 'windgram' + locIdx + '.png?' + cb;
+    }
+
+    function customImageUrl (entry) {
+        return BASE_URL + '/windgram?lat=' + entry.lat + '&lon=' + entry.lon + '&' + cacheBuster();
+    }
+
+    function isCustom (entry) {
+        return typeof entry === 'object' && entry !== null && entry.type === 'custom';
     }
 
     function classicUrl (locIdx) {
@@ -451,7 +540,7 @@
             if (locations[i][0] === loc[0]) dropIdx++;
         }
         var ds = activeDateStr().split('-');
-        return BASE_URL + '/windgrams/?region=' + regionIdx +
+        return BASE_URL + '/windgrams/old.html?region=' + regionIdx +
             '&location=' + dropIdx +
             '&plotType=' + (curDuration === 'oneDay' ? 1 : 0) +
             '&Year=' + ds[0] + '&Month=' + parseInt(ds[1], 10) +
@@ -475,8 +564,9 @@
         try {
             var raw = localStorage.getItem(FAV_KEY);
             if (raw) {
-                favorites = JSON.parse(raw).filter(function (n) {
-                    return !isNaN(n) && n >= 0 && n < locations.length;
+                favorites = JSON.parse(raw).filter(function (entry) {
+                    if (isCustom(entry)) return entry.name && !isNaN(entry.lat) && !isNaN(entry.lon);
+                    return typeof entry === 'number' && !isNaN(entry) && entry >= 0 && entry < locations.length;
                 });
             }
         } catch (e) { /* ignore */ }
@@ -530,6 +620,19 @@
 
         var html = '';
 
+        // Show a banner when viewing a linked location from the map selector
+        if (linkedLoc >= 0 && locations[linkedLoc]) {
+            var ll = locations[linkedLoc];
+            html += '<div class="d-flex align-items-center justify-content-center gap-2 mb-2 flex-wrap" ' +
+                    'style="background:#fff;border:1px solid #d0d8e2;border-radius:6px;padding:0.4rem 0.75rem;">' +
+                    '<span class="small"><strong>Showing:</strong> ' + esc(ll[1]) + ' (' + esc(ll[0]) + ')</span>' +
+                    (favorites.length > 0
+                      ? '<button class="btn btn-sm btn-outline-primary" onclick="clearLinked()" style="font-size:.8rem;">' +
+                        '<i class="bi bi-arrow-left"></i> Back to My Favorites</button>'
+                      : '') +
+                    '</div>';
+        }
+
         // Show a banner when viewing a preset (not your saved favorites)
         if (activePreset) {
             html += '<div class="d-flex align-items-center justify-content-center gap-2 mb-2 flex-wrap" ' +
@@ -542,23 +645,33 @@
         // Responsive grid: 1 col on mobile, 2 on desktop (lg+)
         html += '<div class="windgrams-grid"><div class="row g-3">';
         for (var i = 0; i < locs.length; i++) {
-            var idx = locs[i];
-            var loc = locations[idx];
-            if (!loc) continue;
-            var src = imageUrl(idx);
-            var cls = classicUrl(idx);
+            var entry = locs[i];
+            var locName, regionLabel, src, classicLink;
+            if (isCustom(entry)) {
+                locName = entry.name;
+                regionLabel = 'Custom (' + (+entry.lat).toFixed(3) + ', ' + (+entry.lon).toFixed(3) + ')';
+                src = customImageUrl(entry);
+                classicLink = '';
+            } else {
+                var loc = locations[entry];
+                if (!loc) continue;
+                locName = loc[1];
+                regionLabel = loc[0];
+                src = imageUrl(entry);
+                classicLink = '<a href="' + classicUrl(entry) + '" target="_blank" class="classic-link">' +
+                      'Classic <i class="bi bi-box-arrow-up-right" style="font-size:.65rem"></i></a>';
+            }
             html +=
                 '<div class="col-12 col-lg-6">' +
                 '<div class="windgram-section">' +
                   '<div class="location-bar">' +
                     '<div>' +
-                      '<span class="location-name">' + esc(loc[1]) + '</span>' +
-                      '<span class="region-name hide-xs">— ' + esc(loc[0]) + '</span>' +
+                      '<span class="location-name">' + esc(locName) + '</span>' +
+                      '<span class="region-name hide-xs">— ' + esc(regionLabel) + '</span>' +
                     '</div>' +
-                    '<a href="' + cls + '" target="_blank" class="classic-link">' +
-                      'Classic <i class="bi bi-box-arrow-up-right" style="font-size:.65rem"></i></a>' +
+                    classicLink +
                   '</div>' +
-                  '<img src="' + src + '" alt="Windgram for ' + esc(loc[1]) + '" class="windgram-img" ' +
+                  '<img src="' + src + '" alt="Windgram for ' + esc(locName) + '" class="windgram-img" ' +
                        (i < 3 ? '' : 'loading="lazy" ') +
                        'onerror="handleImgError(this)">' +
                 '</div></div>';
@@ -611,21 +724,29 @@
 
         var html = '';
         for (var i = 0; i < favorites.length; i++) {
-            var idx = favorites[i];
-            var loc = locations[idx];
-            if (!loc) continue;
+            var entry = favorites[i];
+            var labelName, labelSub;
+            if (isCustom(entry)) {
+                labelName = entry.name;
+                labelSub = 'Custom — ' + (+entry.lat).toFixed(4) + ', ' + (+entry.lon).toFixed(4);
+            } else {
+                var loc = locations[entry];
+                if (!loc) continue;
+                labelName = loc[1];
+                labelSub = loc[0];
+            }
             html +=
                 '<div class="list-group-item fav-item">' +
                   '<div class="fav-label">' +
-                    '<strong>' + esc(loc[1]) + '</strong>' +
-                    '<small class="text-muted d-block">' + esc(loc[0]) + '</small>' +
+                    '<strong>' + esc(labelName) + '</strong>' +
+                    '<small class="text-muted d-block">' + esc(labelSub) + '</small>' +
                   '</div>' +
                   '<div class="btn-group btn-group-sm flex-nowrap ms-2">' +
                     '<button class="btn btn-outline-secondary" title="Move up" onclick="moveFav(' + i + ',' + (i-1) + ')"' +
                         (i === 0 ? ' disabled' : '') + '><i class="bi bi-chevron-up"></i></button>' +
                     '<button class="btn btn-outline-secondary" title="Move down" onclick="moveFav(' + i + ',' + (i+1) + ')"' +
                         (i === favorites.length-1 ? ' disabled' : '') + '><i class="bi bi-chevron-down"></i></button>' +
-                    '<button class="btn btn-outline-danger" title="Remove" onclick="removeFav(' + idx + ')">' +
+                    '<button class="btn btn-outline-danger" title="Remove" onclick="removeFavAt(' + i + ')">' +
                         '<i class="bi bi-x-lg"></i></button>' +
                   '</div>' +
                 '</div>';
@@ -636,17 +757,19 @@
     function renderPresetButtons (containerId) {
         var el = document.getElementById(containerId);
         if (!el) return;
+        var isMain = (containerId === 'presetsMain');  // bigger buttons on first-visit screen
+        var sz = isMain ? '' : 'btn-sm ';
         var html = '';
         // "My Favorites" button when a preset is active
         if (activePreset && favorites.length > 0) {
-            html += '<button class="btn btn-sm btn-primary fw-semibold" ' +
+            html += '<button class="btn ' + sz + 'btn-primary fw-semibold" ' +
                     'onclick="showMyFavs()" title="Return to your saved favorites">' +
                     '<i class="bi bi-star-fill"></i> My Favorites</button>';
         }
         for (var name in PRESETS) {
             if (!PRESETS.hasOwnProperty(name)) continue;
             var isActive = (activePreset === name);
-            html += '<button class="btn btn-sm ' + (isActive ? 'btn-primary' : 'btn-outline-primary') + '" ' +
+            html += '<button class="btn ' + sz + (isActive ? 'btn-primary' : 'btn-outline-primary') + '" ' +
                     'onclick="loadPreset(\'' + esc(name) + '\')" ' +
                     'title="' + esc(PRESETS[name].desc) + '">' + esc(name) + '</button>';
         }
@@ -757,11 +880,19 @@
         renderFavList();   // only the list needs updating, not the accordion
     };
 
-    // Presets are temporary views — they never overwrite saved favorites
+    // Presets: if user has no favorites yet, seed their favorites (first visit).
+    // Otherwise, show as a temporary view that doesn't touch saved favorites.
     window.loadPreset = function (name) {
         if (!PRESETS[name]) return;
-        activePreset = name;
-        // If in edit view, switch to main view to show the preset
+        if (favorites.length === 0) {
+            // First visit — seed favorites with this preset
+            favorites = PRESETS[name].locs.slice();
+            saveFavorites();
+            activePreset = null;
+        } else {
+            activePreset = name;
+        }
+        // If in edit view, switch to main view
         var edit = document.getElementById('editView');
         if (edit.style.display !== 'none') {
             edit.style.display = 'none';
@@ -774,9 +905,64 @@
         window.scrollTo(0, 0);
     };
 
+    // Remove by position (works for both standard and custom entries)
+    window.removeFavAt = function (pos) {
+        if (pos >= 0 && pos < favorites.length) {
+            favorites.splice(pos, 1);
+            saveFavorites();
+            if (document.getElementById('editView').style.display !== 'none') {
+                refreshEditView();
+            } else {
+                renderMain();
+            }
+        }
+    };
+
     window.showMyFavs = function () {
         activePreset = null;
+        linkedLoc = -1;
         renderMain();
+    };
+
+    window.clearLinked = function () {
+        linkedLoc = -1;
+        renderMain();
+    };
+
+    // Custom location: parse URL or "lat, lon" from the input field
+    window.parseCustomInput = function (val) {
+        if (!val) return;
+        var latEl = document.getElementById('customLat');
+        var lonEl = document.getElementById('customLon');
+        // Try to parse /windgram?lat=X&lon=Y URL
+        var urlMatch = val.match(/lat=([0-9.\-]+).*lon=([0-9.\-]+)/);
+        if (urlMatch) {
+            latEl.value = urlMatch[1];
+            lonEl.value = urlMatch[2];
+            return;
+        }
+        // Try to parse "lat, lon" or "lat lon"
+        var parts = val.split(/[,\s]+/).filter(function (s) { return s.length > 0; });
+        if (parts.length >= 2 && !isNaN(parseFloat(parts[0])) && !isNaN(parseFloat(parts[1]))) {
+            latEl.value = parts[0];
+            lonEl.value = parts[1];
+        }
+    };
+
+    window.addCustomLoc = function () {
+        var name = (document.getElementById('customName').value || '').trim();
+        var lat = parseFloat(document.getElementById('customLat').value);
+        var lon = parseFloat(document.getElementById('customLon').value);
+        if (!name) { alert('Please enter a name for this location.'); return; }
+        if (isNaN(lat) || isNaN(lon)) { alert('Please enter valid coordinates.'); return; }
+        favorites.push({ type: 'custom', name: name, lat: lat, lon: lon });
+        saveFavorites();
+        // Clear the form
+        document.getElementById('customName').value = '';
+        document.getElementById('customCoords').value = '';
+        document.getElementById('customLat').value = '';
+        document.getElementById('customLon').value = '';
+        refreshEditView();
     };
 
     window.toggleView = function () {
@@ -853,21 +1039,60 @@
         return d.innerHTML;
     }
 
+    // Resolve ?region=N&location=N from the map selector into a global index
+    function resolveUrlParams () {
+        var params = new URLSearchParams(window.location.search);
+        var rParam = params.get('region');
+        var lParam = params.get('location');
+        if (rParam === null || lParam === null) return -1;
+        var rIdx = parseInt(rParam, 10);
+        var lIdx = parseInt(lParam, 10);
+        if (isNaN(rIdx) || isNaN(lIdx) || rIdx < 0 || rIdx >= regions.length) return -1;
+        var regionName = regions[rIdx];
+        var count = 0;
+        for (var i = 0; i < locations.length; i++) {
+            if (locations[i] && locations[i][0] === regionName) {
+                if (count === lIdx) return i;
+                count++;
+            }
+        }
+        return -1;
+    }
+
     // =====================================================================
     //  AUTO-GENERATE PRESETS for uncurated regions (first 5 locations)
     // =====================================================================
 
-    // Auto-generate presets for regions not already curated (first 5 locations)
+    // Expand all presets to include every location in their region.
+    // Curated presets keep their hand-picked order first, then append remaining.
+    // Non-curated regions get all locations in their original array order.
     function buildAllPresets () {
+        // 1) Expand curated presets with remaining locations from their region
+        for (var pName in PRESETS) {
+            if (!PRESETS.hasOwnProperty(pName) || !CURATED_REGIONS[pName]) continue;
+            var curated = PRESETS[pName].locs;
+            var remaining = [];
+            for (var i = 0; i < locations.length; i++) {
+                if (locations[i] && locations[i][0] === pName && curated.indexOf(i) === -1) {
+                    remaining.push(i);
+                }
+            }
+            if (remaining.length > 0) {
+                PRESETS[pName].locs = curated.concat(remaining);
+                PRESETS[pName].desc += ' + ' + remaining.length + ' more';
+            }
+        }
+        // 2) Auto-generate presets for all remaining regions (all locations)
         for (var r = 0; r < regions.length; r++) {
             var rName = regions[r];
             if (CURATED_REGIONS[rName] || PRESETS[rName]) continue;
             var rLocs = [];
-            for (var j = 0; j < locations.length && rLocs.length < 5; j++) {
+            for (var j = 0; j < locations.length; j++) {
                 if (locations[j] && locations[j][0] === rName) rLocs.push(j);
             }
             if (rLocs.length > 0) {
-                var rNames = rLocs.map(function (l) { return locations[l][1]; }).join(', ');
+                var rNames = rLocs.slice(0, 3).map(function (l) { return locations[l][1]; }).join(', ');
+                if (rLocs.length > 3) rNames += ' + ' + (rLocs.length - 3) + ' more';
                 PRESETS[rName] = { locs: rLocs, desc: rNames };
             }
         }
@@ -890,6 +1115,24 @@
         buildAllPresets();
         loadPrefs();
         loadFavorites();
+
+        // Handle ?region=N&location=N from map selector page
+        var resolved = resolveUrlParams();
+        if (resolved >= 0) {
+            if (favorites.length === 0) {
+                // New user: seed favorites with this location's region
+                var regionName = locations[resolved][0];
+                if (PRESETS[regionName]) {
+                    favorites = PRESETS[regionName].locs.slice();
+                } else {
+                    favorites = [resolved];
+                }
+                saveFavorites();
+            } else {
+                // Existing user: show this location temporarily
+                linkedLoc = resolved;
+            }
+        }
 
         // Sync controls with loaded prefs
         document.getElementById('modelSelect').value    = curModel;
