@@ -296,3 +296,9 @@ Montana, Wagonhammer, 45.334278, -113.805000
 Montana, Blue Mountain, 46.835556, -114.133611
 Vancouver Island, Mt Porter, 49.298802, -125.23013
 Kootenays, Salmo, 49.20958, -117.29154
+Kootenays, Big Sheep, 49.03072, -117.91390
+Kootenays, Grand Forks, 49.03993, -118.41120
+Kootenays, Dundee, 49.29193, -117.18363
+Kootenays, Flagstaff, 48.91423, -117.83555
+Kootenays, Mt Buchanan, 49.93795, -116.94721
+Kootenays, Kokanut, 49.62588, -117.09512
