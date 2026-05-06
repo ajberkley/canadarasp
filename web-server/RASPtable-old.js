@@ -72,8 +72,8 @@ function padwithzero(string) {
 
 function setSize() {
     var titleBox = document.getElementById("topTitle");
-    var zoomBox = document.getElementById("zoomBox");;
-    var scaleBox = document.getElementById("botScale");;
+    var zoomBox = document.getElementById("zoomBox");
+    var scaleBox = document.getElementById("botScale");
     var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
     var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     titleBox.style.height   =  "68px";
