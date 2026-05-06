@@ -738,9 +738,9 @@ function getSplitTime() {
 	var day = getSelectedValue("daypicker")
 	var hour = getSelectedValue("hourpicker")
 	var D = new Date()
-	D.setFullYear(year, month, day)
+	D.setFullYear(year, month-1, day)
 	D.setHours(hour/100 - offset/60)
-	var splittime = [D.getFullYear() + "-" + padwithzero(D.getMonth()) + "-" + padwithzero(D.getDate()), padwithzero(D.getHours()) + "00"];
+	var splittime = [D.getFullYear() + "-" + padwithzero(D.getMonth()+1) + "-" + padwithzero(D.getDate()), padwithzero(D.getHours()) + "00"];
 	// console.log(splittime)
 	return splittime
     } else {
