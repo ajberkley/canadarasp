@@ -146,7 +146,6 @@ function updateRegion(){
       locationselector.options[j++] = new Option(locations[i][1],i)
     }
   }
-  locationselector.index = 0;
   locationselector.options[0].selected=true;
   showWindgram(false);
 }

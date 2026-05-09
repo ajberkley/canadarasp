@@ -305,8 +305,8 @@ function set_checkbox_to(checkbox, string_state) {
 }
 
 function set_option_list(options, string_state) {
-    for(j = 0; j < options.length; j++){
-	if(options[j].value == prams[1]){
+    for(var j = 0; j < options.length; j++){
+	if(options[j].value == string_state){
 	    options[j].selected = true;
 	    break;
 	}
