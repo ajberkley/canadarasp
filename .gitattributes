@@ -1,0 +1,20 @@
+# Shell + Lisp + NCL files run inside the Linux container — they must use LF
+# line endings even when the working tree lives on a Windows host (otherwise
+# bash chokes on \r in shebangs).
+*.sh             text eol=lf
+*.lisp           text eol=lf
+*.ncl            text eol=lf
+*.asd            text eol=lf
+docker/entrypoints/* text eol=lf
+docker/overrides/**  text eol=lf
+Dockerfile       text eol=lf
+docker-compose.yml text eol=lf
+Makefile         text eol=lf
+
+# Binary assets — never line-ending-transform.
+*.png            binary
+*.jpg            binary
+*.jpeg           binary
+*.ico            binary
+*.grib2          binary
+*.class          binary
