@@ -1,0 +1,29 @@
+# Docker build context for the canadarasp image. The Dockerfile is in this
+# directory but `context: ..` in docker-compose.yml uses the repo root, so
+# the build sees the whole repo. Exclude things that bloat the context.
+
+.git
+.github
+*.md
+!docker/README.md
+
+# Compute outputs that may be on disk locally
+/mnt
+**/*.png
+**/*.grib2
+**/*.tar
+**/*.tar.gz
+
+# Editor cruft
+**/.DS_Store
+**/.idea
+**/.vscode
+**/*.swp
+**/*~
+
+# Compiled Java class files (we use the pre-committed timezone.class)
+# leave them in — needed at runtime — but skip jar archives
+**/*.jar
+
+# Test artifacts
+/devlog.txt

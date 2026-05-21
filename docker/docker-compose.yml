@@ -1,0 +1,75 @@
+# Local end-to-end canadarasp stack. See docker/README.md for usage.
+#
+# One image, three roles:
+#   web      — long-running: apache + dynamic windgram (Hunchentoot, :8090) +
+#              timezone service (:8082). Visible on host :8080.
+#   download — one-shot: pulls a model cycle from ECCC into /mnt/download-box.
+#   compute  — one-shot: stages the download into /mnt/input and runs the
+#              full processing pipeline (do-hrdps-plots-continental.sh).
+#
+# `web` shares the `mnt` named volume with `compute`, so PNGs and windgrams
+# the compute service writes are immediately visible to apache. The
+# `overrides/` directory replaces ssh/AWS-using scripts via per-file bind
+# mounts — the production source tree is otherwise untouched.
+
+x-image: &image
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+    # On Linux, set HOST_UID/HOST_GID in docker/.env to match your host user
+    # (e.g. `id -u`/`id -g`) so files the compute container writes back
+    # through the bind mount (locations.js, etc.) stay owned by you instead
+    # of by UID 1000. Defaults match the `ubuntu` user baked into the image.
+    # macOS/OrbStack: no-op (OrbStack remaps UIDs automatically).
+    args:
+      HOST_UID: ${HOST_UID:-1000}
+      HOST_GID: ${HOST_GID:-1000}
+  platform: linux/amd64
+  image: canadarasp:local
+  volumes:
+    # Live source — edit on host, re-run compute/download to pick up changes.
+    - ..:/home/ubuntu/canadarasp
+    # Shared "/mnt" — the pipeline's working filesystem.
+    - mnt:/mnt
+    # Per-file overrides. Each shadows exactly the production script that
+    # has ssh / AWS / mkfs.xfs in it; everything else runs unchanged.
+    - ./overrides/continental-test/setup-drives.sh:/home/ubuntu/canadarasp/continental-test/setup-drives.sh:ro
+    - ./overrides/continental-test/webserver-ip.sh:/home/ubuntu/canadarasp/continental-test/webserver-ip.sh:ro
+    - ./overrides/continental-test/upload-map-pngs.sh:/home/ubuntu/canadarasp/continental-test/upload-map-pngs.sh:ro
+    - ./overrides/continental-test/upload-windgram-tiles.sh:/home/ubuntu/canadarasp/continental-test/upload-windgram-tiles.sh:ro
+    - ./overrides/continental-test/do-windgrams-continental.sh:/home/ubuntu/canadarasp/continental-test/do-windgrams-continental.sh:ro
+
+services:
+  web:
+    <<: *image
+    container_name: canadarasp-web
+    ports:
+      - "8080:80"
+    entrypoint: ["/home/ubuntu/canadarasp/docker/entrypoints/web.sh"]
+    environment:
+      # Set GMAPS_API_KEY in docker/.env (gitignored) to override the
+      # canadarasp.com-restricted key baked into RASPtable.html.
+      GMAPS_API_KEY: ${GMAPS_API_KEY:-}
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost/RASP.html"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  download:
+    <<: *image
+    container_name: canadarasp-download
+    profiles: ["pipeline"]
+    entrypoint: ["/home/ubuntu/canadarasp/docker/entrypoints/download.sh"]
+    # `docker compose run --rm download hrdps` supplies MODEL as command arg.
+
+  compute:
+    <<: *image
+    container_name: canadarasp-compute
+    profiles: ["pipeline"]
+    entrypoint: ["/home/ubuntu/canadarasp/docker/entrypoints/compute.sh"]
+    # `docker compose run --rm compute hrdps`        — full pipeline
+    # `docker compose run --rm compute gdps smoke`   — quick scaffold check
+
+volumes:
+  mnt:
