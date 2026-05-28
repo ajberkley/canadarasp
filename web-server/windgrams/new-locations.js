@@ -308,3 +308,4 @@ locations[300]=["Kootenays","Flagstaff",48.91423,-117.83555];
 locations[301]=["Kootenays","Mt Buchanan",49.93795,-116.94721];
 locations[302]=["Kootenays","Kokanut",49.62588,-117.09512];
 locations[303]=["Alberta","No Mans Land",50.33893,-114.27104];
+locations[304]=["Yukon","Nahani",62355554,-127.602039];

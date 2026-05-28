@@ -303,4 +303,4 @@ Kootenays, Flagstaff, 48.91423, -117.83555
 Kootenays, Mt Buchanan, 49.93795, -116.94721
 Kootenays, Kokanut, 49.62588, -117.09512
 Alberta, No Mans Land, 50.33893, -114.27104
-Yukon, Nahani, 62355554, -127.602039
+Yukon, Nahani, 62.355554, -127.602039
