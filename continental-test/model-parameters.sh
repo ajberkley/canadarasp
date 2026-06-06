@@ -100,17 +100,25 @@ downloadfilename () {
 fi
 
 if [ $MODEL = "gdps" ]; then
+   # GDPS moved to the MSC datamart naming (issue #7). The old
+   # `<date>/WXO-DD/model_gem_global/15km/grib2/lat_lon/` feed under `CMC_glb_*`
+   # names is gone; data now lives at `<date>/WXO-DD/model_gdps/15km/` under
+   # `<date>T<HH>Z_MSC_GDPS_*` names, with long variable names (AirTemp, WindU,
+   # DewPointDepression, ...) and reformatted levels (IsbL-0850, AGL-10m, Sfc).
+   # Same situation as the HRDPS rotated-latlon switch. We fetch the new names
+   # (`GDPS-NEW-files.txt`) and the trailing `rename-gdps.sh` rewrites them back
+   # to the legacy `CMC_glb_*` pattern the rest of the pipeline expects.
    # export WEBSERVER="hpfx.collab.science.gc.ca"
-   export DIRECTORY="$YEAR$MONTH$DAY/WXO-DD/model_gem_global/15km/grib2/lat_lon"
+   export DIRECTORY="$YEAR$MONTH$DAY/WXO-DD/model_gdps/15km"
    export WEBSERVER="dd.weather.gc.ca"
-   # export DIRECTORY="model_gem_global/15km/grib2/lat_lon"
    export FILEHEADER="CMC_glb"
    export TIMESTART="0"
    export TIMESTEP="3"
    export TIMESTOP="99"
    export RESOLUTION="_latlon.15x.15_"
    export TAIL=".grib2"
-   export FILE="GDPS-files.txt"
+   export FILE="GDPS-NEW-files.txt"
+   export FILETOPROBE="Pressure_Sfc" # new-style name; how to tell data is good at last hour
    export OUTPUTDIR="/mnt/input/gdps"
    export TILEDIR="/mnt/windgram-tiles/gdps"
    export PNGDIR="/mnt/map-pngs/gdps"
@@ -120,15 +128,17 @@ if [ $MODEL = "gdps" ]; then
    export YMIN=-80
    export YSTEP=10
    export YMAX=80
+# legacy name, what the pipeline reads after rename-gdps.sh
 filename () {
  FILELABEL=$1;
  H=$2;
- echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL 
+ echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL
 }
+# new datamart name we actually fetch from the server
 downloadfilename () {
  FILELABEL=$1;
  H=$2;
- echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY$HOUR"_P0"$H$TAIL
+ echo $YEAR$MONTH$DAY"T"$HOUR"Z_MSC_GDPS_"$FILELABEL"_LatLon0.15_PT0"$H"H"$TAIL
 }
 
 

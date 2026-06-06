@@ -51,6 +51,11 @@ parallel --gnu -n 8 -j 4 wget --timeout=60 -c -nc -nv {} < /tmp/wget.jobs
 echo "Fourth time"
 parallel --gnu -n 8 -j 4 wget --timeout=60 -c -nc -nv {} < /tmp/wget.jobs
 cd $RASPBASEDIR
+if [ $MODEL == gdps ]; then
+    # rename new datamart names back to legacy CMC_glb_... before clean-up,
+    # which hard-links HGT_SFC by the legacy name (issue #7)
+    ./rename-gdps.sh $MODEL $DOWNLOADDIRECTORY
+fi
 source ./clean-up-hgt-sfc.sh $MODEL $DOWNLOADDIRECTORY
 if [ $MODEL == hrdps_rot ]; then
     ./rename-hrdps-rot.sh $MODEL $DOWNLOADDIRECTORY
