@@ -391,16 +391,21 @@
 					    (date *date*) (forecast-zero-hour *forecast-zero-hour*))
   (assert (numberp forecast-zero-hour))
   (assert (numberp forecast-hour))
-  (let* ((header (format nil "~A/~A" *directory* *fileheader*)))
+  (let* ((header (format nil "~A/~A" *directory* *fileheader*))
+	 ;; timestamp token: hrdps_west uses the rotated-grid YYYYMMDDTHHZ_Pfff form,
+	 ;; every other model uses the legacy YYYYMMDDHH_Pfff form.
+	 (ts (if (string= *model* "hrdps_west")
+		 (format nil "~AT~2,'0DZ_P~3,'0D" date forecast-zero-hour forecast-hour)
+		 (format nil "~A~2,'0D_P~3,'0D" date forecast-zero-hour forecast-hour))))
     (cond
-      (level (format nil "~A_~A_~A~A~A~2,'0D_P~3,'0D~A"
-		     header variable level *resolution* date forecast-zero-hour forecast-hour *tail*))
+      (level (format nil "~A_~A_~A~A~A~A"
+		     header variable level *resolution* ts *tail*))
       (isbl-level
        (if (member *model* '("gdps" "rdps") :test #'string=)
-	   (format nil "~A_~A_~3,'0D~A~A~2,'0D_P~3,'0D~A"
-		   header variable isbl-level *resolution* date forecast-zero-hour forecast-hour *tail*)
-	   (format nil "~A_~A_~4,'0D~A~A~2,'0D_P~3,'0D~A"
-		   header variable isbl-level *resolution* date forecast-zero-hour forecast-hour *tail*)))
+	   (format nil "~A_~A_~3,'0D~A~A~A"
+		   header variable isbl-level *resolution* ts *tail*)
+	   (format nil "~A_~A_~4,'0D~A~A~A"
+		   header variable isbl-level *resolution* ts *tail*)))
       (t (format nil "~A_~A~A~A~2,'0D_P~3,'0D~A"
 		 header variable date *resolution* forecast-zero-hour forecast-hour *tail*)))))
 

@@ -60,7 +60,7 @@ desiredLocalEndHour = 21
 skipDayAt = 8 ;; if the day starts at 8AM, skip it, probably not useful as the run takes several hours to get out, so it's already mid-day
 dayOffset = 0
 
-if(model .eq. "hrdps") then
+if(model .eq. "hrdps" .or. model .eq. "hrdps_west") then
  print("Loading HRDPS procedures")
  loadscript("windgram-hrdps.ncl");
 else
@@ -452,17 +452,27 @@ begin
     ;--------------------------start windgram  ----------------------------------------------------------------------
     InitializationString = "init date:" + yyyy_mm_dd + "~C~init time:" + run_time + ":00UTC"
     lclloc_trimmed := lclloc;
+    ; user-facing model name: differentiate the two HRDPS domains by resolution
+    ; (the meaningful distinction) rather than "west".
+    if(model .eq. "hrdps_west") then
+      model_label = "HRDPS-1km"
+    else if(model .eq. "hrdps") then
+      model_label = "HRDPS-2.5km"
+    else
+      model_label = str_upper(model)
+    end if
+    end if
     if(plot_day .gt. -1)then ; only plot part of the data
       tstride=1
       toffset=0
-      MainTitle = str_upper(model) + " Windgram for "+ site_name + " for " + local_day
+      MainTitle = model_label + " Windgram for "+ site_name + " for " + local_day
       lstDayColor = "white"
       barbLen = 0.03
     else
       tstride=tstridemultiday ;; 2
       toffset=toffsetmultiday ;; 1
 
-      MainTitle = str_upper(model) + " Windgram for "+ site_name + ", First hour is " + local_start_time
+      MainTitle = model_label + " Windgram for "+ site_name + ", First hour is " + local_start_time
       lstDayColor = "gold"
       barbLen = 0.023
       ; smooth the LCL and HCRIT results

@@ -44,7 +44,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         apache2 default-jre-headless \
         build-essential libssl-dev libffi-dev \
         netbase \
-    && rm -rf /var/lib/apt/lists/*
+        libgd-dev fonts-liberation \
+    && rm -rf /var/lib/apt/lists/* \
+    # cl-gd renders the map legend/title text via libgd's FreeType API and looks
+    # up fonts by name ("arial","trebuc","trebucbd") under the hard-coded
+    # GDFONTPATH below. The image ships no msttcorefonts, so point those names at
+    # the metric-compatible Liberation faces. Without this the legend/title images
+    # fail to render (the calls are swallowed by ignore-errors) for every model.
+    && mkdir -p /usr/share/fonts/truetype/msttcorefonts \
+    && ln -sf /usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf /usr/share/fonts/truetype/msttcorefonts/arial.ttf \
+    && ln -sf /usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf /usr/share/fonts/truetype/msttcorefonts/trebuc.ttf \
+    && ln -sf /usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf    /usr/share/fonts/truetype/msttcorefonts/trebucbd.ttf
 
 # noble's base image already has a default user `ubuntu` (UID 1000). Give it
 # passwordless sudo so production scripts that use `sudo` for swapfile/mount
@@ -122,6 +132,14 @@ RUN sbcl --non-interactive \
          --eval '(ql:quickload "cl-fad")' \
          --eval '(ql:quickload "trivial-garbage")' \
          --eval '(ql:quickload "hunchentoot")'
+
+# cl-gd ships a C glue (cl-gd-glue.so) it does NOT build automatically; quickload
+# above only fetches/compiles its Lisp. Build the glue now that libgd-dev is
+# present so draw-freetype-string resolves at runtime (otherwise the map
+# legend/title text silently fails to render). Mirrors cl-gd's own Makefile.
+RUN CLGD_DIR="$(dirname "$(find /home/ubuntu/quicklisp -name cl-gd-glue.c | head -1)")" \
+    && make -C "$CLGD_DIR" \
+    && test -f "$CLGD_DIR/cl-gd-glue.so"
 
 # -- wgrib2 via micromamba --------------------------------------------------
 # wgrib2 isn't packaged for Ubuntu. micromamba (single static binary, no
