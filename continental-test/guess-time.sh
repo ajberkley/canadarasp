@@ -10,6 +10,10 @@ HR=`date -u +%H`  # takes about 7-9 hours for a run to be complete
 ROUNDBACK=0
 if [ $MODEL == "gdps" ]; then
   export HOUR=00
+elif [ $MODEL == "hrdps_west" ]; then
+  # The 1km-west nest runs only 00Z and 12Z, each ready ~7h after init.
+  # 00..06 UTC -> yesterday's 12Z (round back a day); 07..18 -> today 00Z; 19..23 -> today 12Z.
+  if [ $HR -ge 0 -a $HR -le 6 ] ; then export HOUR=12 ; ROUNDBACK=1 ; elif [ $HR -ge 7 -a $HR -le 18 ] ; then export HOUR=00 ; else export HOUR=12 ; fi
 else
   if [ $HR -ge 0 -a $HR -le 7 ] ; then export HOUR=18 ; elif [ $HR -gt 7 -a $HR -lt 12 ] ; then export HOUR=00 ; elif [ $HR -ge 12 -a $HR -le 19 ]; then export HOUR=06; else export HOUR=12; fi;
   if [ $HOUR == 18 ]; then ROUNDBACK=1; fi;

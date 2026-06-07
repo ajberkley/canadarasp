@@ -27,12 +27,24 @@
 
 (defparameter *ncarg-root* (or (sb-posix:getenv "NCARG_ROOT") "/home/ubuntu/NCARG/"))
 
-(defun find-latest-date (directory)
+(defun find-latest-date (directory model)
   (let ((files (cl-fad:list-directory directory)))
     (iter (for file in files)
           (destructuring-bind (date run)
-	      (coerce (nth-value 1 (cl-ppcre:scan-to-strings "hrdps_(.*)-run([0-9]*)_P" (format nil "~A" file))) 'list)
+	      (coerce (nth-value 1 (cl-ppcre:scan-to-strings (format nil "~A_(.*)-run([0-9]*)_P" model) (format nil "~A" file))) 'list)
 	    (finding (list date run) maximizing (local-time:timestamp-to-universal (local-time:parse-timestring (format nil "~AT~A:00:00Z" date run))))))))
+
+(defparameter *hrdps-west-bbox* '(-136 -108 44 62)) ;; lon-min lon-max lat-min lat-max
+
+(defun choose-windgram-model (lon lat tile-id)
+  "Use the 1km hrdps_west tiles when the requested point is inside the west nest AND west tiles
+   exist for that tile; otherwise fall back to the 2.5km continental hrdps tiles."
+  (let ((lonf (parse-real-number lon)) (latf (parse-real-number lat)))
+    (destructuring-bind (lon-min lon-max lat-min lat-max) *hrdps-west-bbox*
+      (if (and (<= lon-min lonf lon-max) (<= lat-min latf lat-max)
+               (directory (format nil "/mnt/windgram-tiles/hrdps_west/~A/*.grib2" tile-id)))
+          "hrdps_west"
+          "hrdps"))))
 
 (defun generate-windgram (lon lat &key one-day-date just-image)
   ;; filenames are like: hrdps_continental_2018-09-02-run06_P017.grib2
@@ -40,9 +52,10 @@
   (sb-posix:setenv "NCARG_ROOT" *ncarg-root* 1)
   ;; Need to choose the latest files... hrmph.  Scan through files, choose the latest date and the latest hour
   ;; then generate the input_files glob for that
-  (let* ((tile-id (tile-id lat lon)))
+  (let* ((tile-id (tile-id lat lon))
+	 (model (choose-windgram-model lon lat tile-id)))
     (destructuring-bind (date run)
-	(find-latest-date (format nil "/mnt/windgram-tiles/hrdps/~A" tile-id))
+	(find-latest-date (format nil "/mnt/windgram-tiles/~A/~A" model tile-id) model)
       (format t "Initialized at ~A run hour ~A~%" date run)
       (let* ((output-filename (format nil "windgram-~A-~A-~A-~A.png" date run lon lat))
 	     (real-output-file (if one-day-date
@@ -56,15 +69,15 @@
 	    (format t "File exists!~%")
             (print/run-program (format nil "~A/bin/ncl" *ncarg-root*)
                                (list "-n" "windgram-continental.ncl"
-                                     (format nil "input_files=\"/mnt/windgram-tiles/hrdps/~A/hrdps_~A-run~A_*.grib2\"" tile-id date run)
+                                     (format nil "input_files=\"/mnt/windgram-tiles/~A/~A/~A_~A-run~A_*.grib2\"" model tile-id model date run)
                                      "output_dir=\"/mnt/windgrams-data/\""
-                                     "model=\"hrdps\""
+                                     (format nil "model=\"~A\"" model)
                                      (format nil "output_files=\"~A\"" output-filename)
                                      "numdays=-1"
                                      (format nil "labels_lats_lons=\";~,4f ~,4f,~A,~A\"" (parse-real-number lat) (parse-real-number lon) lat lon))))
         (labels ((handle-failure (&optional two-day)
                    (if (and (not two-day) 
-                            (let ((files (directory (format nil "/mnt/windgram-tiles/hrdps/~A/*.grib2" tile-id))))
+                            (let ((files (directory (format nil "/mnt/windgram-tiles/~A/~A/*.grib2" model tile-id))))
                               (and files (not (zerop (nth-value 8 (sb-unix:unix-lstat (native-namestring (car files)))))))))
                        (format nil "<p style=\"color:white\">No data for ~A, try another day (change date/time selector or click above links) or try a two day windgram.</p>" one-day-date)
                        "<p style=\"color:white\">Invalid location (or data missing): please send an email to ajberkley@gmail.com to request this general area be added.  Generally anything within about 100 km of an existing windgram will work</p>")))

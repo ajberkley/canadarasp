@@ -134,7 +134,9 @@ downloadfilename () {
 
 fi
 if [ $MODEL = "hrdps_west" ]; then
-   export WEBSERVER="dd.alpha.meteo.gc.ca"
+   # Experimental HRDPS West 1km nest (BC + Western Alberta), 00Z/12Z only, 0-48h hourly.
+   # Served from the alpha datamart; field names already match HRDPS-files.txt (no rename step).
+   export WEBSERVER="dd.alpha.weather.gc.ca"
    export DIRECTORY="model_hrdps/west/1km/grib2"
    export FILEHEADER="CMC_hrdps_west"
    export TIMESTART="1" # no prate data for zero
@@ -146,19 +148,22 @@ if [ $MODEL = "hrdps_west" ]; then
    export OUTPUTDIR="/mnt/input/hrdps_west"
    export TILEDIR="/mnt/windgram-tiles/hrdps_west"
    export PNGDIR="/mnt/map-pngs/hrdps_west"
-   export XMIN=-152
-   export XMAX=-42
+   # True geographic footprint of the rotated 1km-west grid is lat 45.9..60.3, lon -134.6..-109.5
+   # (derived by un-rotating the GRIB2 grid corners). 2-degree-aligned tiling box below.
+   export XMIN=-136
+   export XMAX=-108
    export XSTEP=2
-   export YMIN=26
+   export YMIN=44
    export YSTEP=2
-   export YMAX=70
+   export YMAX=62
 filename () {
  FILELABEL=$1;
  H=$2;
- echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY"T"$HOUR"Z_P0"$H$TAIL 
+ echo $FILEHEADER"_$FILELABEL"$RESOLUTION$YEAR$MONTH$DAY"T"$HOUR"Z_P0"$H$TAIL
 }
 downloadfilename () {
-    $( filename $1 $2 )
+ # download name == compute name for the 1km-west nest (no rename step)
+ echo $( filename $1 $2 )
 }
 
 fi
@@ -166,7 +171,8 @@ export XVALS=($(seq $XMIN $XSTEP $XMAX))
 export YVALS=($(seq $YMIN $YSTEP $YMAX))
 
 export TIMES=($(seq -w $TIMESTART $TIMESTEP $TIMESTOP))
-if [ $MODEL = "hrdps" ]; then
+if [ $MODEL = "hrdps" -o $MODEL = "hrdps_west" ]; then
+       # HRDPS continental and the 1km-west nest both use 4-digit zero-padded ISBL levels
        export LEVELS=(0550 0600 0650 0700 0750 0800 0850 0875 0900 0925 0950 0970 0985 1000 1015)
     else
        export LEVELS=(550 600 650 700 750 800 850 875 900 925 950 970 985 1000 1015)

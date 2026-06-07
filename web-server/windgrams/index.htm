@@ -157,7 +157,8 @@
                 <div>
                     <label class="form-label mb-0">Model</label>
                     <select class="form-select form-select-sm" id="modelSelect" onchange="setModel(this.value)">
-                        <option value="hrdps">HRDPS</option>
+                        <option value="hrdps">HRDPS-2.5km</option>
+                        <option value="hrdps_west">HRDPS-1km</option>
                         <option value="gdps">GDPS</option>
                     </select>
                 </div>
@@ -580,7 +581,7 @@
         try {
             var p = JSON.parse(localStorage.getItem(PREFS_KEY));
             if (p) {
-                if (p.model === 'hrdps' || p.model === 'gdps') curModel = p.model;
+                if (p.model === 'hrdps' || p.model === 'hrdps_west' || p.model === 'gdps') curModel = p.model;
                 if (p.duration === 'oneDay' || p.duration === 'twoDay') curDuration = p.duration;
             }
         } catch (e) {}

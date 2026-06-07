@@ -26,6 +26,7 @@ var windgramsinitialized = false;
 
 var HRDPS_ARCHIVE = "hrdps_archive"
 var HRDPS = "hrdps"
+var HRDPS_WEST = "hrdps_west"
 var GDPS = "gdps"
 
 function displayWindgrams() {
@@ -78,7 +79,7 @@ function padwithzero(string) {
 }
 
 function model_is_hrdps() {
-    return(model() == HRDPS || model() == HRDPS_ARCHIVE)
+    return(model() == HRDPS || model() == HRDPS_ARCHIVE || model() == HRDPS_WEST)
 }
 
 function setupParamset () {
@@ -604,6 +605,8 @@ function lat_in_bounds (lat) {
 	} else {
 	    return false;
 	}
+    } else if(model() == HRDPS_WEST) {
+	return (lat >= 44 && lat < 62);
     } else if(model() == HRDPS_ARCHIVE) {
         if(lat >= 48 && lat < 52) {
             return true;
@@ -622,6 +625,8 @@ function lng_in_bounds (lng) {
 	} else {
 	    return false;
 	}
+    } else if(model() == HRDPS_WEST) {
+	return (lng >= -136 && lng < -108);
     } else if(model() == HRDPS_ARCHIVE) {
         if(lng>=-124 && lng < -118) {
             return true;
@@ -684,13 +689,14 @@ function clearOverlaysnotIn (tiles) {
 }
 
 function model_parent() {
-   var model;
-   if(model_is_hrdps()) {
-       model = HRDPS
+   // NB: do not declare a local `model` here -- it would shadow the global model() function.
+   if(model() == HRDPS_WEST) {
+       return HRDPS_WEST;
+   } else if(model_is_hrdps()) {
+       return HRDPS;
    } else {
-       model = GDPS
+       return GDPS;
    }
-   return model;
 }
 
 function realtilelat(lat) {

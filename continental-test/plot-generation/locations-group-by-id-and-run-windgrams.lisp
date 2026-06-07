@@ -20,8 +20,13 @@
 	       (destructuring-bind (region location lon lat &optional model)
 		   (mapcar (lambda (x) (string-trim '(#\Space) x)) (cl-ppcre:split "," line))
 		 (declare (ignorable region))
-		 (when (or (not model) (string= model *model*))
-		   (push (list :label-lat-lon (format nil "~A,~A,~A" location lon lat) :index index) (gethash (tile-id lon lat) result-hash))))))
+		 ;; Only emit a windgram when the site matches the model AND falls inside the model's
+		 ;; domain. The bbox test is a no-op for the wide hrdps/gdps boxes but stops the regional
+		 ;; hrdps_west nest from emitting empty/broken windgrams for out-of-domain (e.g. eastern) sites.
+		 (let ((lonf (read-from-string lon)) (latf (read-from-string lat)))
+		   (when (and (or (not model) (string= model *model*))
+		              (<= *lry* lonf *uly*) (<= *ulx* latf *lrx*)) ;; lon var holds LAT, lat var holds LON in this file
+		     (push (list :label-lat-lon (format nil "~A,~A,~A" location lon lat) :index index) (gethash (tile-id lon lat) result-hash)))))))
     (with-open-file (out outputfilename :direction :output :if-exists :supersede)
       (iter (for (tile-id list-of-sites) in-hashtable result-hash)
 	       (for labels_lats_lons = "")

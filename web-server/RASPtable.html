@@ -22,10 +22,10 @@
     to both this viewer and RASP-UK parametrisation.
 -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkSvQdD6DtFPPSHmITPmacGqirGtNSqoc"> </script> 
-  <script type="text/javascript" src="real-tile-locs.js"> </script>
+  <script type="text/javascript" src="real-tile-locs.js?v=2"> </script>
   <script type="text/javascript" src="paramList.js?v=4"></script>
   <script type="text/javascript" src="regions.js?v=5"></script>
-  <script type="text/javascript" src="RASPtable.js?v=18"></script>
+  <script type="text/javascript" src="RASPtable.js?v=20"></script>
   <script type="text/javascript" src="ExtDraggableObject.js"></script>
   <script type="text/javascript" src="new-locations.js?v=6"> </script>
   <style type="text/css">
@@ -542,9 +542,10 @@ body { height: 100%; margin: 0px; padding: 0px; overflow: hidden; }
 	  <li>Model:
 
 	  <select title="Model" id="model" size="1" >
-	    <option value = "hrdps" selected>HRDPS: Canada only</option>
+	    <option value = "hrdps" selected>HRDPS-2.5km (Canada Only)</option>
+	    <option value = "hrdps_west">HRDPS-1km (BC/AB Only)</option>
 	    <option value = "gdps">GDPS: Global</option>
-	    <option value = "hrdps_archive">HRDPS: BC archive</option>
+	    <option value = "hrdps_archive">HRDPS-2.5km (BC archive)</option>
 	  </select>
 	  <div id="latlon">
 	    LAT:<input class="showme" id="latBox" type="text" value="" size="8" readonly=true><br/>

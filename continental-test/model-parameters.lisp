@@ -35,8 +35,8 @@
 
 (defun time-string* (date forecast-zero-hour forecast-hour)
   (if (string= *model* "hrdps_west")
-      (format nil "~AT~2,'0dZ_P~3,'0d" date forecast-zero-hour forecast-hour))
-      (format nil "~A~2,'0d_P~3,'0d" date forecast-zero-hour forecast-hour))
+      (format nil "~AT~2,'0dZ_P~3,'0d" date forecast-zero-hour forecast-hour)
+      (format nil "~A~2,'0d_P~3,'0d" date forecast-zero-hour forecast-hour)))
 
 (defun translate-from-hrdps-names-to-current-model (name)
   "The GDPS and RDPS use UGRD_ISBL_950 instead of UGRD_ISBL_0950"

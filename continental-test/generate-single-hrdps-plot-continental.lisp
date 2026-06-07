@@ -243,9 +243,17 @@
       (cl-gd:write-image-to-file filename :compression-level 6 :if-exists :supersede)))
   (when view (print/run-program "/usr/bin/eog" (list filename))))
 
+(defun model-display-name ()
+  "Human-facing model name shown in map titles. Differentiates the two HRDPS
+   domains by resolution (the meaningful distinction) rather than 'west'."
+  (cond ((string= *model* "hrdps_west") "HRDPS-1km")
+	((string= *model* "hrdps")      "HRDPS-2.5km")
+	((string= *model* "gdps")       "GDPS")
+	(t (string-upcase *model*))))
+
 (defun write-default-title (parameter forecast-init-year forecast-init-month forecast-init-day forecast-init-hour filename &key (view nil))
   (let ((second-line (format nil "~A initialized ~A-~2,'0d-~A (~2,'0d:00) UTC"
-			     (string-upcase *model*)
+			     (model-display-name)
 			     forecast-init-year forecast-init-month forecast-init-day
 			     forecast-init-hour)))
     (write-title parameter second-line filename :view view)))
@@ -373,8 +381,10 @@
              (loop :for tile = (funcall tile-iterator)
                 :while tile
                 :do
-                   (destructuring-bind (a b) (multiple-value-call pixel-to-lon-lat (funcall lon-lat-to-pixel (first tile) (second tile)))
-                     (destructuring-bind (c d) (multiple-value-call pixel-to-lon-lat (funcall lon-lat-to-pixel (third tile) (fourth tile)))
+                   ;; lon-lat-to-pixel returns 3 values (pixelx, pixely, angle); pixel-to-lon-lat
+                   ;; takes only (pixelx pixely), so pass just the first two (drop the angle).
+                   (destructuring-bind (a b) (multiple-value-bind (px py) (funcall lon-lat-to-pixel (first tile) (second tile)) (funcall pixel-to-lon-lat px py))
+                     (destructuring-bind (c d) (multiple-value-bind (px py) (funcall lon-lat-to-pixel (third tile) (fourth tile)) (funcall pixel-to-lon-lat px py))
                     (format t "~A:~A ~A:~A -> ~,4f:~,4f ~,4f:~,4f~%" (first tile) (second tile) (third tile) (fourth tile)  a b c d)
                     (set-lon (first tile) a)
                     (set-lat (second tile) b)
@@ -704,8 +714,8 @@
     (make-tile-directories yearutc monthutc dayutc forecast-init-year forecast-init-month forecast-init-day forecast-init-hour)
     (labels ((gen-input-filename/s (filelabel/s)
 	       (labels ((d (filelabel)
-			  (format nil "~A/~A_~A~A~A~2,'0d~2,'0d~2,'0d_P~3,'0d~A"
-				  *directory* *fileheader* (translate-from-hrdps-names-to-current-model filelabel) *resolution* forecast-init-year forecast-init-month forecast-init-day forecast-init-hour 
+			  (format nil "~A/~A_~A~A~4,'0d~2,'0d~2,'0d~A~2,'0d~A_P~3,'0d~A"
+				  *directory* *fileheader* (translate-from-hrdps-names-to-current-model filelabel) *resolution* forecast-init-year forecast-init-month forecast-init-day (if (string= *model* "hrdps_west") "T" "") forecast-init-hour (if (string= *model* "hrdps_west") "Z" "") 
                                   (if (and (string= *model* "gdps") (string= filelabel "HGT_SFC_0")) 0 forecast-hour)
                                   *tail*)))
 		 (if (listp filelabel/s) (mapcar #'d filelabel/s) (d filelabel/s))))
@@ -739,6 +749,13 @@
 			 (destructuring-bind (param full-name filelabel type color-scale units &optional (scale #'identity)) x
 			   (ignore-errors (handle param full-name filelabel type color-scale units scale)))) params-and-names)))))
   
-(if (string= (cadr *posix-argv*) "--only-generate-header-footer")
-    (map nil (lambda (hour) (do-it-if-necessary hour :only-generate-header-footer t)) (remove-duplicates (append (list *timestop*) (iter (for hour from *timestart* to *timestop* by 8) (collect hour)))))
-    (map nil (lambda (hour) (do-it-if-necessary (parse-integer hour))) (cdr *posix-argv*)))
+(cond
+  ((string= (cadr *posix-argv*) "--only-generate-header-footer")
+   (map nil (lambda (hour) (do-it-if-necessary hour :only-generate-header-footer t)) (remove-duplicates (append (list *timestop*) (iter (for hour from *timestart* to *timestop* by 8) (collect hour))))))
+  ;; Regenerate the real (grid-snapped, EPSG:3857) tile-corner table for the current MODEL's
+  ;; bounds and print it to stdout, ready to paste into web-server/real-tile-locs.js.
+  ;; Usage: MODEL=hrdps_west ./generate-single-hrdps-plot-continental.lisp --calculate-real-tile-locations <one-input.grib2>
+  ((string= (cadr *posix-argv*) "--calculate-real-tile-locations")
+   (calculate-real-tile-locations (caddr *posix-argv*) *standard-output*))
+  (t
+   (map nil (lambda (hour) (do-it-if-necessary (parse-integer hour))) (cdr *posix-argv*))))
