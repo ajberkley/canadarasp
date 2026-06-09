@@ -98,3 +98,32 @@
     (values (format nil "~A:~A:~A:~A" latq (+ *xstep* latq) lonq (+ *ystep* lonq))
 	(list latq lonq (+ *xstep* latq) (+ *ystep* lonq)))))
 
+;; Geographic corners (lon . lat) of the rotated 1km-west grid, in order, from
+;; un-rotating the GRIB2 grid (confirmed against wgrib2 -grid / gdalwarp). The data
+;; footprint is a tilted quad, NOT the axis-aligned XMIN..XMAX/YMIN..YMAX box: its
+;; corners stick out past the data. A tile box landing entirely outside this quad has
+;; zero grid points, and wgrib2 -small_grib then returns the FULL grid (~200MB), which
+;; is what filled the disk.
+(defparameter *hrdps-west-footprint*
+  '((-126.254d0 . 45.933d0)    ; SW
+    (-109.533d0 . 50.067d0)    ; SE
+    (-114.450d0 . 60.295d0)    ; NE
+    (-134.630d0 . 55.117d0)))  ; NW
+
+(defun point-in-convex-polygon-p (x y polygon)
+  "T if (x,y) is inside the convex POLYGON (ordered list of (x . y) vertices)."
+  (let ((n (length polygon)) (sign 0))
+    (dotimes (i n t)
+      (destructuring-bind (x1 . y1) (nth i polygon)
+	(destructuring-bind (x2 . y2) (nth (mod (1+ i) n) polygon)
+	  (let ((cross (- (* (- x2 x1) (- y y1)) (* (- y2 y1) (- x x1)))))
+	    (cond ((> cross 0) (if (minusp sign) (return nil) (setf sign 1)))
+		  ((< cross 0) (if (plusp sign)  (return nil) (setf sign -1))))))))))
+
+(defun site-in-domain-p (latitude longitude)
+  "Is a site inside the model's actual data coverage? hrdps_west uses the real tilted
+   1km footprint (so we never tile a box with no grid points); other models use the
+   axis-aligned tiling box, which already covers all their sites."
+  (if (string= *model* "hrdps_west")
+      (point-in-convex-polygon-p longitude latitude *hrdps-west-footprint*)
+      (and (<= *lry* latitude *uly*) (<= *ulx* longitude *lrx*))))

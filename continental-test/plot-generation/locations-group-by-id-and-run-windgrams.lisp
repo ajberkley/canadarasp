@@ -25,7 +25,7 @@
 		 ;; hrdps_west nest from emitting empty/broken windgrams for out-of-domain (e.g. eastern) sites.
 		 (let ((lonf (read-from-string lon)) (latf (read-from-string lat)))
 		   (when (and (or (not model) (string= model *model*))
-		              (<= *lry* lonf *uly*) (<= *ulx* latf *lrx*)) ;; lon var holds LAT, lat var holds LON in this file
+		              (site-in-domain-p lonf latf)) ;; lon var holds LAT, lat var holds LON in this file
 		     (push (list :label-lat-lon (format nil "~A,~A,~A" location lon lat) :index index) (gethash (tile-id lon lat) result-hash)))))))
     (with-open-file (out outputfilename :direction :output :if-exists :supersede)
       (iter (for (tile-id list-of-sites) in-hashtable result-hash)
