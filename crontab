@@ -33,5 +33,5 @@ PATH=$PATH:/bin:/usr/bin:/home/ubuntu/.local/bin:/sbin:/usr/sbin
 00 *  * * * source ~/.bashrc ; /home/ubuntu/canadarasp/check-maps.sh
 # HRDPS West 1km nest (00Z & 12Z, ready ~7h after init). Slots chosen to avoid the other
 # compute-server runs above (01:15/08:15/12:30); experimental alpha feed, retune after first runs.
-00 15 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh hrdps_west >> /tmp/cronlog 2>&1
-00 21 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh hrdps_west >> /tmp/cronlog 2>&1
+#00 15 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh hrdps_west >> /tmp/cronlog 2>&1
+#00 21 * * * source ~/.bashrc ; /home/ubuntu/canadarasp/aws-utils/download-data-and-start-server.sh hrdps_west >> /tmp/cronlog 2>&1
