@@ -14,9 +14,12 @@ echo "Done making directories"
 cd $PNGDIR
 echo "Uploading files"
 echo "There are `ls -1 | wc | awk '{print $1}'` files in `pwd`"
-tar cf - * | ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd $BASEDIR; tar xf -)"
+# mkdir+cd in the SAME remote command as the extract: a separate earlier `mkdir -p $BASEDIR`
+# can be lost to a flaky ssh, and then a bare `cd $BASEDIR; tar` silently extracts into the
+# home directory. This bit a brand-new model (hrdps_west) whose dir did not yet exist.
+tar cf - * | ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(mkdir -p $BASEDIR && cd $BASEDIR && tar xf -)"
 echo "Done uploading files, updating latest link"
-ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd $BASEDIR; rm -f latest ; ln -s `ls -1rt | tail -1` latest )"
+ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(mkdir -p $BASEDIR && cd $BASEDIR && rm -f latest && ln -s `ls -1rt | tail -1` latest )"
 echo "Deleting old map-pngs again"
 ssh -i ~/.ssh/montreal.pem ubuntu@$WEBSERVERIP "(cd canadarasp ; ./delete-old-map-pngs.sh)"
 echo "Archiving old maps for BC"
