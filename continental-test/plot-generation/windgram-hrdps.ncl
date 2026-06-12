@@ -8,8 +8,16 @@ tstridemultiday=2
 toffsetmultiday=1
 function hour_to_idx (hour, roundup)
 begin
- return hour
- ;; return(ind(taus.eq.hour))
+ ;; taus are contiguous hourly forecast hours starting at taus(0), which is not
+ ;; necessarily 0 (the current HRDPS feeds start at P001), so index = hour - taus(0).
+ idx = hour - taus(0)
+ if (idx .lt. 0) then
+   idx = 0
+ end if
+ if (idx .gt. numtimes - 1) then
+   idx = numtimes - 1
+ end if
+ return idx
 end
 
 function ij_from_lat_lon_generic (a, site_lat, site_lon)
@@ -51,7 +59,22 @@ begin
       ;; WHAT TIMES ARE AVAILABLE?
    numtimes=dimsizes(timesinfiles)
    print("numtimes " + numtimes)
-   taus:=ispan(0,numtimes-1,1)   ;coordinate variable for Time dimension
+   ;; The first file is not necessarily forecast hour 0: since the rotated-grid
+   ;; switch the HRDPS feeds have no precip rate at hour 0 (TIMESTART=1 in
+   ;; model-parameters.sh), so the file list starts at P001. Read the true first
+   ;; forecast hour from the GRIB metadata; assuming 0 here labelled every HRDPS
+   ;; windgram time one hour early. Units differ per feed: the continental 2.5km
+   ;; files say "60 minutes" where the 1km-west files say "1 hours".
+   tau0 = 0
+   if (isatt(ter, "forecast_time") .and. isatt(ter, "forecast_time_units")) then
+     if (ter@forecast_time_units .eq. "hours") then
+       tau0 = ter@forecast_time
+     end if
+     if (ter@forecast_time_units .eq. "minutes") then
+       tau0 = ter@forecast_time / 60
+     end if
+   end if
+   taus := tau0 + ispan(0,numtimes-1,1)   ;coordinate variable for Time dimension: true forecast hours
 
    initialization_date = str_get_field(ter@initial_time,1," ");
    run_str = str_get_field(ter@initial_time,2," ");

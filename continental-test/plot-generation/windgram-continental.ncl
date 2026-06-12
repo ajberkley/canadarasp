@@ -209,6 +209,11 @@ begin
    end if
    date_str = TZ_str + " date "+quote+"+%a %d %b %Y %H:%M %Z" + quote+" -d " + quote + yyyy_mm_dd + " +" + tostring(stringtoint(run_time)) + "hours UTC" + quote
    local_start_time = systemfunc(date_str)
+   ;; local_start_time anchors the day-window math at the model init hour, but the
+   ;; first data file can be a later forecast hour (taus(0), e.g. P001 when the feed
+   ;; has no hour 0), so the displayed "First hour" is computed separately.
+   first_data_str = TZ_str + " date "+quote+"+%a %d %b %Y %H:%M %Z" + quote+" -d " + quote + yyyy_mm_dd + " +" + (stringtoint(run_time)+taus(0)) + "hours UTC" + quote
+   local_first_data_time = systemfunc(first_data_str)
    print ("Using model initialized on date " + yyyy_mm_dd + " at " + run_time + ":00 UTC")
    print("Local start time of the model is " + local_start_time)
    startHour = stringtoint(systemfunc(TZ_str + " date +%H -d "+quote+local_start_time +quote))
@@ -472,7 +477,7 @@ begin
       tstride=tstridemultiday ;; 2
       toffset=toffsetmultiday ;; 1
 
-      MainTitle = model_label + " Windgram for "+ site_name + ", First hour is " + local_start_time
+      MainTitle = model_label + " Windgram for "+ site_name + ", First hour is " + local_first_data_time
       lstDayColor = "gold"
       barbLen = 0.023
       ; smooth the LCL and HCRIT results
