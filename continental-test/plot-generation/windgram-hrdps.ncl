@@ -26,6 +26,33 @@ begin
  return(/blarg(0,0), blarg(0,1)/)
 end
 
+;; HRDPS U/V are grid-relative (along model i/j, not true E/N).  NCL gridrot_0 is
+;; for polar-stereographic / Lambert grids and gives wrong angles on MSC rotated_ll.
+;; Compute the local grid-tilt angle from gridlat_0/gridlon_0 instead (same method
+;; as map-wind GDAL reprojection and MSC uvRelativeToGrid handling).
+function grid_tilt_radians (a, locY, locX)
+local lat2d, lon2d, nx, dlat, dlon, latr
+begin
+  lat2d = a[0]->gridlat_0
+  lon2d = a[0]->gridlon_0
+  n = dimsizes(lon2d)
+  nx = n(0)
+  print(nx)
+  if (locX.le.0 .or. locX.ge.nx-1) then
+    return 0.
+  end if
+  dlat = 0.5*(lat2d(locY,locX+1) - lat2d(locY,locX-1))
+  dlon = lon2d(locY,locX+1) - lon2d(locY,locX-1)
+  if (dlon.gt.180.) then
+    dlon = dlon - 360.
+  end if
+  if (dlon.lt.-180.) then
+    dlon = dlon + 360.
+  end if
+  latr = lat2d(locY,locX)*0.0174532925
+  return atan2(dlat, dlon*cos(latr))
+end
+
 ;TMP_P0_L100_GST0 TMP_P0_L100_GRLL0
 ;TMP_P0_L103_GRLL0
 ;DEPR_P0_L100_GRLL0
@@ -87,7 +114,9 @@ end
 procedure load_variables_one_point (a, locY, locX)
 local lasthour, windUr, windVr, windUrSfc, windVrSfc, numlevels
 begin
-    radian_rot=0 ; you would think we need to apply this, but no... a[0]->gridrot_0(locY,locX)
+    radian_rot = -1 * grid_tilt_radians(a, locY, locX);
+    print("At Y = " + locY + " and X = " + locX)
+    print("Rotation is " + (180*radian_rot/3.1415) + " degrees")
     ListSetType(a,"cat")
     lasthour = ListCount(a)-1
     print("Last hour index is " + lasthour)

@@ -3,6 +3,6 @@
 cd /home/ubuntu/continental-test/plot-generation
 while true
 do
-nohup ./generate-windgram-on-demand.lisp
+nohup ./generate-windgram-on-demand.lisp >& /tmp/blarg.txt
 sleep 1
 done
