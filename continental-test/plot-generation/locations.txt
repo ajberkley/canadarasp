@@ -305,3 +305,4 @@ Kootenays, Kokanut, 49.62588, -117.09512
 Alberta, No Mans Land, 50.33893, -114.27104
 Yukon, Nahani, 62.355554, -127.602039
 Montreal, Neigette, 48.448417, -68.300944
+Kamloops Area, Mara, 50.734135, -120.473586
